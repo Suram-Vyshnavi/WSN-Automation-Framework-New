@@ -1,0 +1,51 @@
+# Virtual Environments
+.venv/
+env/
+env_py/
+env_mac/
+venv/
+ENV/
+*.venv
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment Variables
+.env
+.env.local
+
+# Test Reports
+reports/
+allure-results/
+allure-report/
+*.html
+*.zip
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Playwright
+playwright-report/
+test-results/
+
+# Temporary files
+*.tmp
+*.bak
