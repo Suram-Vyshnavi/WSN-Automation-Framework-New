@@ -1,6 +1,6 @@
 from xml.sax.xmlreader import Locator
 from pages.base_page import BasePage
-from utils.locators import LoginLocators
+from locators.student_locators import LoginLocators
 
 
 class HomePage(BasePage):

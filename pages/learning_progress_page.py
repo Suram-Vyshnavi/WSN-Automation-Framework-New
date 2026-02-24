@@ -1,5 +1,5 @@
 from playwright.sync_api import Page
-from utils.locators import Learning_Progress_Locators
+from locators.student_locators import Learning_Progress_Locators
 from utils.helpers import attach_screenshot
 
 

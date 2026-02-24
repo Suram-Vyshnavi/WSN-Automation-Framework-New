@@ -1,5 +1,5 @@
 from pages.base_page import BasePage
-from utils.locators import JobsConnectLocators
+from locators.student_locators import JobsConnectLocators
 
 class JobsConnectPage(BasePage):
     def navigate_to_jobs_connect(self):

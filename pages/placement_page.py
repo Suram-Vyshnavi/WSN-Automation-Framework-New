@@ -1,5 +1,5 @@
 from pages.base_page import BasePage
-from utils.locators import PlacementLocators, CareerBuddyLocators, InterviewPrepLocators
+from locators.student_locators import PlacementLocators, CareerBuddyLocators, InterviewPrepLocators
 
 class PlacementPage(BasePage):
     def click_placement_prep(self):

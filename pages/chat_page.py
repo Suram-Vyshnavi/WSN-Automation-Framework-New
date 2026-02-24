@@ -1,5 +1,5 @@
 from pages.base_page import BasePage
-from utils.locators import LoginLocators, Messages_and_discussionsLocators
+from locators.student_locators import LoginLocators, Messages_and_discussionsLocators
 from utils.helpers import attach_screenshot
 from utils.config import Config
 import os

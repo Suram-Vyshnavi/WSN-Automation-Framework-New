@@ -1,5 +1,5 @@
 from playwright.sync_api import Page
-from utils.locators import NotificationLocators
+from locators.student_locators import NotificationLocators
 from utils.helpers import attach_screenshot
 
 

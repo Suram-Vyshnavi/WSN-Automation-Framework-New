@@ -1,5 +1,5 @@
 from pages.base_page import BasePage
-from utils.locators import LoginLocators, CareerAdvisorLocators, DashboardLocators
+from locators.student_locators import LoginLocators, CareerAdvisorLocators, DashboardLocators
 from utils.helpers import highlight_element, attach_screenshot
 
 

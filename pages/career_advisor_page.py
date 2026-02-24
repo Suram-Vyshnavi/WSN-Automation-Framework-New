@@ -1,5 +1,5 @@
 from pages.base_page import BasePage
-from utils.locators import CareerAdvisorLocators
+from locators.student_locators import CareerAdvisorLocators
 
 class CareerAdvisorPage(BasePage):
     def navigate_to_career_advisor(self):
