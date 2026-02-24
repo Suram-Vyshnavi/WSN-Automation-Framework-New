@@ -113,30 +113,68 @@ class JobsConnectPage(BasePage):
         print("Clicked on first job result")
 
     def validate_apply_option(self):
-        """Validate that Apply option is available"""
-        apply_locators = [
-            JobsConnectLocators.JOB_DETAILS_APPLY,
-            JobsConnectLocators.APPLY_BUTTON,
-            JobsConnectLocators.APPLY_NOW_BUTTON,
-            "//button[contains(text(),'pply')] | //span[contains(text(),'pply')] | //a[contains(text(),'pply')]"
-        ]
+        """Validate Apply button in new tab, close it, and return to main window"""
+        context = self.page.context
+        main_page = self.page
         
-        apply_found = False
-        for locator in apply_locators:
+        # Check if new tab opened
+        if len(context.pages) > 1:
+            # Get the new tab (last page in the list)
+            new_tab = context.pages[-1]
+            print(f"New tab detected. URL: {new_tab.url}")
+            
             try:
-                apply_button = self.page.locator(locator)
-                if apply_button.count() > 0:
-                    apply_button.first.wait_for(state="visible", timeout=5000)
-                    print(f"Apply button found with locator: {locator}")
-                    apply_found = True
-                    break
-            except:
-                continue
+                # Wait for new tab to load
+                new_tab.wait_for_load_state("domcontentloaded", timeout=15000)
+                
+                # Look for Apply button in new tab
+                apply_locators = [
+                    JobsConnectLocators.JOB_DETAILS_APPLY,
+                    JobsConnectLocators.APPLY_BUTTON,
+                    JobsConnectLocators.APPLY_NOW_BUTTON,
+                    "//button[contains(text(),'pply')] | //span[contains(text(),'pply')] | //a[contains(text(),'pply')]"
+                ]
+                
+                apply_found = False
+                for locator in apply_locators:
+                    try:
+                        if new_tab.locator(locator).count() > 0:
+                            new_tab.locator(locator).first.wait_for(state="visible", timeout=5000)
+                            print(f"✓ Apply button found in new tab")
+                            apply_found = True
+                            break
+                    except:
+                        continue
+                
+                if not apply_found:
+                    print("Apply button not found in new tab")
+                    
+            finally:
+                # Always close new tab and return to main window
+                new_tab.close()
+                main_page.bring_to_front()
+                print(f"✓ New tab closed. Returned to main window")
+                
+            return apply_found
         
-        if not apply_found:
-            print("Apply button not found - checking if job details are visible")
-            print("Note: Apply button may require login to job portal or other prerequisites")
         else:
-            print("Apply option validated successfully")
-        
-        return apply_found
+            # No new tab - check current page
+            print("No new tab opened - checking current page")
+            apply_locators = [
+                JobsConnectLocators.JOB_DETAILS_APPLY,
+                JobsConnectLocators.APPLY_BUTTON,
+                JobsConnectLocators.APPLY_NOW_BUTTON,
+                "//button[contains(text(),'pply')] | //span[contains(text(),'pply')] | //a[contains(text(),'pply')]"
+            ]
+            
+            for locator in apply_locators:
+                try:
+                    if self.page.locator(locator).count() > 0:
+                        self.page.locator(locator).first.wait_for(state="visible", timeout=5000)
+                        print(f"✓ Apply button found in current page")
+                        return True
+                except:
+                    continue
+            
+            print("Apply button not found")
+            return False

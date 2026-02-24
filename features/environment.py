@@ -8,9 +8,16 @@ def before_all(context):
     context.playwright = sync_playwright().start()
     context.browser = context.playwright.chromium.launch(
         headless=False, slow_mo=1500,
-        args=['--start-maximized']
+        args=[
+            '--start-maximized',
+            '--use-fake-ui-for-media-stream',  # Auto-deny camera/mic prompts
+            '--use-fake-device-for-media-stream'  # Use fake device instead of prompting
+        ]
     )
-    context.context = context.browser.new_context(no_viewport=True)
+    context.context = context.browser.new_context(
+        no_viewport=True,
+        permissions=[]  # Deny all permissions (camera, microphone, notifications, etc.)
+    )
     
     # Check if tracing should be enabled
     context._trace_on = os.getenv("TRACE_ON", "false").lower() in ("1", "true", "yes")

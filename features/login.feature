@@ -109,9 +109,12 @@ Feature: Login
     Then user clicks on profile icon
     Then user clicks on learning progress
     Then user validates the learning progress
-    Then user clicks on ongoing courses and validates overview, content amd performance sections
+    Then user clicks on ongoing courses and validates overview section
+    Then user clicks on content section and clicks on resume
+    Then user clicks on performance section and validates final score
     Then user navigates to learning progress page and clicks on completed courses
-    Then user user clicks on a completed course and validates overview, content, performance sections , score value and overall progress
+    Then user clicks on a completed course and validates overview, content, performance sections, score value and overall progress
+    Then user clicks on share certificate button and validates download certificate option
     Then user navigates to home page
   
     

@@ -20,6 +20,7 @@ class ChatPage(BasePage):
 
     def click_first_contact(self):
         """Click on first contact in the search results"""
+        self.page.wait_for_timeout(5000)
         self.page.locator(Messages_and_discussionsLocators.FIRST_NEW_MESSAGE).wait_for(state="visible", timeout=15000)
         self.page.click(Messages_and_discussionsLocators.FIRST_NEW_MESSAGE)
         attach_screenshot(self.page, "First Contact Selected")
