@@ -8,6 +8,7 @@ class CareerBuddyLocators:
     AVAILABLE_DATE = "//td[contains(@class, 'ant-picker-cell-in-view') and not(contains(@class, 'ant-picker-cell-disabled'))]"
     NO_SLOTS_MSG = "//div[contains(@class, 'no-slots')]"
     TIME_SLOT = "//button[contains(@class, 'slot')]"
+    CLOSE_POPUP = "//span[@class='ant-modal-close-x']"
     # Target dropdown specifically within the modal to avoid hidden/background inputs
     SESSION_PURPOSE_DROPDOWN = "//div[contains(@class, 'ant-modal')]//div[contains(@class, 'ant-select-selector')]" 
     SESSION_PURPOSE_OPTION = "//div[contains(@class, 'ant-select-item-option') and @title='Resume Building']"

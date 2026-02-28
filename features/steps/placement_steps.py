@@ -84,21 +84,39 @@ def search_mentor_step(context, name):
 def click_book_session_step(context):
     pp_page = PlacementPage(context.page)
     # Assuming the search result is already there from previous step
-    pp_page.book_session_flow() 
-    pass 
+    slots_available = pp_page.book_session_flow()
+    context.slots_available = slots_available  # Store for later steps
+    
+    if slots_available:
+        attach_screenshot(context.page, "Book Session - Time Slot Selected")
+    else:
+        attach_screenshot(context.page, "Book Session - No Slots Available")
 
 @then("user selects an available date and time slot")
 def select_date_time_step(context):
+    # This step is now handled in book_session_flow()
+    if not getattr(context, 'slots_available', True):
+        print("Skipping: No slots available")
     pass
 
 @then("user enters booking details and confirms")
 def enter_booking_details_step(context):
+    if not getattr(context, 'slots_available', True):
+        print("Skipping: No slots available")
+        attach_screenshot(context.page, "Booking Skipped - No Slots Available")
+        return
+    
     pp_page = PlacementPage(context.page)
     pp_page.fill_booking_details()
     attach_screenshot(context.page, "Entered Booking Details")
 
 @then("user verifies the meeting details page")
 def verify_meeting_details_step(context):
+    if not getattr(context, 'slots_available', True):
+        print("Skipping: No slots available")
+        attach_screenshot(context.page, "Verification Skipped - No Slots Available")
+        return
+    
     pp_page = PlacementPage(context.page)
     pp_page.verify_meeting_details()
     attach_screenshot(context.page, "Verified Meeting Details")

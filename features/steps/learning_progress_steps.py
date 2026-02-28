@@ -49,3 +49,27 @@ def click_completed_course_and_validate_all(context):
 def click_share_certificate_and_validate_download(context):
     learning_progress_page = LearningProgressPage(context.page)
     learning_progress_page.click_share_certificate_and_validate_download()
+
+
+@then('user clicks on overview section and clicks on view batch and validates')
+def click_overview_and_view_batch(context):
+    learning_progress_page = LearningProgressPage(context.page)
+    learning_progress_page.click_overview_and_view_batch()
+
+
+@then('user clicks on general info and validates upcoming activities')
+def click_general_info_and_validate_activities(context):
+    learning_progress_page = LearningProgressPage(context.page)
+    learning_progress_page.click_general_info_and_validate_upcoming_activities()
+
+
+@then('user clicks on batch members and validates students added count and maximum allowed and batch member list')
+def click_batch_members_and_validate(context):
+    learning_progress_page = LearningProgressPage(context.page)
+    learning_progress_page.click_batch_members_and_validate_all()
+
+
+@then('user clicks on chat button')
+def click_chat_button(context):
+    learning_progress_page = LearningProgressPage(context.page)
+    learning_progress_page.click_chat_button()

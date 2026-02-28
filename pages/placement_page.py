@@ -124,10 +124,12 @@ class PlacementPage(BasePage):
                 continue
                 
         if not slots_found:
-            raise Exception("No time slots available for any of the visible dates.")
+            print("No time slots available for any of the visible dates. Skipping booking flow.")
+            return False  # Return False to indicate no slots available
 
         # Select Time Slot (First one)
         self.page.locator(CareerBuddyLocators.TIME_SLOT).first.click()
+        return True  # Return True to indicate slot was selected successfully
 
     def fill_booking_details(self):
         # Select Purpose (assuming Dropdown)

@@ -24,3 +24,15 @@ class Learning_Progress_Locators:
     VALIDATE_CERTIFICATE_DOWNLOAD_BUTTON="//span[text()='Download']//following::img[1]"
     VALIDATE_SCORE_VALUE="//div[@class='score_info']//span[@class='score_value']"
     VALIDATE_OVERALL_PROGRESS="//span[text()='Overall Progress']"
+    VIEW_BATCH="//h2[text()='View Batch']"
+    BATCH_NAME="//h2[text()='Batch Name : ']/following::h2[1]"
+    GENERAL_INFOTAB="//P[text()='General Info']"
+    VALIDATE_UPCOMING_ACTIVITIES="//p[text()='Upcoming Activities']"
+    BATCH_MEMBERS="//P[text()='Batch Members']"
+    VALIDATE_BATCH_MEMBERS_COUNT="//span[contains(text(),'Batch Members')]"
+    VALIDATE_STUDENTS_ADDED_COUNT="//p[contains(text(),'Students Added:')]"
+    VALIDATE_MAXIMUM_ALLOWED="//p[contains(text(),'Maximum Allowed')]"
+    VALIDATE_STUDENT_NAME="//h6[text()='Vyshnavi Suram']"
+    FIRST_CHAT_BUTTON="(//section[@class='cohort-students-list']//h2)[1]"
+
+
