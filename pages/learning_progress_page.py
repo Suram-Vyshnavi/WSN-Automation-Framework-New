@@ -220,8 +220,10 @@ class LearningProgressPage:
         attach_screenshot(self.page, "Batch Members List Validated")
 
     def click_chat_button(self):
-        """Click on chat icon from header"""
-        # Click on chat icon in header
-        self.page.locator(LoginLocators.CHAT_ICON).wait_for(state="visible", timeout=10000)
-        self.page.click(LoginLocators.CHAT_ICON)
-        attach_screenshot(self.page, "Chat Icon Clicked")
+        """Click on a student in batch members to open chat"""
+        # Click on first student's chat button in batch members list
+        self.page.locator(Learning_Progress_Locators.FIRST_CHAT_BUTTON).wait_for(state="visible", timeout=10000)
+        self.page.locator(Learning_Progress_Locators.FIRST_CHAT_BUTTON).scroll_into_view_if_needed()
+        self.page.click(Learning_Progress_Locators.FIRST_CHAT_BUTTON)
+        self.page.wait_for_timeout(2000)  # Wait for chat to open
+        attach_screenshot(self.page, "Student Chat Opened")
