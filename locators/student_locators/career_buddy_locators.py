@@ -18,3 +18,13 @@ class CareerBuddyLocators:
     BOOK_CONFIRM_BTN = "//button[@type='submit' and contains(., 'Book')]"
     # Use specific class to avoid matching parent container
     MEETING_HEADER = "//span[contains(@class, 'company-name') and not(contains(@class, 'company-name-container'))]"
+    LANGUAGE_DROPDOWN="//span[text()='Language  ']"
+    SECTOR_DROPDOWN="//span[text()='Sector  ']"
+    LOCATION_DROPDOWN="//span[text()='Location  ']"
+    JOBROLE_DROPDOWN="//span[text()='Job Role  ']"
+    ABOUT="//div[text()='About']"
+    CAREER_PATHWAYS="//div[text()='Career Pathways']"
+    PERSONAL_TRAITS="//div[text()='Personal Traits']"  
+    EMPLOYERS="//div[text()='Employers']" 
+    
+

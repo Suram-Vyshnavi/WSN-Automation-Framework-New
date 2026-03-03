@@ -113,7 +113,7 @@ def profile_fields_visible(context):
 @then("user edits profile details")
 def edit_profile_details(context):
     login_page = LoginPage(context.page)
-    login_page.edit_profile_details("Vyshnavi", "Suram", "India", "Bangalore, Bangalore, Karnataka, India", "9182269382")
+    login_page.edit_profile_details()
 
 
 @then("user clicks on logout")

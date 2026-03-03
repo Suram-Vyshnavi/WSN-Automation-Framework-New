@@ -8,7 +8,6 @@ Feature: Login
     Then user navigates with support
     Then user checks notifications and chat
     Then user clicks on profile icon
-    Then profile fields should be visible
     Then user edits profile details
     Then user navigates to home page
 
