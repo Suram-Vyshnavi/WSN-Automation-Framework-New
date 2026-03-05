@@ -1,6 +1,5 @@
 from behave import then
 from pages.placement_page import PlacementPage
-from utils.locators import CareerBuddyLocators
 from utils.helpers import attach_screenshot
 
 @then("user navigates to Placement Prep")

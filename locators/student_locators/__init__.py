@@ -15,6 +15,9 @@ from .jobs_connect_locators import JobsConnectLocators
 from .messages_locators import Messages_and_discussionsLocators
 from .learning_progress_locators import Learning_Progress_Locators
 from .notification_locators import NotificationLocators
+from .Settings_ZoomConnect_locators import SettingsZoomConnectLocators
+from .Settings_DeleteAccount_locators import SettingsDeleteAccountLocators
+from .Settings_WhatsappNotifications_locators import SettingsWhatsappNotificationsLocators
 
 __all__ = [
     'LoginLocators',
@@ -29,4 +32,7 @@ __all__ = [
     'Messages_and_discussionsLocators',
     'Learning_Progress_Locators',
     'NotificationLocators',
+    'SettingsWhatsappNotificationsLocators',
+     'SettingsDeleteAccountLocators',
+     'SettingsZoomConnectLocators'
 ]

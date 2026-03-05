@@ -9,6 +9,7 @@ class DashboardLocators:
     FORUM_CARD="//div[contains(@class,'heading_wrapper')]//p[contains(@class,'meeting-badge')]"
     FORUMS_VIEW_ALL="//a[contains(text(),'View All Forums')]"
     
+
     # Ongoing Course / Learning Progress
     ONGOING_COURSE_SECTION="//h6[contains(@class,'continue-course-text')] | //h5[contains(@class,'my-learning-history-text')]"
     LEARNING_PROGRESS_CARD="//div[contains(@class,'continue-course-container')] | //div[contains(@class,'course_card_container')]"

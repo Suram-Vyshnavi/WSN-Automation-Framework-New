@@ -5,9 +5,9 @@ from operator import contains
 class LoginLocators:
     GET_STARTED_BUTTON = "//span[text()='Get Started']"
     LOGIN_BUTTON = "//p[text()='Continue with Email']"
-    USERNAME_INPUT="//input[@placeholder='Enter your Email ID']"
+    USERNAME="//input[@placeholder='Enter your Email ID']"
     NEXT_BUTTON="//span[text()='Next']"
-    PASSWORD_INPUT="//input[@type='password']"
+    PASSWORD="//input[@type='password']"
     SUBMIT_BUTTON="//span[text()='Submit']"
     WADHWANI_LOGO="//img[@alt='wadhwani logo white color']"
     HOME_BUTTON="//div[@id='Home']"
@@ -321,3 +321,40 @@ class NotificationLocators:
     NOTIFICATIONS_ICON="(//div[contains(@class,'chat_container')]//img)[4]"   
     VALIDATE_NOTIFICATION_CONTAINER="//div[@class='notification__scroll']"
     FIRST_NOTIFICATION="//div[@class='notification__scroll']//div[1]//span[1]"
+  
+class SettingsZoomConnectLocators:
+
+    PROFILE_ICON ="(//div[@class='ml-3 profile_container'])[1]"
+    SETTINGS_ICON="(//div[@class='app__layout_menu_item'])[3]"
+    ACCOUNTS_MENU="(//div[@class='ant-row userSettings_menuItem userSettings_menuItem_selected css-1v613y0'])[1]"
+    MEETING_CARD="(//div[@class='section-container'])[1]"
+    ZOOM_SETTINGS_ARROW="(//img[@alt='right_arrow'])[1]"
+    DELINKED_POPUP="(//div[@class='ant-notification-notice alert-notification ant-notification-notice-closable'])[1]"
+    DELINKED_CLOSEICON="//span[@aria-label='close']//*[name()='svg']"
+    SIGNIN_WITH_ZOOM_SECTION="(//div[@class='ant-row zoomSync_container css-1v613y0'])[1]"
+    ZOOMCONNECTION_TOGGLER="//span[@class='ant-switch-inner']"
+    MEETINGS_CARD="(//div[@class='ant-row zoom-container css-1v613y0'])[1]"
+    SIGNIN_BUTTON="(//button[@class='ant-btn css-1v613y0 ant-btn-default ant-btn-color-default ant-btn-variant-outlined ant-btn-block primary_button zoom-button'])[1]"
+    ZOOM_EMAIL_INPUT="(//input[@id='email'])[1]"
+    ZOOM_PASSWORD_INPUT="(//input[@id='password'])[1]"
+    ZOOM_SIGNIN_BUTTON="(//button[@id='js_btn_login'])[1]"
+    BACK_ARROW="(//img[@class='wf_image left_icon no-js-arrow-left-dark'])[1]"
+    MEETINGS_DISCONNECT_CONTAINER="(//div[@class='ant-row zoom-container css-1v613y0'])[1]"
+    MEETINGS_DISCONNECT_BUTTON="(//button[@class='ant-btn css-1v613y0 ant-btn-default ant-btn-color-default ant-btn-variant-outlined ant-btn-block primary_button zoom-button'])[1]"
+
+
+class SettingsDeleteAccountLocators:
+    DELETE_ACCOUNT="(//div[@class='delete-account-menu-item'])[1]"
+    DELETE_ACCOUNT_ARROW="(//img[@alt='right_arrow'])[2]"
+    DELETE_ACCOUNT_POPUP="(//div[@class='login-card-details-section'])[1]"
+    DELETE_ACCOUNT_CLOSEICON="(//img[@alt='arrow'])[1]"
+    DELETE_ACCOUNT_GETOTP="(//button[@class='ant-btn css-1v613y0 ant-btn-primary ant-btn-color-primary ant-btn-variant-solid wf_default_button unified-next-button'])[1]"
+    DELETE_ACCOUNT_BACKARROW="(//img[@alt='arrow'])[1]"
+    
+class SettingsWhatsappNotificationsLocators:
+    NOTIFICATIONS_MENU="(//div[@class='ant-row userSettings_menuItem css-1v613y0'])[1]"
+    WHATSAPP_CONTAINER="(//div[@class='section-container'])[1]"
+    WHATSAPP_CONTAINER_RIGHTARROW="(//img[@alt='right_arrow'])[1]"
+    WHATSAPP_SECTION="(//div[@class='ant-row zoomSync_container css-1v613y0'])[1]"
+    WHATSAPP_TOGGLEBUTTON="(//span[@class='ant-switch-inner'])[1]"
+    WHATSAPP_SECTION_BACKBUTTON="(//img[@class='wf_image left_icon no-js-arrow-left-dark'])[1]"

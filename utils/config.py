@@ -1,6 +1,6 @@
 class Config:
-    BASE_URL = "https://dev.skilling.wadhwanifoundation.org/"
+    BASE_URL = "https://skilling.wadhwanifoundation.org/"
 
-    USERNAME_INPUT = "wadhwani.foundation99@yopmail.com"
+    USERNAME_INPUT = "leela.genai.prod@yopmail.com"
     PASSWORD_INPUT = "Demo@123"
     MESSAGE_TEXT = "hello"

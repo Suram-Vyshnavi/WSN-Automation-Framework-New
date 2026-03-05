@@ -40,9 +40,9 @@ def login(page, username, password, locators=LoginLocators):
     Defaults to using `LoginLocators` but a different locator set
     can be passed for tests if needed.
     """
-    page.fill(locators.USERNAME_INPUT, username)
+    page.fill(locators.USERNAME, username)
     page.click(locators.NEXT_BUTTON)
-    page.fill(locators.PASSWORD_INPUT, password)
+    page.fill(locators.PASSWORD, password)
     # Submit using the explicit submit button
     page.click(locators.SUBMIT_BUTTON)
 

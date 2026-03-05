@@ -1,5 +1,8 @@
 from pages.base_page import BasePage
-from locators.student_locators import LoginLocators, CareerAdvisorLocators, DashboardLocators
+from locators.student_locators.login_locators import LoginLocators
+from locators.student_locators.career_advisor_locators import CareerAdvisorLocators
+from locators.student_locators.dashboard_locators import DashboardLocators
+
 from utils.helpers import highlight_element, attach_screenshot
 
 
@@ -20,26 +23,27 @@ class LoginPage(BasePage):
 
     def click_get_started(self):
         """Click Get Started button"""
-        self.page.locator(LoginLocators.GET_STARTED_BUTTON).wait_for(state="visible", timeout=20000)
+        self.page.locator(LoginLocators.GET_STARTED_BUTTON).wait_for(state="visible", timeout=100)
         self.validate_using_inner_text(LoginLocators.GET_STARTED_BUTTON, "get started")
         self.page.click(LoginLocators.GET_STARTED_BUTTON)
         
 
     def click_continue_with_email(self):
         """Click Continue with Email/Login button"""
-        self.page.locator(LoginLocators.LOGIN_BUTTON).wait_for(state="visible", timeout=10000)
+        self.page.locator(LoginLocators.LOGIN_BUTTON).wait_for(state="visible", timeout=100)
         self.validate_using_inner_text(LoginLocators.LOGIN_BUTTON, "continue with email")   
         self.page.click(LoginLocators.LOGIN_BUTTON)
 
     def login(self, username, password):
         """Enter username and password and submit login form"""
-        self.page.locator(LoginLocators.USERNAME_INPUT).wait_for(state="visible", timeout=10000)
-        self.page.fill(LoginLocators.USERNAME_INPUT, username)
+        self.page.locator(LoginLocators.USERNAME).wait_for(state="visible", timeout=1000)
+        self.page.fill(LoginLocators.USERNAME, username)
         self.page.click(LoginLocators.NEXT_BUTTON)
 
-        self.page.locator(LoginLocators.PASSWORD_INPUT).wait_for(state="visible", timeout=10000)
-        self.page.fill(LoginLocators.PASSWORD_INPUT, password)
+        self.page.locator(LoginLocators.PASSWORD).wait_for(state="visible", timeout=1000)
+        self.page.fill(LoginLocators.PASSWORD, password)
         self.page.click(LoginLocators.SUBMIT_BUTTON)
+
 
     def wait_for_home_page(self):
         """Wait for home page to load after login"""

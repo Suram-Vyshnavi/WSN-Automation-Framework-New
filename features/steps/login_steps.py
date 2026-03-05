@@ -22,7 +22,7 @@ def open_login_url(context):
 def step_login(context):
     # Username
     login_page = LoginPage(context.page)
-    login_page.login(Config.USERNAME_INPUT, Config.PASSWORD_INPUT)
+    login_page.login(Config.USERNAME, Config.PASSWORD)
     attach_screenshot(context.page, "Login Details Entered")
 
 @then("user logged into home page")
@@ -113,7 +113,11 @@ def profile_fields_visible(context):
 @then("user edits profile details")
 def edit_profile_details(context):
     login_page = LoginPage(context.page)
+<<<<<<< Updated upstream
     login_page.edit_profile_details()
+=======
+    login_page.edit_profile_details("Leela", "Bolli", "India", "Bangalore, Bangalore, Karnataka, India", "9182269382")
+>>>>>>> Stashed changes
 
 
 @then("user clicks on logout")
