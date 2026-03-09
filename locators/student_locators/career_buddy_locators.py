@@ -3,7 +3,11 @@ class CareerBuddyLocators:
     # User requested clicking the 3rd explore button
     EXPLORE_BTN = "(//button[contains(@class, 'explore_btn')])[3]"
     SEARCH_INPUT = "//input[@placeholder='Search Mentors']"
-    MENTOR_NAME = "(//h2[contains(text(), 'Test Shwetha')])[1]"
+    SEARCH_NAME_PRIMARY = "Leela B"
+    SEARCH_NAME_SECONDARY = "Test shwetha"
+    MENTOR_NAME_LEELA = "(//h2[contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'leela b')])[1]"
+    MENTOR_NAME_TEST_SHWETHA = "(//h2[contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'test shwetha')])[1]"
+    MENTOR_NAME = MENTOR_NAME_TEST_SHWETHA
     BOOK_SESSION_BTN = "(//button[contains(., 'Book Session')])[1]"
     AVAILABLE_DATE = "//td[contains(@class, 'ant-picker-cell-in-view') and not(contains(@class, 'ant-picker-cell-disabled'))]"
     NO_SLOTS_MSG = "//div[contains(@class, 'no-slots')]"

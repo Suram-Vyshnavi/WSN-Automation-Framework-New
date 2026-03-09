@@ -113,11 +113,7 @@ def profile_fields_visible(context):
 @then("user edits profile details")
 def edit_profile_details(context):
     login_page = LoginPage(context.page)
-<<<<<<< Updated upstream
     login_page.edit_profile_details()
-=======
-    login_page.edit_profile_details("Leela", "Bolli", "India", "Bangalore, Bangalore, Karnataka, India", "9182269382")
->>>>>>> Stashed changes
 
 
 @then("user clicks on logout")

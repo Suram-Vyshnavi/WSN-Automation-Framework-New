@@ -87,10 +87,28 @@ class PlacementPage(BasePage):
         self.page.click(CareerBuddyLocators.EXPLORE_BTN, force=True)
         self.page.wait_for_load_state("networkidle")
 
-    def search_mentor(self, name):
+    def search_mentor(self, primary_name=None, secondary_name=None):
         self.page.locator(CareerBuddyLocators.SEARCH_INPUT).wait_for(state="visible", timeout=10000)
-        self.page.fill(CareerBuddyLocators.SEARCH_INPUT, name)
-        self.page.locator(CareerBuddyLocators.MENTOR_NAME).wait_for(state="visible", timeout=10000)
+
+        search_attempts = [
+            (primary_name or CareerBuddyLocators.SEARCH_NAME_PRIMARY, CareerBuddyLocators.MENTOR_NAME_LEELA),
+            (secondary_name or CareerBuddyLocators.SEARCH_NAME_SECONDARY, CareerBuddyLocators.MENTOR_NAME_TEST_SHWETHA),
+        ]
+
+        for search_name, mentor_locator in search_attempts:
+            self.page.fill(CareerBuddyLocators.SEARCH_INPUT, "")
+            self.page.fill(CareerBuddyLocators.SEARCH_INPUT, search_name)
+            self.page.wait_for_timeout(1500)
+
+            mentor_card = self.page.locator(mentor_locator)
+            if mentor_card.count() > 0:
+                mentor_card.first.wait_for(state="visible", timeout=5000)
+                print(f"Mentor found with search '{search_name}'")
+                return search_name
+
+            print(f"No mentor card found for '{search_name}'")
+
+        raise AssertionError("No mentor card found for both 'Leela B' and 'Test shwetha'")
 
     def book_session_flow(self):
         # Click Book Session on Mentor Card

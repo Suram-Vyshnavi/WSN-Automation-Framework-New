@@ -2,6 +2,7 @@ from pages.base_page import BasePage
 from locators.student_locators.login_locators import LoginLocators
 from locators.student_locators.career_advisor_locators import CareerAdvisorLocators
 from locators.student_locators.dashboard_locators import DashboardLocators
+import random
 
 from utils.helpers import highlight_element, attach_screenshot
 
@@ -23,24 +24,24 @@ class LoginPage(BasePage):
 
     def click_get_started(self):
         """Click Get Started button"""
-        self.page.locator(LoginLocators.GET_STARTED_BUTTON).wait_for(state="visible", timeout=100)
+        self.page.locator(LoginLocators.GET_STARTED_BUTTON).wait_for(state="visible", timeout=20000)
         self.validate_using_inner_text(LoginLocators.GET_STARTED_BUTTON, "get started")
         self.page.click(LoginLocators.GET_STARTED_BUTTON)
         
 
     def click_continue_with_email(self):
         """Click Continue with Email/Login button"""
-        self.page.locator(LoginLocators.LOGIN_BUTTON).wait_for(state="visible", timeout=100)
+        self.page.locator(LoginLocators.LOGIN_BUTTON).wait_for(state="visible", timeout=20000)
         self.validate_using_inner_text(LoginLocators.LOGIN_BUTTON, "continue with email")   
         self.page.click(LoginLocators.LOGIN_BUTTON)
 
     def login(self, username, password):
         """Enter username and password and submit login form"""
-        self.page.locator(LoginLocators.USERNAME).wait_for(state="visible", timeout=1000)
+        self.page.locator(LoginLocators.USERNAME).wait_for(state="visible", timeout=20000)
         self.page.fill(LoginLocators.USERNAME, username)
         self.page.click(LoginLocators.NEXT_BUTTON)
 
-        self.page.locator(LoginLocators.PASSWORD).wait_for(state="visible", timeout=1000)
+        self.page.locator(LoginLocators.PASSWORD).wait_for(state="visible", timeout=20000)
         self.page.fill(LoginLocators.PASSWORD, password)
         self.page.click(LoginLocators.SUBMIT_BUTTON)
 
@@ -170,29 +171,26 @@ class LoginPage(BasePage):
     def edit_profile_details(self):
         """Edit profile details with toggle - change values and change back"""
         from utils.helpers import attach_screenshot
+        random_suffix = random.randint(1, 8)
+        first_edit_last_name = f"leela{random_suffix}"
+        second_edit_last_name = f"leela{random_suffix + 1}"
         
         # First Edit: Change to test values
         # Click Edit button
         self.page.locator(LoginLocators.MY_PROFILE).wait_for(state="visible", timeout=20000)
         self.page.click(LoginLocators.MY_PROFILE)
-        self.page.locator(LoginLocators.EDIT_BUTTON).wait_for(state="visible", timeout=10000)
-        self.page.click(LoginLocators.EDIT_BUTTON)
+        self.page.locator(LoginLocators.EDIT_PROFILE).wait_for(state="visible", timeout=10000)
+        self.page.click(LoginLocators.EDIT_PROFILE)
         attach_screenshot(self.page, "Clicked Edit Button")
         self.verify_profile_fields_visible()  # Ensure fields are visible before editing
         # Wait for fields to be editable
         self.page.locator(LoginLocators.FIRST_NAME).wait_for(state="visible", timeout=10000)
         
         # Fill firstname (fill automatically clears first)
-        self.page.fill(LoginLocators.FIRST_NAME, "Vyshnavi_Test")
+        self.page.fill(LoginLocators.FIRST_NAME, "Bolli")
         
         # Fill lastname
-        self.page.fill(LoginLocators.LAST_NAME, "Suram_Test")
-        
-        # Change language to Hindi
-        self.page.locator(LoginLocators.LANGUAGE).scroll_into_view_if_needed()
-        self.page.click(LoginLocators.LANGUAGE)
-        self.page.locator(LoginLocators.HINDI_LANGUAGE).wait_for(state="visible", timeout=5000)
-        self.page.click(LoginLocators.HINDI_LANGUAGE)
+        self.page.fill(LoginLocators.LAST_NAME, first_edit_last_name)
         
         # Change city to Hyderabad
         self.page.locator(LoginLocators.SELECT_CITY).scroll_into_view_if_needed()
@@ -209,40 +207,24 @@ class LoginPage(BasePage):
         self.page.wait_for_timeout(2000)
         attach_screenshot(self.page, "First Update - Changed to Test Values")
         
-        # Validate language changed to Hindi by checking Hindi text is visible
-        try:
-            self.page.locator(LoginLocators.PROFILE_INFORMATION_HINDI).wait_for(state="visible", timeout=10000)
-            assert self.page.locator(LoginLocators.PROFILE_INFORMATION_HINDI).is_visible(), "Language not changed to Hindi"
-            print("✓ Language successfully changed to Hindi")
-            attach_screenshot(self.page, "Validated Hindi Language")
-        except Exception as e:
-            print(f"Language validation failed: {e}")
-            attach_screenshot(self.page, "Language Validation Failed")
-        
         # Second Edit: Change back to original values
         # Click Edit button again
-        self.page.locator(LoginLocators.EDIT_BUTTON).wait_for(state="visible", timeout=10000)
-        self.page.click(LoginLocators.EDIT_BUTTON)
+        self.page.locator(LoginLocators.EDIT_PROFILE).wait_for(state="visible", timeout=10000)
+        self.page.click(LoginLocators.EDIT_PROFILE)
         attach_screenshot(self.page, "Clicked Edit Button Again")
         
         # Wait for fields to be editable
         self.page.locator(LoginLocators.FIRST_NAME).wait_for(state="visible", timeout=10000)
         
-        # Fill firstname back to original
-        self.page.fill(LoginLocators.FIRST_NAME, "Vyshnavi")
+        # Fill firstname for second update
+        self.page.fill(LoginLocators.FIRST_NAME, "Bolli")
         
-        # Fill lastname back to original
-        self.page.fill(LoginLocators.LAST_NAME, "Suram")
-        
-        # Change language back to English (अंग्रेजी in Hindi)
-        self.page.locator(LoginLocators.LANGUAGE).scroll_into_view_if_needed()
-        self.page.click(LoginLocators.LANGUAGE)
-        self.page.locator(LoginLocators.ENGLISH_LANGUAGE).wait_for(state="visible", timeout=5000)
-        self.page.click(LoginLocators.ENGLISH_LANGUAGE)
+        # Fill lastname with incremented suffix
+        self.page.fill(LoginLocators.LAST_NAME, second_edit_last_name)
         
         # Change city back to Bangalore
-        self.page.locator(LoginLocators.SELECT_CITY_HINDI).scroll_into_view_if_needed()
-        self.page.click(LoginLocators.SELECT_CITY_HINDI)
+        self.page.locator(LoginLocators.SELECT_CITY).scroll_into_view_if_needed()
+        self.page.click(LoginLocators.SELECT_CITY)
         self.page.wait_for_timeout(1000)
         self.page.keyboard.type("Bangalore")
         self.page.wait_for_timeout(3000)

@@ -29,13 +29,34 @@ class ChatPage(BasePage):
         """Type and send a message in the chat"""
         if message_text is None:
             message_text = Config.MESSAGE_TEXT
-        
-        # Wait for message textarea to be visible
-        self.page.locator(Messages_and_discussionsLocators.MESSAGE_TEXTAREA).wait_for(state="visible", timeout=15000)
+
+        # Support both textarea and contenteditable message composers.
+        composer_candidates = [
+            Messages_and_discussionsLocators.MESSAGE_TEXTAREA,
+            "//div[@contenteditable='true' and (@role='textbox' or contains(@class,'message') or contains(@class,'input'))]",
+        ]
+        composer = None
+        for selector in composer_candidates:
+            candidate = self.page.locator(selector).first
+            try:
+                candidate.wait_for(state="visible", timeout=5000)
+                composer = candidate
+                break
+            except Exception:
+                continue
+
+        if composer is None:
+            raise AssertionError("Message composer not visible")
+
         print(f"Typing message: {message_text}")
-        
-        # Type the message
-        self.page.fill(Messages_and_discussionsLocators.MESSAGE_TEXTAREA, message_text)
+
+        # Fill works for textarea; fall back to click+type for contenteditable.
+        try:
+            composer.fill(message_text)
+        except Exception:
+            composer.click()
+            self.page.keyboard.type(message_text)
+
         attach_screenshot(self.page, "Message Typed")
         
         # Click send icon
@@ -47,8 +68,11 @@ class ChatPage(BasePage):
     def validate_latest_text_message(self):
         """Validate that the latest sent text message is visible"""
         try:
-            self.page.locator(Messages_and_discussionsLocators.LATEST_SENT_MESSAGE).wait_for(state="visible", timeout=15000)
-            latest_message = self.page.locator(Messages_and_discussionsLocators.LATEST_SENT_MESSAGE).first
+            latest_locator = self.page.locator(
+                f"//*[contains(normalize-space(.), '{Config.MESSAGE_TEXT}') and not(self::script)]"
+            ).first
+            latest_locator.wait_for(state="visible", timeout=15000)
+            latest_message = latest_locator
             message_visible = latest_message.is_visible()
             assert message_visible, f"Latest sent text message '{Config.MESSAGE_TEXT}' is not visible"
             

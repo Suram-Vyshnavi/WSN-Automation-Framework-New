@@ -214,9 +214,10 @@ class LearningProgressPage:
         assert self.page.locator(Learning_Progress_Locators.VALIDATE_MAXIMUM_ALLOWED).is_visible(), "Maximum Allowed not visible"
         
         
-        # Validate Student Name in member list
-        self.page.locator(Learning_Progress_Locators.VALIDATE_STUDENT_NAME).wait_for(state="visible", timeout=10000)
-        assert self.page.locator(Learning_Progress_Locators.VALIDATE_STUDENT_NAME).is_visible(), "Student name not visible in batch member list"
+        # Validate at least one student row is shown (avoid hardcoded names).
+        members = self.page.locator(Learning_Progress_Locators.VALIDATE_STUDENT_NAME)
+        members.first.wait_for(state="visible", timeout=10000)
+        assert members.count() > 0, "No student rows visible in batch member list"
         attach_screenshot(self.page, "Batch Members List Validated")
 
     def click_chat_button(self):

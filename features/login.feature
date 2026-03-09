@@ -50,7 +50,7 @@ Feature: Login
   Scenario: Verify Placement Prep Career Buddy Flow
     Then user navigates to Placement Prep
     Then user verifies Career Buddy tile and clicks Explore
-    Then user searches for mentor "Test Shwetha"
+    Then user searches for mentor "Leela B" or "Test shwetha"
     Then user clicks on Book Session for the mentor
     Then user selects an available date and time slot
     Then user enters booking details and confirms

@@ -1,5 +1,6 @@
 from behave import then
 from pages.placement_page import PlacementPage
+from locators.student_locators.career_buddy_locators import CareerBuddyLocators
 from utils.helpers import attach_screenshot
 
 @then("user navigates to Placement Prep")
@@ -73,11 +74,11 @@ def verify_career_buddy_click_explore(context):
     pp_page.click_career_buddy_explore()
     attach_screenshot(context.page, "Clicked Career Buddy Explore")
 
-@then('user searches for mentor "{name}"')
-def search_mentor_step(context, name):
+@then('user searches for mentor "{primary_name}" or "{secondary_name}"')
+def search_mentor_step(context, primary_name, secondary_name):
     pp_page = PlacementPage(context.page)
-    pp_page.search_mentor(name)
-    attach_screenshot(context.page, f"Searched Mentor: {name}")
+    selected_name = pp_page.search_mentor(primary_name, secondary_name)
+    attach_screenshot(context.page, f"Searched Mentor (selected): {selected_name}")
 
 @then("user clicks on Book Session for the mentor")
 def click_book_session_step(context):

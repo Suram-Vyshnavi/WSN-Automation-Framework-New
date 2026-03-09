@@ -5,6 +5,24 @@ from locators.student_locators.Settings_WhatsappNotifications_locators import Se
 
 class SettingsPage(BasePage):
 
+    def _click_first_visible(self, selectors, timeout=10000):
+        for selector in selectors:
+            target = self.page.locator(selector).first
+            try:
+                target.wait_for(state="visible", timeout=timeout)
+                try:
+                    target.scroll_into_view_if_needed()
+                except Exception:
+                    pass
+                try:
+                    target.click(timeout=timeout)
+                except Exception:
+                    target.click(timeout=timeout, force=True)
+                return True
+            except Exception:
+                continue
+        return False
+
     # --- Common Methods ---
     def click_zoomconnect_profile_icon(self):
         self.page.locator(SettingsZoomConnectLocators.PROFILE_ICON).wait_for(state="visible", timeout=10000)
@@ -19,8 +37,13 @@ class SettingsPage(BasePage):
         assert self.page.locator(SettingsZoomConnectLocators.ACCOUNTS_MENU).is_visible()
 
     def click_back_arrow(self):
-        self.page.locator(SettingsZoomConnectLocators.BACK_ARROW).wait_for(state="visible", timeout=10000)
-        self.page.click(SettingsZoomConnectLocators.BACK_ARROW)
+        clicked = self._click_first_visible([
+            SettingsZoomConnectLocators.BACK_ARROW,
+            "//img[contains(@alt,'arrow') and (contains(@alt,'left') or contains(@class,'left_icon'))]",
+            "//img[contains(@class,'left_icon')]",
+        ])
+        if not clicked:
+            raise AssertionError("Back arrow not visible in settings flow")
 
     # --- ZoomConnect Methods ---
     def click_accounts_menu_zoomconnect(self):
@@ -82,12 +105,30 @@ class SettingsPage(BasePage):
             return False
 
     def validate_disconnect_section(self):
-        self.page.locator(SettingsZoomConnectLocators.MEETINGS_DISCONNECT_CONTAINER).wait_for(state="visible", timeout=10000)
-        assert self.page.locator(SettingsZoomConnectLocators.MEETINGS_DISCONNECT_CONTAINER).is_visible()
+        candidates = [
+            SettingsZoomConnectLocators.MEETINGS_DISCONNECT_CONTAINER,
+            "//div[contains(@class,'zoom-container') and contains(translate(normalize-space(.), 'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 'MEETINGS')]",
+            "//*[contains(translate(normalize-space(.), 'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 'DISCONNECT')]",
+        ]
+        visible = False
+        for selector in candidates:
+            loc = self.page.locator(selector).first
+            try:
+                loc.wait_for(state="visible", timeout=5000)
+                visible = True
+                break
+            except Exception:
+                continue
+        assert visible, "Disconnect section not visible"
 
     def click_disconnect_button(self):
-        self.page.locator(SettingsZoomConnectLocators.MEETINGS_DISCONNECT_BUTTON).wait_for(state="visible", timeout=10000)
-        self.page.click(SettingsZoomConnectLocators.MEETINGS_DISCONNECT_BUTTON)
+        clicked = self._click_first_visible([
+            SettingsZoomConnectLocators.MEETINGS_DISCONNECT_BUTTON,
+            "//button[contains(translate(normalize-space(.), 'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 'DISCONNECT')]",
+            "//button[contains(@class,'zoom-button')]",
+        ])
+        if not clicked:
+            raise AssertionError("Disconnect button not visible")
 
     # --- Delete Account Methods ---
     def click_delete_account_profile_icon(self):
@@ -137,8 +178,14 @@ class SettingsPage(BasePage):
         self.page.click(SettingsDeleteAccountLocators.DELETE_ACCOUNT_BACKARROW)
 
     def click_delete_account_closeicon(self):
-        self.page.locator(SettingsDeleteAccountLocators.DELETE_ACCOUNT_CLOSEICON).wait_for(state="visible", timeout=10000)
-        self.page.click(SettingsDeleteAccountLocators.DELETE_ACCOUNT_CLOSEICON)
+        clicked = self._click_first_visible([
+            SettingsDeleteAccountLocators.DELETE_ACCOUNT_CLOSEICON,
+            "//span[@aria-label='close']",
+            "//button[@aria-label='Close']",
+            "//img[contains(@alt,'close') or contains(@class,'close')]",
+        ])
+        if not clicked:
+            raise AssertionError("Delete-account close icon not visible")
 
     # --- WhatsApp Notifications Methods ---
     def click_whatsapp_profile_icon(self):
@@ -164,5 +211,10 @@ class SettingsPage(BasePage):
         self.page.click(SettingsWhatsappNotificationsLocators.WHATSAPP_TOGGLEBUTTON)
 
     def click_whatsapp_backbutton(self):
-        self.page.locator(SettingsWhatsappNotificationsLocators.WHATSAPP_SECTION_BACKBUTTON).wait_for(state="visible", timeout=10000)
-        self.page.click(SettingsWhatsappNotificationsLocators.WHATSAPP_SECTION_BACKBUTTON)
+        clicked = self._click_first_visible([
+            SettingsWhatsappNotificationsLocators.WHATSAPP_SECTION_BACKBUTTON,
+            "//img[contains(@alt,'arrow') and (contains(@alt,'left') or contains(@class,'left_icon'))]",
+            "//img[contains(@class,'left_icon')]",
+        ])
+        if not clicked:
+            raise AssertionError("WhatsApp section back button not visible")

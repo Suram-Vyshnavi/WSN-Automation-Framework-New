@@ -32,7 +32,7 @@ class Learning_Progress_Locators:
     VALIDATE_BATCH_MEMBERS_COUNT="//span[contains(text(),'Batch Members')]"
     VALIDATE_STUDENTS_ADDED_COUNT="//p[contains(text(),'Students Added:')]"
     VALIDATE_MAXIMUM_ALLOWED="//p[contains(text(),'Maximum Allowed')]"
-    VALIDATE_STUDENT_NAME="//h6[text()='Vyshnavi Suram']"
+    VALIDATE_STUDENT_NAME="(//section[contains(@class,'cohort-students-list')]//*[self::h6 or self::h2])[1]"
     FIRST_CHAT_BUTTON="(//section[@class='cohort-students-list']//h2)[1]"
 
 
