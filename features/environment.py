@@ -3,11 +3,19 @@ import os
 from pages.login_page import LoginPage
 from utils.config import Config
 
+
+def _is_enabled(name, default="false"):
+    return os.getenv(name, default).lower() in ("1", "true", "yes")
+
 def before_all(context):
     """Setup browser and login once before all scenarios"""
+    headless = _is_enabled("HEADLESS")
+    slow_mo_ms = int(os.getenv("SLOW_MO_MS", "0" if headless else "1000"))
+
     context.playwright = sync_playwright().start()
     context.browser = context.playwright.chromium.launch(
-        headless=False, slow_mo=1500,
+        headless=headless,
+        slow_mo=slow_mo_ms,
         args=[
             '--start-maximized',
             '--use-fake-ui-for-media-stream',  # Auto-deny camera/mic prompts
@@ -20,7 +28,7 @@ def before_all(context):
     )
     
     # Check if tracing should be enabled
-    context._trace_on = os.getenv("TRACE_ON", "false").lower() in ("1", "true", "yes")
+    context._trace_on = _is_enabled("TRACE_ON")
     
     context.page = context.context.new_page()
     

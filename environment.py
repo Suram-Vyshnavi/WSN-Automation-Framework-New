@@ -13,6 +13,10 @@ except ImportError:
     report_generator = None
 
 
+def _is_enabled(name, default="false"):
+    return os.getenv(name, default).lower() in ("1", "true", "yes")
+
+
 def before_all(context):
     """Initialize report generation environment."""
     if report_generator:
@@ -22,15 +26,19 @@ def before_all(context):
 
 def before_scenario(context, scenario):
     """Set up Playwright browser before each scenario."""
+    headless = _is_enabled("HEADLESS")
+    slow_mo_ms = int(os.getenv("SLOW_MO_MS", "0" if headless else "1500"))
+
     context.playwright = sync_playwright().start()
     context.browser = context.playwright.chromium.launch(
-        headless=False, slow_mo=1500
+        headless=headless,
+        slow_mo=slow_mo_ms
     )
     context.context = context.browser.new_context()
     
     # Start tracing if TRACE_ON env var is set
     try:
-        trace_on = os.getenv("TRACE_ON", "false").lower() in ("1", "true", "yes")
+        trace_on = _is_enabled("TRACE_ON")
         if trace_on:
             context.context.tracing.start(screenshots=True, snapshots=True, sources=True)
             context._trace_enabled = True
