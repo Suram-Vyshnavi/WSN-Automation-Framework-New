@@ -52,6 +52,13 @@ class SettingsPage(BasePage):
         self.page.locator(SettingsZoomConnectLocators.MEETING_CARD).wait_for(state="visible", timeout=10000)
 
     def click_zoom_right_arrow(self):
+        # Only treat as already-open when inside Zoom detail screen (not accounts list).
+        signed_in_section = self.page.locator(SettingsZoomConnectLocators.SIGNIN_WITH_ZOOM_SECTION).first
+        try:
+            signed_in_section.wait_for(state="visible", timeout=1500)
+            return  # Already on Zoom detail screen
+        except Exception:
+            pass
         self.page.locator(SettingsZoomConnectLocators.ZOOM_SETTINGS_ARROW).wait_for(state="visible", timeout=10000)
         self.page.click(SettingsZoomConnectLocators.ZOOM_SETTINGS_ARROW)
 
@@ -69,7 +76,29 @@ class SettingsPage(BasePage):
 
     def navigate_meetings_and_click_signin(self):
         self.page.locator(SettingsZoomConnectLocators.MEETINGS_CARD).wait_for(state="visible", timeout=10000)
-        signin_button = self.page.locator(SettingsZoomConnectLocators.SIGNIN_BUTTON).first
+        disconnect_button = self.page.locator("//button[contains(translate(normalize-space(.), 'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 'DISCONNECT')]").first
+        try:
+            disconnect_button.wait_for(state="visible", timeout=3000)
+            disconnect_button.click()
+            for selector in [
+                "//button[contains(translate(normalize-space(.), 'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 'CONFIRM')]",
+                "//button[contains(translate(normalize-space(.), 'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 'YES')]",
+                "//button[contains(@class,'ant-btn-primary')]",
+            ]:
+                confirm = self.page.locator(selector).first
+                try:
+                    confirm.wait_for(state="visible", timeout=1200)
+                    confirm.click()
+                    break
+                except Exception:
+                    continue
+            self.page.wait_for_timeout(1200)
+        except Exception:
+            pass
+
+        signin_button = self.page.locator(
+            "//button[contains(translate(normalize-space(.), 'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 'SIGN IN') or contains(translate(normalize-space(.), 'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 'CONNECT')]"
+        ).first
 
         if signin_button.count() > 0 and signin_button.is_visible():
             signin_button.click()
@@ -88,10 +117,20 @@ class SettingsPage(BasePage):
             return False
 
     def enter_zoom_email(self, email):
-        self.page.fill(SettingsZoomConnectLocators.ZOOM_EMAIL_INPUT, email)
+        field = self.page.locator(SettingsZoomConnectLocators.ZOOM_EMAIL_INPUT).first
+        field.wait_for(state="visible", timeout=10000)
+        field.click()
+        field.press("Control+A")
+        field.press("Backspace")
+        field.type(email, delay=80)
 
     def enter_zoom_password(self, password):
-        self.page.fill(SettingsZoomConnectLocators.ZOOM_PASSWORD_INPUT, password)
+        field = self.page.locator(SettingsZoomConnectLocators.ZOOM_PASSWORD_INPUT).first
+        field.wait_for(state="visible", timeout=10000)
+        field.click()
+        field.press("Control+A")
+        field.press("Backspace")
+        field.type(password, delay=80)
 
     def click_zoom_signin(self):
         self.page.click(SettingsZoomConnectLocators.ZOOM_SIGNIN_BUTTON)

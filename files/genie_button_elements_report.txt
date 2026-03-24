@@ -1,0 +1,46 @@
+﻿Scanned files: 1979
+Button-like matches: 440
+Matches with id (parsed): 0
+Matches with class (parsed): 98
+Top ids:
+Top classes:
+  discard-button : 8
+  sector-cancel-btn : 5
+  {expr:style} : 5
+  sector-apply-btn : 5
+  arrow-btns : 4
+  cancel_action_button : 3
+  close-button : 3
+  dropdown-btn : 3
+  ai-toolkit-btn : 2
+  fullscreen-button : 2
+  read-question-button : 2
+  btn-add : 2
+  career-button : 2
+  copy_action_button : 2
+  product-tour-skip : 2
+  clear-btn : 2
+  btn-primary : 1
+  override_button : 1
+  cancel-btn : 1
+  add-language-btn : 1
+  unsaved-cancel : 1
+  job-update : 1
+  slot : 1
+  job-cancel : 1
+  unsaved-proceed : 1
+  go_to_program_button : 1
+  view-pitch-button : 1
+  pitch-guidance-button : 1
+  resume-button : 1
+  {expr:`view-pitch-button default-share-button ${pitchData?.getStatus() !== pitchTrainerStatus.SAVED && !isPreVideo && !isPostVideo && 'share-pitch-button'} : 1
+  view-pitch-button default-view-pitch-button : 1
+  language-alert-button-section-primary-button : 1
+  record-pitch-heading-button : 1
+  language-alert-button-section-secondary-button : 1
+  remind-me-button : 1
+  button : 1
+  toolkit-btn : 1
+  reset-btn : 1
+  {expr:buttonClasses} : 1
+  {expr:`icon_button ${style} : 1

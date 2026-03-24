@@ -75,6 +75,13 @@ def upload_document(context):
 
 @then("user navigates to home page")
 def navigate_to_home(context):
-    login_page = LoginPage(context.page)
-    login_page.navigate_to_home()
+    persona = getattr(context, "persona", "student")
+    if persona == "faculty":
+        from pages.Faculty_pages.Home_page import FacultyHomePage
+
+        faculty_home_page = FacultyHomePage(context.page)
+        faculty_home_page.navigate_to_home()
+    else:
+        login_page = LoginPage(context.page)
+        login_page.navigate_to_home()
     attach_screenshot(context.page, "Navigated to Home Page")

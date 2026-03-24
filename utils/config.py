@@ -1,6 +1,71 @@
-class Config:
-    BASE_URL = "https://dev.skilling.wadhwanifoundation.org/"
+import os
+from config.env_config import (
+    BASE_URL as ENV_BASE_URL,
+    USERNAME as ENV_USERNAME,
+    PASSWORD as ENV_PASSWORD,
+    FACULTY_USERNAME as ENV_FACULTY_USERNAME,
+    FACULTY_PASSWORD as ENV_FACULTY_PASSWORD,
+    CAREER_BUDDY_USERNAME as ENV_CAREER_BUDDY_USERNAME,
+    CAREER_BUDDY_PASSWORD as ENV_CAREER_BUDDY_PASSWORD,
+    INSTITUTE_ADMIN_USERNAME as ENV_INSTITUTE_ADMIN_USERNAME,
+    INSTITUTE_ADMIN_PASSWORD as ENV_INSTITUTE_ADMIN_PASSWORD,
+)
 
-    USERNAME_INPUT = "wadhwani.foundation99@yopmail.com"
-    PASSWORD_INPUT = "Demo@123"
+
+class Config:
+    BASE_URL = ENV_BASE_URL
+
+    # Keep existing student variable names for backward compatibility.
+    USERNAME_INPUT = ENV_USERNAME
+    PASSWORD_INPUT = ENV_PASSWORD
+    USERNAME = USERNAME_INPUT
+    PASSWORD = PASSWORD_INPUT
+
+    # New persona-specific variable names.
+    FACULTY_USERNAME_INPUT = ENV_FACULTY_USERNAME
+    FACULTY_PASSWORD_INPUT = ENV_FACULTY_PASSWORD
+    CAREER_BUDDY_USERNAME_INPUT = ENV_CAREER_BUDDY_USERNAME
+    CAREER_BUDDY_PASSWORD_INPUT = ENV_CAREER_BUDDY_PASSWORD
+    INSTITUTE_ADMIN_USERNAME_INPUT = ENV_INSTITUTE_ADMIN_USERNAME
+    INSTITUTE_ADMIN_PASSWORD_INPUT = ENV_INSTITUTE_ADMIN_PASSWORD
+
     MESSAGE_TEXT = "hello"
+
+    # Persona-wise credentials. Defaults can be overridden by environment vars.
+    CREDENTIALS = {
+        "student": {
+            "username": os.getenv("STUDENT_USERNAME") or USERNAME_INPUT,
+            "password": os.getenv("STUDENT_PASSWORD") or PASSWORD_INPUT,
+        },
+        "faculty": {
+            "username": FACULTY_USERNAME_INPUT,
+            "password": FACULTY_PASSWORD_INPUT,
+        },
+        "career_buddy": {
+            "username": CAREER_BUDDY_USERNAME_INPUT,
+            "password": CAREER_BUDDY_PASSWORD_INPUT,
+        },
+        "institute_admin": {
+            "username": INSTITUTE_ADMIN_USERNAME_INPUT,
+            "password": INSTITUTE_ADMIN_PASSWORD_INPUT,
+        },
+    }
+
+    @classmethod
+    def get_persona(cls):
+        return os.getenv("PERSONA", "student").strip().lower()
+
+    @classmethod
+    def get_credentials(cls, persona=None):
+        selected = (persona or cls.get_persona()).strip().lower()
+        if selected not in cls.CREDENTIALS:
+            raise ValueError(f"Unsupported persona: {selected}")
+
+        creds = cls.CREDENTIALS[selected]
+        if not creds["username"] or not creds["password"]:
+            raise ValueError(
+                f"Missing credentials for persona '{selected}'. "
+                "Set persona env vars (e.g. STUDENT_*, FACULTY_*, CAREER_BUDDY_*, INSTITUTE_ADMIN_*) "
+                "or update utils/config.py"
+            )
+        return creds["username"], creds["password"]

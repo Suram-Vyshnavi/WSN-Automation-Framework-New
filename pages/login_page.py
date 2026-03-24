@@ -16,7 +16,7 @@ class LoginPage(BasePage):
         """Dismiss notification popup if present"""
         try:
             later_btn = self.page.locator("//button[normalize-space()=\"I'll do it later\"]")
-            later_btn.wait_for(state="attached", timeout=20000)
+            later_btn.wait_for(state="attached", timeout=2500)
             later_btn.click(force=True)
             print("Popup dismissed")
         except Exception:

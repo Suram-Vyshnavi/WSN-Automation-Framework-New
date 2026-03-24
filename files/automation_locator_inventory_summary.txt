@@ -1,0 +1,14 @@
+﻿Files scanned: 7
+Locator inventory rows: 251
+Top files:
+  src\pages\wadhwani_home_page_android_cdp.py : 96
+  src\pages\wadhwani_business_queries_android_cdp.py : 47
+  src\pages\wadhwani_login_page.py : 38
+  src\pages\wadhwani_login_page_android_cdp.py : 30
+  src\pages\wadhwani_xpaths.py : 20
+  src\pages\selectors.py : 20
+Top types:
+  css_like : 154
+  unknown : 51
+  xpath_like : 42
+  xpath_like + css_like : 4

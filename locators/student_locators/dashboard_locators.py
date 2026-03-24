@@ -4,16 +4,16 @@ class DashboardLocators:
     RECOMMENDED_ACTIVITY_CARD="//div[contains(@class,'heading_wrapper')]"
     
     # Forums
-    MY_FORUMS_SECTION="//h3[contains(text(),'My Forums')]"
-    RECOMMENDED_FORUMS_SECTION="//h3[contains(text(),'Recommended Forums')] | //p[contains(@class,'recommended_activity_badge')]"
+    MY_FORUMS_SECTION="//h4[contains(text(),'My Forums')]"
+    RECOMMENDED_FORUMS_SECTION="//h4[contains(text(),'Recommended Forums')] | //p[contains(@class,'recommended_activity_badge')]"
     FORUM_CARD="//div[contains(@class,'heading_wrapper')]//p[contains(@class,'meeting-badge')]"
-    FORUMS_VIEW_ALL="//a[contains(text(),'View All Forums')]"
+    FORUMS_VIEW_ALL="//p[contains(text(),'View all')]"
     
 
     # Ongoing Course / Learning Progress
     ONGOING_COURSE_SECTION="//h6[contains(@class,'continue-course-text')] | //h5[contains(@class,'my-learning-history-text')]"
     LEARNING_PROGRESS_CARD="//div[contains(@class,'continue-course-container')] | //div[contains(@class,'course_card_container')]"
-    COURSE_PROGRESS_BAR="//div[contains(@class,'ant-progress')] | //div[contains(@class,'course_progress_bar')]"
+    COURSE_PROGRESS_BAR="//div[contains(@class,'ant-progress-inner')] | //div[contains(@class,'course_progress_bar')]"
     
     # Institute Specific Courses and Programs
     INSTITUTE_COURSES_SECTION="//h2[contains(@class,'institute_program_course__heading') and contains(text(),'Recommended By Your Institute')]"
@@ -38,7 +38,7 @@ class DashboardLocators:
     ENROL_BATCH_TITLE="//div[@class='join-batch-card-container']//h6[contains(@class,'title') and text()='Join a batch']"
     ENROL_BATCH_DESCRIPTION="//div[@class='join-batch-card-container']//p[contains(@class,'description')]"
     ENROL_BATCH_INPUT="//input[@placeholder='Enter code here']"
-    ENROL_BUTTON="//button[contains(@class,'join-button')]//span[text()='Enroll']"
+    ENROL_BUTTON="//div[contains(@class,'join-batch-group')]//button[text()='Enroll']"
     
     # Footer
     FOOTER_SECTION="//div[@class='footer-container']"

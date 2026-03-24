@@ -1,4 +1,5 @@
 from behave import given, when, then
+from pages.Faculty_pages.Home_page import FacultyHomePage
 from pages.login_page import LoginPage
 from utils.helpers import attach_screenshot, validate_header
 from utils.helpers import validate_navigation
@@ -20,9 +21,11 @@ def open_login_url(context):
 
 @when("user enters valid login details")
 def step_login(context):
-    # Username
+    persona = getattr(context, "persona", None)
+    username, password = Config.get_credentials(persona)
+
     login_page = LoginPage(context.page)
-    login_page.login(Config.USERNAME, Config.PASSWORD)
+    login_page.login(username, password)
     attach_screenshot(context.page, "Login Details Entered")
 
 @then("user logged into home page")
@@ -32,8 +35,13 @@ def login_user(context):
     attach_screenshot(context.page, "Logged into home page")
 @then("user navigates through dashboard")
 def navigate_dashboard(context):
-    login_page = LoginPage(context.page)
-    login_page.navigate_to_dashboard()
+    persona = getattr(context, "persona", "student")
+    if persona == "faculty":
+        faculty_home_page = FacultyHomePage(context.page)
+        faculty_home_page.navigate_to_dashboard()
+    else:
+        login_page = LoginPage(context.page)
+        login_page.navigate_to_dashboard()
     # Validate header on dashboard
     header = validate_header(context.page)
     attach_screenshot(context.page, f"Dashboard header: {header}")
@@ -71,11 +79,17 @@ def click_jobs_connect(context):
     attach_screenshot(page, f"Jobs Connect header: {header} | url: {new}")
 @then("user clicks on Calender")
 def click_calender(context):
+    persona = getattr(context, "persona", "student")
     page = context.page
-    login_page = LoginPage(page)
-    
     prev = page.url
-    login_page.click_calendar()
+
+    if persona == "faculty":
+        faculty_home_page = FacultyHomePage(page)
+        faculty_home_page.click_calendar_menu()
+    else:
+        login_page = LoginPage(page)
+        login_page.click_calendar()
+
     new = validate_navigation(prev, page)
     header = validate_header(page)
     attach_screenshot(page, f"Calendar header: {header} | url: {new}")
@@ -91,29 +105,49 @@ def navigate_support(context):
 
 @then("user checks notifications and chat")
 def check_notifications_chat(context):
-    login_page = LoginPage(context.page)
-    login_page.check_notifications_and_chat()
+    persona = getattr(context, "persona", "student")
+    if persona == "faculty":
+        faculty_home_page = FacultyHomePage(context.page)
+        faculty_home_page.check_notifications_and_chat()
+    else:
+        login_page = LoginPage(context.page)
+        login_page.check_notifications_and_chat()
     
 
 
 @then("user clicks on profile icon")
 def click_profile_icon(context):
-    login_page = LoginPage(context.page)
-    login_page.click_profile_icon()
+    persona = getattr(context, "persona", "student")
+    if persona == "faculty":
+        faculty_home_page = FacultyHomePage(context.page)
+        faculty_home_page.click_profile_icon()
+    else:
+        login_page = LoginPage(context.page)
+        login_page.click_profile_icon()
 
 
 @then("profile fields should be visible")
 def profile_fields_visible(context):
     page = context.page
-    login_page = LoginPage(page)
-    
-    login_page.verify_profile_fields_visible()
+    persona = getattr(context, "persona", "student")
+
+    if persona == "faculty":
+        faculty_home_page = FacultyHomePage(page)
+        faculty_home_page.edit_profile_details()
+    else:
+        login_page = LoginPage(page)
+        login_page.verify_profile_fields_visible()
     attach_screenshot(page, "Profile Fields Visible")
 
 @then("user edits profile details")
 def edit_profile_details(context):
-    login_page = LoginPage(context.page)
-    login_page.edit_profile_details()
+    persona = getattr(context, "persona", "student")
+    if persona == "faculty":
+        faculty_home_page = FacultyHomePage(context.page)
+        faculty_home_page.edit_profile_details()
+    else:
+        login_page = LoginPage(context.page)
+        login_page.edit_profile_details()
 
 
 @then("user clicks on logout")
@@ -139,8 +173,13 @@ def verify_dashboard(context):
 
 @then("user validates recommended activities section")
 def validate_recommended_activities(context):
-    login_page = LoginPage(context.page)
-    login_page.validate_recommended_activities_section()
+    persona = getattr(context, "persona", "student")
+    if persona == "faculty":
+        faculty_home_page = FacultyHomePage(context.page)
+        faculty_home_page.validate_recommended_activities_section()
+    else:
+        login_page = LoginPage(context.page)
+        login_page.validate_recommended_activities_section()
 
 @then("user validates ongoing course section")
 def validate_ongoing_course(context):

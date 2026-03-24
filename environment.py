@@ -24,7 +24,7 @@ def before_scenario(context, scenario):
     """Set up Playwright browser before each scenario."""
     context.playwright = sync_playwright().start()
     context.browser = context.playwright.chromium.launch(
-        headless=False, slow_mo=1500
+        headless=False, slow_mo=0
     )
     context.context = context.browser.new_context()
     

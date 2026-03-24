@@ -1,0 +1,23 @@
+﻿Automation files scanned: 45
+Product classes available: 55
+Product ids available: 0
+Locator-like lines analyzed: 6669
+Matched lines: 256
+Unmatched lines: 6413
+Top matching files:
+  src\pages\wadhwani_login_page.py : 90
+  src\pages\wadhwani_home_page_android_cdp.py : 72
+  src\pages\wadhwani_business_queries_android_cdp.py : 31
+  src\pages\wadhwani_login_page_android_cdp.py : 16
+  src\pages\wadhwani_xpaths.py : 9
+  tests\android_cdp\module_Buisness_queries.py : 8
+  tests\android_cdp\test_business_queries.py : 8
+  src\test-demo\test_wadhwani_home_page1.py : 7
+  src\test-demo\test_chatbot.py : 4
+  src\pages\selectors.py : 3
+  src\test-demo\test_wadhwani_home_page.py : 3
+  src\core\playwright_base_page.py : 2
+  src\utils\advanced_reporting.py : 2
+  src\core\session_manager.py : 1
+Top matched classes:
+  button : 256

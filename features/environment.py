@@ -5,9 +5,14 @@ from utils.config import Config
 
 def before_all(context):
     """Setup browser and login once before all scenarios"""
+    persona = Config.get_persona()
+    context.persona = persona
+
+    slow_mo_ms = int(os.getenv("SLOW_MO", "0"))
+
     context.playwright = sync_playwright().start()
     context.browser = context.playwright.chromium.launch(
-        headless=False, slow_mo=1500,
+        headless=False, slow_mo=slow_mo_ms,
         args=[
             '--start-maximized',
             '--use-fake-ui-for-media-stream',  # Auto-deny camera/mic prompts
@@ -23,16 +28,33 @@ def before_all(context):
     context._trace_on = os.getenv("TRACE_ON", "false").lower() in ("1", "true", "yes")
     
     context.page = context.context.new_page()
-    
-    # Login as precondition - happens once for all scenarios
-    login_page = LoginPage(context.page)
-    login_page.open(Config.BASE_URL)
-    login_page.dismiss_popup_if_present()
-    login_page.click_get_started()
-    login_page.click_continue_with_email()
-    login_page.login(Config.USERNAME_INPUT, Config.PASSWORD_INPUT)
-    login_page.wait_for_home_page()
-    print("Login completed - ready to run scenarios")
+
+    username, password = Config.get_credentials(persona)
+
+    # Login as precondition - happens once for all scenarios.
+    # Keep student persona on the existing student login page object flow.
+    if persona == "student":
+        login_page = LoginPage(context.page)
+        login_page.open(Config.BASE_URL)
+        login_page.dismiss_popup_if_present()
+        login_page.click_get_started()
+        login_page.click_continue_with_email()
+        login_page.login(username, password)
+        login_page.wait_for_home_page()
+    else:
+        from locators.Common_locators.common_login_locators import CommonLoginLocators
+        from pages.Common_pages.Login_page import CommonLoginPage
+
+        context.login_locators = CommonLoginLocators
+        login_page = CommonLoginPage(context.page, login_locators=context.login_locators)
+        login_page.open(Config.BASE_URL)
+        login_page.dismiss_popup_if_present()
+        login_page.click_get_started()
+        login_page.click_continue_with_email()
+        login_page.login(username, password)
+        context.page.wait_for_load_state("networkidle")
+
+    print(f"Login completed for persona '{persona}' - ready to run scenarios")
 
 def before_scenario(context, scenario):
     """Start tracing for each scenario if enabled"""

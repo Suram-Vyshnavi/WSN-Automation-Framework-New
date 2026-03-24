@@ -6,9 +6,9 @@ class InterviewPrepLocators:
     INTERVIEW_COACH_SEND_ICON="//img[@alt='interviewCoachSendIcon']"
     #loop the above 2 elements to send product manager first time and e-commerce second time
     PRACTISE_INTERVIEWING_FOR_ROLE="//span[text()='Practise Interviewing for the role']"
-    VALIDATE_START_BUTTON="//span[contains(text(),'Start')]"
+    VALIDATE_START_BUTTON="//button[contains(text(),'Start')]"
     BACK_ICON="//img[@alt='pitchTrainerBackIcon']"
     YOUR_RECENT_ROLES="//h1[text()='Your Recent Roles']"
     MORE_DETAILS_ICON="//img[@alt='moreDetails']"
     DELETE_ROLE="//p[text()='Delete this role']"
-    DELETE_ROLE_CONFIRM_BUTTON="//span[text()='Confirm']"
+    DELETE_ROLE_CONFIRM_BUTTON="//button[text()='Confirm']"

@@ -3,9 +3,9 @@ from utils.config import Config
 
 class Messages_and_discussionsLocators:
     message="hello"
-    SEND_MESSAGE_BUTTON="//span[text()='Send Message']"
+    SEND_MESSAGE_BUTTON="//button[text()='Send Message']"
     FIRST_NEW_MESSAGE="(//div[@class='search_result_container']//div)[position()=1]"
-    MESSAGE_TEXTAREA="//textarea[@placeholder='Type a message']"
+    MESSAGE_TEXTAREA="//input[@placeholder='Search...']"
     # send hello in the above textarea
     SEND_MESSAGE_ICON="//img[@alt='send message']"
     LATEST_SENT_MESSAGE=f"(//td[text()='{Config.MESSAGE_TEXT}'])[position()=1]"

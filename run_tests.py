@@ -191,12 +191,12 @@ def generate_allure_dashboard_pdf(report_dir, output_pdf):
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
             page = browser.new_page(viewport={"width": 1600, "height": 2200})
-            page.goto(index_uri, wait_until="domcontentloaded", timeout=60000)
+            page.goto(index_uri, wait_until="domcontentloaded", timeout=30000)
             try:
-                page.wait_for_load_state("networkidle", timeout=15000)
+                page.wait_for_load_state("networkidle", timeout=8000)
             except Exception:
                 pass
-            page.wait_for_timeout(6000)
+            page.wait_for_timeout(500)
             page.pdf(
                 path=output_pdf,
                 format="A3",
@@ -271,12 +271,12 @@ def generate_allure_detailed_menu_pdf(report_dir, output_pdf):
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
             page = browser.new_page(viewport={"width": 1800, "height": 1400})
-            page.goto(index_uri, wait_until="domcontentloaded", timeout=60000)
+            page.goto(index_uri, wait_until="domcontentloaded", timeout=30000)
             try:
-                page.wait_for_load_state("networkidle", timeout=15000)
+                page.wait_for_load_state("networkidle", timeout=8000)
             except Exception:
                 pass
-            page.wait_for_timeout(5000)
+            page.wait_for_timeout(500)
             page.evaluate("document.body.style.zoom='125%'")
 
             for index, menu in enumerate(menu_names, start=1):
@@ -284,18 +284,18 @@ def generate_allure_detailed_menu_pdf(report_dir, output_pdf):
 
                 link = page.get_by_role("link", name=menu)
                 if link.count() > 0:
-                    link.first.click(timeout=5000)
+                    link.first.click(timeout=3000)
                     clicked = True
                 else:
                     fallback = page.locator(f"a:has-text('{menu}')")
                     if fallback.count() > 0:
-                        fallback.first.click(timeout=5000)
+                        fallback.first.click(timeout=3000)
                         clicked = True
 
                 if not clicked:
                     continue
 
-                page.wait_for_timeout(3000)
+                page.wait_for_timeout(1000)
 
                 if is_empty_allure_section(page):
                     continue
@@ -305,8 +305,8 @@ def generate_allure_detailed_menu_pdf(report_dir, output_pdf):
 
             suites_link = page.get_by_role("link", name="Suites")
             if suites_link.count() > 0:
-                suites_link.first.click(timeout=5000)
-                page.wait_for_timeout(3000)
+                suites_link.first.click(timeout=3000)
+                page.wait_for_timeout(500)
 
                 seen_names = set()
                 for scenario_index, scenario_name in enumerate(scenario_names, start=1):
@@ -323,7 +323,7 @@ def generate_allure_detailed_menu_pdf(report_dir, output_pdf):
                     for candidate in scenario_candidates:
                         try:
                             if candidate.count() > 0:
-                                candidate.first.click(timeout=5000)
+                                candidate.first.click(timeout=3000)
                                 clicked = True
                                 break
                         except Exception:
@@ -332,7 +332,7 @@ def generate_allure_detailed_menu_pdf(report_dir, output_pdf):
                     if not clicked:
                         continue
 
-                    page.wait_for_timeout(3000)
+                    page.wait_for_timeout(1000)
                     if is_empty_allure_section(page):
                         continue
 
@@ -416,14 +416,16 @@ def generate_allure_detailed_menu_pdf(report_dir, output_pdf):
         print(f"❌ Failed building menu-wise detailed PDF: {e}")
         return False
 
-def create_chart(passed, failed, broken):
+def create_chart(passed, failed, broken, chart_path="reports/results_chart.png"):
     labels = ['Passed', 'Failed', 'Broken']
     values = [passed, failed, broken]
     colors = ['green', 'red', 'orange']
     plt.figure(figsize=(5,5))
-    plt.pie(values, labels=labels, colors=colors, autopct='%1.1f%%')
+    if sum(values) == 0:
+        plt.pie([1], labels=['No Results'], colors=['lightgrey'])
+    else:
+        plt.pie(values, labels=labels, colors=colors, autopct='%1.1f%%')
     plt.title("Test Results Distribution")
-    chart_path = "reports/results_chart.png"
     plt.savefig(chart_path)
     plt.close()
     return chart_path
@@ -440,8 +442,7 @@ def build_summary_html(total, passed, failed, broken, chart_path):
     """
     return html
 
-def generate_summary_pdf(html_content):
-    output_pdf = "reports/summary-report.pdf"
+def generate_summary_pdf(html_content, output_pdf="reports/summary-report.pdf"):
     try:
         wkhtmltopdf_path = find_wkhtmltopdf_executable()
         config = pdfkit.configuration(wkhtmltopdf=wkhtmltopdf_path) if wkhtmltopdf_path else None
@@ -454,16 +455,19 @@ def generate_summary_pdf(html_content):
     except Exception as e:
         print(f"❌ Failed to generate summary PDF: {e}")
 
-def run_tests(feature_path=None, tags=None, trace_on=False, headless=False):
+def run_tests(feature_path=None, tags=None, trace_on=False, headless=False, persona=None):
     if trace_on:
         os.environ["TRACE_ON"] = "true"
     if headless:
         os.environ["HEADLESS"] = "true"
+    if persona:
+        os.environ["PERSONA"] = persona
 
     project_root = Path(__file__).resolve().parent
     python_exe = sys.executable
-    results_dir = project_root / "reports" / "allure-results"
-    report_dir = project_root / "reports" / "allure-report"
+    persona_key = (persona or os.getenv("PERSONA", "student")).strip().lower()
+    results_dir = project_root / "reports" / f"allure-results-{persona_key}"
+    report_dir = project_root / "reports" / f"allure-report-{persona_key}"
     report_dir.parent.mkdir(parents=True, exist_ok=True)
 
     if results_dir.exists():
@@ -478,8 +482,19 @@ def run_tests(feature_path=None, tags=None, trace_on=False, headless=False):
         "-f", "pretty"
     ])
 
-    result = subprocess.run(cmd)
-    print("✅ Behave test run complete")
+    print(f"▶ Running persona: {persona_key} | feature: {feature_path if feature_path else 'features/'}")
+    run_env = os.environ.copy()
+    run_env["PERSONA"] = persona_key
+    if trace_on:
+        run_env["TRACE_ON"] = "true"
+    if headless:
+        run_env["HEADLESS"] = "true"
+
+    result = subprocess.run(cmd, env=run_env)
+    print(f"✅ Behave test run complete for persona: {persona_key}")
+
+    if result.returncode != 0:
+        print(f"⚠ Behave execution failed for persona '{persona_key}'. Attempting report/PDF generation from available results.")
 
     allure_exe = find_allure_executable()
     try:
@@ -489,13 +504,13 @@ def run_tests(feature_path=None, tags=None, trace_on=False, headless=False):
             "-o", str(report_dir),
             "--clean",
             "--single-file"
-        ], check=True, shell=True)
+        ], check=True, shell=True, env=run_env)
         print(f"✅ Allure report generated at {report_dir}/index.html")
 
-        output_pdf = str(report_dir / "allure-report.pdf")
+        output_pdf = str(report_dir / f"allure-report-{persona_key}.pdf")
         output_pdf_path = Path(output_pdf)
         pdf_candidates = [output_pdf_path]
-        timestamped_name = f"allure-report-{datetime.now().strftime('%Y%m%d-%H%M%S')}.pdf"
+        timestamped_name = f"allure-report-{persona_key}-{datetime.now().strftime('%Y%m%d-%H%M%S')}.pdf"
         pdf_candidates.append(report_dir / timestamped_name)
 
         try:
@@ -525,9 +540,9 @@ def run_tests(feature_path=None, tags=None, trace_on=False, headless=False):
             print(f"❌ Failed to generate Allure PDF: {e}")
 
         total, passed, failed, broken = parse_results(results_dir)
-        chart_path = create_chart(passed, failed, broken)
+        chart_path = create_chart(passed, failed, broken, chart_path=str(report_dir / f"results_chart_{persona_key}.png"))
         summary_html = build_summary_html(total, passed, failed, broken, chart_path)
-        generate_summary_pdf(summary_html)
+        generate_summary_pdf(summary_html, output_pdf=str(report_dir / f"summary-report-{persona_key}.pdf"))
 
     except FileNotFoundError:
         print("❌ Allure CLI not found. Please install Allure Commandline and add it to PATH.")
@@ -536,8 +551,38 @@ def run_tests(feature_path=None, tags=None, trace_on=False, headless=False):
 
     return result.returncode
 
+
+def run_persona_sequence(personas=None, trace_on=False, headless=False):
+    personas_to_run = personas or ["student", "faculty"]
+    default_feature_by_persona = {
+        "student": "features/login.feature",
+        "faculty": "features/Faculty_All.feature",
+    }
+
+    exit_codes = {}
+    for persona in personas_to_run:
+        feature_path = default_feature_by_persona.get(persona, "features/")
+        code = run_tests(
+            feature_path=feature_path,
+            tags=None,
+            trace_on=trace_on,
+            headless=headless,
+            persona=persona,
+        )
+        exit_codes[persona] = code
+
+    for persona, code in exit_codes.items():
+        status = "PASSED" if code == 0 else "FAILED"
+        print(f"[{persona}] -> {status}")
+
+    return 0 if all(code == 0 for code in exit_codes.values()) else 1
+
 def main():
-    exit_code = run_tests()
+    run_mode = os.getenv("RUN_MODE", "dual").strip().lower()
+    if run_mode == "single":
+        exit_code = run_tests()
+    else:
+        exit_code = run_persona_sequence()
     sys.exit(exit_code)
 
 if __name__ == "__main__":
