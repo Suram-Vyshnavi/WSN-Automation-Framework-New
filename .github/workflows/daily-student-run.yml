@@ -47,7 +47,7 @@ jobs:
           unzip -q "allure-${ALLURE_VERSION}.zip"
           sudo mv "allure-${ALLURE_VERSION}" /opt/allure
           echo "/opt/allure/bin" >> "$GITHUB_PATH"
-          allure --version
+          /opt/allure/bin/allure --version
 
       - name: Install Python dependencies
         run: |
