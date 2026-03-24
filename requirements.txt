@@ -1,6 +1,5 @@
 playwright
 behave
-allure-behave
 python-dotenv
 PyYAML
 allure-behave
