@@ -13,4 +13,4 @@ class CommonSettingsZoomConnectLocators:
     ZOOM_EMAIL_INPUT="(//input[@id='email'])[1]"
     ZOOM_PASSWORD_INPUT="(//input[@id='password'])[1]"
     ZOOM_SIGNIN_BUTTON="(//button[@id='js_btn_login'])[1]"
-    BACK_ARROW="(//img[@class='wf_image left_icon no-js-arrow-left-dark'])[1]"
+    BACK_ARROW="(//img[contains(@class,'left_icon') or contains(@alt,'left') or contains(@alt,'back') or contains(@alt,'arrow')])[1]"

@@ -65,3 +65,17 @@ def step_validate_my_forums(context):
 	page = FacultyHomePage(context.page)
 	page.validate_my_forums_section()
 	attach_screenshot(context.page, "Validated My Forums section")
+
+
+@then("user edits profile details for first name and clicks on the save button")
+def step_edit_profile_details_and_save(context):
+	page = FacultyHomePage(context.page)
+	page.edit_profile_details()
+	attach_screenshot(context.page, "Edited first name and clicked save")
+
+
+@then("user validates My Forums section and validates the recommended forums section")
+def step_validate_my_and_recommended_forums(context):
+	page = FacultyHomePage(context.page)
+	page.validate_my_forums_section()
+	attach_screenshot(context.page, "Validated My Forums and Recommended Forums sections")

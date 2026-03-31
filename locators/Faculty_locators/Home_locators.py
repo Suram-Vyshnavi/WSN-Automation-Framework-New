@@ -14,7 +14,7 @@ class HomeLocators:
     EDIT_PROFILE = "//span[text()='Edit']"
     EDIT_BUTTON = "//button[contains(@class,'edit-button') or normalize-space()='Edit' or .//span[normalize-space()='Edit']]"
     FIRST_NAME = "//input[@id='firstName'] | //input[@id='first-name']"
-
+    SAVE_BUTTON="(//button[normalize-space()='Save'])[1]"
     # Recommended Activities
     RECOMMENDED_ACTIVITIES_SECTION="//p[contains(@class,'recommended_activity_badge') and contains(text(),'Recommended Activities')]"
     RECOMMENDED_ACTIVITY_CARD="//div[contains(@class,'heading_wrapper')]"
@@ -22,7 +22,9 @@ class HomeLocators:
      # Forums 
     FORUMS_SECTION="//div[@class='forum-section']"
     MY_FORUMS_TITLE="//h4[contains(text(),'My Forums')]"
+    RECOMMENDED_FORUMS_TITLE="(//span[@id='recommended_forum_container'])[1]"
     FORUM_CARD="//div[@class='forum_class_card_container']"
+    RECOMMENDED_FORUM_CARD="//div[contains(@class,'heading_wrapper')]//p[contains(@class,'meeting-badge')]"
 
     #Certified courses
     CERTIFIED_COURSES="//p[contains(@class, 'certified_courses') and text()='Certified Courses']"

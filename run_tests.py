@@ -479,7 +479,10 @@ def run_tests(feature_path=None, tags=None, trace_on=False, headless=False, pers
     if tags:
         cmd.extend(["--tags", tags])
     cmd.extend([
-        "-f", "pretty"
+        "-f", "pretty",
+        "-o", "-",
+        "-f", "allure_behave.formatter:AllureFormatter",
+        "-o", str(results_dir),
     ])
 
     print(f"▶ Running persona: {persona_key} | feature: {feature_path if feature_path else 'features/'}")
@@ -560,6 +563,13 @@ def run_persona_sequence(personas=None, trace_on=False, headless=False):
     }
 
     exit_codes = {}
+    project_root = Path(__file__).resolve().parent
+    combined_results_dir = project_root / "reports" / "allure-results"
+
+    if combined_results_dir.exists():
+        shutil.rmtree(combined_results_dir)
+    combined_results_dir.mkdir(parents=True, exist_ok=True)
+
     for persona in personas_to_run:
         feature_path = default_feature_by_persona.get(persona, "features/")
         code = run_tests(
@@ -571,6 +581,62 @@ def run_persona_sequence(personas=None, trace_on=False, headless=False):
         )
         exit_codes[persona] = code
 
+        persona_results_dir = project_root / "reports" / f"allure-results-{persona}"
+        if persona_results_dir.exists():
+            for item in persona_results_dir.iterdir():
+                if item.is_file():
+                    destination = combined_results_dir / f"{persona}_{item.name}"
+                    shutil.copy2(item, destination)
+
+    combined_report_dir = project_root / "reports" / "allure-report"
+    try:
+        allure_exe = find_allure_executable()
+        subprocess.run([
+            allure_exe, "generate",
+            str(combined_results_dir),
+            "-o", str(combined_report_dir),
+            "--clean",
+            "--single-file"
+        ], check=True, shell=True)
+        print(f"✅ Combined Allure report generated at {combined_report_dir}/index.html")
+
+        combined_pdf_primary = combined_report_dir / "allure-report-combined.pdf"
+        combined_pdf_fallback = combined_report_dir / f"allure-report-combined-{datetime.now().strftime('%Y%m%d-%H%M%S')}.pdf"
+        combined_pdf_candidates = [combined_pdf_primary, combined_pdf_fallback]
+
+        combined_pdf_ok = False
+        generated_combined_pdf = None
+        for combined_pdf in combined_pdf_candidates:
+            try:
+                combined_pdf_ok = generate_allure_detailed_menu_pdf(combined_report_dir, str(combined_pdf))
+                if not combined_pdf_ok:
+                    combined_pdf_ok = generate_allure_dashboard_pdf(combined_report_dir, str(combined_pdf))
+                if not combined_pdf_ok:
+                    combined_pdf_ok = generate_detailed_pdf_from_results(combined_results_dir, str(combined_pdf))
+                if combined_pdf_ok:
+                    generated_combined_pdf = combined_pdf
+                    break
+            except PermissionError:
+                continue
+
+        if combined_pdf_ok and generated_combined_pdf:
+            print(f"✅ Combined detailed PDF generated at {generated_combined_pdf}")
+            webbrowser.open(str(generated_combined_pdf))
+
+        total, passed, failed, broken = parse_results(combined_results_dir)
+        combined_chart = create_chart(
+            passed,
+            failed,
+            broken,
+            chart_path=str(combined_report_dir / "results_chart_combined.png")
+        )
+        combined_summary = build_summary_html(total, passed, failed, broken, combined_chart)
+        generate_summary_pdf(combined_summary, output_pdf=str(combined_report_dir / "summary-report-combined.pdf"))
+    except FileNotFoundError:
+        print("❌ Allure CLI not found. Please install Allure Commandline and add it to PATH.")
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Failed to generate combined Allure report: {e}")
+
     for persona, code in exit_codes.items():
         status = "PASSED" if code == 0 else "FAILED"
         print(f"[{persona}] -> {status}")
@@ -580,7 +646,13 @@ def run_persona_sequence(personas=None, trace_on=False, headless=False):
 def main():
     run_mode = os.getenv("RUN_MODE", "dual").strip().lower()
     if run_mode == "single":
-        exit_code = run_tests()
+        persona = os.getenv("PERSONA", "student").strip().lower()
+        default_feature_by_persona = {
+            "student": "features/login.feature",
+            "faculty": "features/Faculty_All.feature",
+        }
+        feature_path = default_feature_by_persona.get(persona, "features/")
+        exit_code = run_tests(feature_path=feature_path, persona=persona)
     else:
         exit_code = run_persona_sequence()
     sys.exit(exit_code)

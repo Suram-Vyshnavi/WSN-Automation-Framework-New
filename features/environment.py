@@ -52,7 +52,12 @@ def before_all(context):
         login_page.click_get_started()
         login_page.click_continue_with_email()
         login_page.login(username, password)
-        context.page.wait_for_load_state("networkidle")
+        context.page.wait_for_load_state("networkidle", timeout=15000)
+        # Wait until browser navigates away from the login page
+        context.page.wait_for_function(
+            "() => !window.location.href.includes('login')",
+            timeout=20000
+        )
 
     print(f"Login completed for persona '{persona}' - ready to run scenarios")
 

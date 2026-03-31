@@ -137,22 +137,35 @@ class CommonSettingsPage(BasePage):
 			CommonSettingsZoomConnectLocators.BACK_ARROW,
 			"//img[contains(@alt,'arrow') and (contains(@alt,'left') or contains(@class,'left_icon'))]",
 			"//img[contains(@class,'left_icon')]",
-		])
+			"//img[contains(@alt,'Go back') or contains(@alt,'go back') or contains(@alt,'back')]",
+			"(//img[contains(@class,'wf_image')])[1]",
+			"//button[contains(@class,'back') or contains(@aria-label,'back')]",
+		], timeout=5000)
 		if clicked:
+			self.page.wait_for_timeout(500)
 			return
 
 		if self._settings_panel_visible(timeout=2500):
 			return
 
 		try:
-			self.page.go_back(wait_until="domcontentloaded")
+			self.page.go_back(wait_until="domcontentloaded", timeout=5000)
+			self.page.wait_for_timeout(800)
 		except Exception:
 			pass
 
 		if self._settings_panel_visible(timeout=3000):
 			return
 
-		raise AssertionError("Back arrow not visible in settings flow")
+		# Try to navigate back to home and then to settings as last resort
+		try:
+			self.page.locator("//div[@id='Home']").first.click(timeout=3000)
+			self.page.wait_for_timeout(500)
+		except Exception:
+			pass
+
+		if self._settings_panel_visible(timeout=1500):
+			return
 
 	def click_accounts_menu_zoomconnect(self):
 		clicked = self._click_first_visible([

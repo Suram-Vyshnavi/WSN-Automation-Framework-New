@@ -62,7 +62,7 @@ def step_meetings_signin(context):
     else:
         attach_screenshot(context.page, "Zoom already connected after toggle; navigated back without sign in")
 
-@then("user navigates to zoom.us signin screen and validates the email address, password,signin buttons")
+@then("user navigates to zoom.us signin screen and validates the email address, password, signin buttons")
 def step_zoom_login_screen(context):
     if hasattr(context, "zoom_signin_required") and not context.zoom_signin_required:
         attach_screenshot(context.page, "Skipped zoom.us sign in screen validation for already connected user")

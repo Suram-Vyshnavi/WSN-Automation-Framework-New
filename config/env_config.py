@@ -18,7 +18,8 @@ with open("config/config.yaml") as f:
     config = yaml.safe_load(f)
 env = config[ENV]
 
-BASE_URL = os.getenv("BASE_URL", env["base_url"])
+base_url_from_env = (os.getenv("BASE_URL") or "").strip()
+BASE_URL = base_url_from_env or env["base_url"]
 TIMEOUT = env["timeout"]
 HEADLESS = os.getenv("HEADLESS", "false").lower() == "true"
 legacy_username = os.getenv("USERNAME")
