@@ -5,6 +5,8 @@ from config.env_config import (
     PASSWORD as ENV_PASSWORD,
     FACULTY_USERNAME as ENV_FACULTY_USERNAME,
     FACULTY_PASSWORD as ENV_FACULTY_PASSWORD,
+    RM_USERNAME as ENV_RM_USERNAME,
+    RM_PASSWORD as ENV_RM_PASSWORD,
     CAREER_BUDDY_USERNAME as ENV_CAREER_BUDDY_USERNAME,
     CAREER_BUDDY_PASSWORD as ENV_CAREER_BUDDY_PASSWORD,
     INSTITUTE_ADMIN_USERNAME as ENV_INSTITUTE_ADMIN_USERNAME,
@@ -24,6 +26,8 @@ class Config:
     # New persona-specific variable names.
     FACULTY_USERNAME_INPUT = ENV_FACULTY_USERNAME
     FACULTY_PASSWORD_INPUT = ENV_FACULTY_PASSWORD
+    RM_USERNAME_INPUT = ENV_RM_USERNAME
+    RM_PASSWORD_INPUT = ENV_RM_PASSWORD
     CAREER_BUDDY_USERNAME_INPUT = ENV_CAREER_BUDDY_USERNAME
     CAREER_BUDDY_PASSWORD_INPUT = ENV_CAREER_BUDDY_PASSWORD
     INSTITUTE_ADMIN_USERNAME_INPUT = ENV_INSTITUTE_ADMIN_USERNAME
@@ -40,6 +44,10 @@ class Config:
         "faculty": {
             "username": FACULTY_USERNAME_INPUT,
             "password": FACULTY_PASSWORD_INPUT,
+        },
+        "rm": {
+            "username": RM_USERNAME_INPUT,
+            "password": RM_PASSWORD_INPUT,
         },
         "career_buddy": {
             "username": CAREER_BUDDY_USERNAME_INPUT,
@@ -65,7 +73,7 @@ class Config:
         if not creds["username"] or not creds["password"]:
             raise ValueError(
                 f"Missing credentials for persona '{selected}'. "
-                "Set persona env vars (e.g. STUDENT_*, FACULTY_*, CAREER_BUDDY_*, INSTITUTE_ADMIN_*) "
+                "Set persona env vars (e.g. STUDENT_*, FACULTY_*, RM_*, CAREER_BUDDY_*, INSTITUTE_ADMIN_*) "
                 "or update utils/config.py"
             )
         return creds["username"], creds["password"]

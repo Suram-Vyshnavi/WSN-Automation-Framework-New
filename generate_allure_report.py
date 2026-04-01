@@ -56,7 +56,7 @@ def generate_allure_html():
     if not allure_results.exists() or not any(allure_results.iterdir()):
         print("⚠ No test results found!")
         print(f"Please run tests first to generate results in: {allure_results}")
-        print("\nExample: python -m behave features/login.feature -f allure_behave.formatter:AllureFormatter -o reports/allure-results")
+        print("\nExample: python -m behave features/Student_All.feature -f allure_behave.formatter:AllureFormatter -o reports/allure-results")
         return 1
     
     print("="*70)

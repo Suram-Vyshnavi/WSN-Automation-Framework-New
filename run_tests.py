@@ -247,6 +247,15 @@ def is_empty_allure_section(page):
         return False
 
 
+def infer_results_dir_from_report_dir(report_dir):
+    report_path = Path(report_dir)
+    report_name = report_path.name
+    if report_name.startswith("allure-report-"):
+        persona_suffix = report_name.replace("allure-report-", "", 1)
+        return report_path.parent / f"allure-results-{persona_suffix}"
+    return report_path.parent / "allure-results"
+
+
 def generate_allure_detailed_menu_pdf(report_dir, output_pdf):
     if not PLAYWRIGHT_AVAILABLE or not REPORTLAB_AVAILABLE:
         print("❌ Missing Playwright/ReportLab for menu-wise detailed PDF export")
@@ -264,7 +273,8 @@ def generate_allure_detailed_menu_pdf(report_dir, output_pdf):
 
     index_uri = index_file.resolve().as_uri()
     menu_names = ["Overview", "Categories", "Suites", "Graphs", "Timeline", "Behaviors", "Packages"]
-    scenario_names = [item.get("name") for item in collect_scenario_results(Path(report_dir).parent / "allure-results") if item.get("name")]
+    results_dir = infer_results_dir_from_report_dir(report_dir)
+    scenario_names = [item.get("name") for item in collect_scenario_results(results_dir) if item.get("name")]
     captures = []
 
     try:
@@ -382,7 +392,6 @@ def generate_allure_detailed_menu_pdf(report_dir, output_pdf):
             elements.append(image)
             elements.append(Spacer(1, 16))
 
-        results_dir = Path(report_dir).parent / "allure-results"
         attachment_images = sorted(results_dir.glob("*-attachment.png"), key=lambda path: path.stat().st_mtime)
         max_screenshots = get_pdf_max_screenshots()
 
@@ -558,7 +567,7 @@ def run_tests(feature_path=None, tags=None, trace_on=False, headless=False, pers
 def run_persona_sequence(personas=None, trace_on=False, headless=False):
     personas_to_run = personas or ["student", "faculty"]
     default_feature_by_persona = {
-        "student": "features/login.feature",
+        "student": "features/Student_All.feature",
         "faculty": "features/Faculty_All.feature",
     }
 
@@ -648,7 +657,7 @@ def main():
     if run_mode == "single":
         persona = os.getenv("PERSONA", "student").strip().lower()
         default_feature_by_persona = {
-            "student": "features/login.feature",
+            "student": "features/Student_All.feature",
             "faculty": "features/Faculty_All.feature",
         }
         feature_path = default_feature_by_persona.get(persona, "features/")

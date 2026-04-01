@@ -15,6 +15,15 @@ class DashboardLocators:
     LEARNING_PROGRESS_CARD="//div[contains(@class,'continue-course-container')] | //div[contains(@class,'course_card_container')]"
     COURSE_PROGRESS_BAR="//div[contains(@class,'ant-progress-inner')] | //div[contains(@class,'course_progress_bar')]"
     
+    # You now have access to Jobs Connect!
+    JOBS_CONNECT_SECTION="//div[@id='profile-progress-nudge-container']"
+    EXPLORE_JOBS="(//button[normalize-space()='Explore Jobs'])[1]"
+
+    #Career buddy section
+    CAREER_BUDDY_TITLE="(//P[normalize-space()='Career Buddy'])[1]"
+    CAREER_BUDDY_MULTICAROUSAL="(//ul[@class='react-multi-carousel-track '])[2]"
+    CAREER_BUDDY_CAROUSEL_ARROW="(//button[contains(@aria-label,'Go to next slide')])[2]"
+
     # Institute Specific Courses and Programs
     INSTITUTE_COURSES_SECTION="//h2[contains(@class,'institute_program_course__heading') and contains(text(),'Recommended By Your Institute')]"
     INSTITUTE_PROGRAMS_SUBHEADING="//div[@class='institute_program_course__container']//h4[contains(@class,'institute_program_course__subHeading') and text()='Programs']"

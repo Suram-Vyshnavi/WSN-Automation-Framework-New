@@ -88,6 +88,7 @@ def step_delete_second_faculty(context):
 	attach_screenshot(context.page, "Deleted second faculty")
 
 
+@then("user validates the faculty delete toast message")
 @then("validates the faculty delete toast message")
 def step_validate_faculty_delete_toast(context):
 	page = BatchDetailsPage(context.page)

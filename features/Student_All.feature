@@ -1,4 +1,4 @@
-Feature: Login
+Feature: Student Persona
   Scenario: Valid login
     Then user navigates through dashboard
     Then user clicks on Career Advisor
@@ -13,7 +13,8 @@ Feature: Login
 
   Scenario: Dashboard sections validation
     Then user validates recommended activities section
-    Then user validates ongoing course section
+    Then user validates ongoing course section or You now have access to Jobs Connect!
+    Then user validates the career buddy section if it's existed in the dashboard screen
     Then user validates institute specific courses
     Then user validates wadhwani courses and programs
     Then user validates enrol batch card
@@ -85,7 +86,7 @@ Feature: Login
     Then user clicks on the first job result
     Then user validates the apply option
     Then user navigates to home page
-  
+
   Scenario: Messages and discussions validation
     Then user clicks on chat icon
     Then user clicks on send message button
@@ -121,7 +122,7 @@ Feature: Login
     Then user sends a message
     Then user validates the latest message sent
     Then user navigates to home page
-  
+
   Scenario: Settings ZoomConnect validation
     Then user clicks on ZoomConnect profile icon
     Then user clicks on settings menu
@@ -159,4 +160,3 @@ Feature: Login
     Then user clicks on whatsapp container section right arrow button
     Then user validates the whatsapp section and clicks on the toggle button
     Then user clicks on the whatsapp section back arrow and validates the settings section
- 

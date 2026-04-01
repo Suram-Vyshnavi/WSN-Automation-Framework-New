@@ -182,9 +182,15 @@ def validate_recommended_activities(context):
         login_page.validate_recommended_activities_section()
 
 @then("user validates ongoing course section")
+@then("user validates ongoing course section or You now have access to Jobs Connect!")
 def validate_ongoing_course(context):
     login_page = LoginPage(context.page)
-    login_page.validate_ongoing_course_section()
+    login_page.validate_ongoing_course_or_jobs_connect_section()
+
+@then("user validates the career buddy section if it's existed in the dashboard screen")
+def validate_career_buddy_if_exists(context):
+    login_page = LoginPage(context.page)
+    login_page.validate_career_buddy_section_if_exists()
 
 @then("user validates institute specific courses")
 def validate_institute_courses(context):

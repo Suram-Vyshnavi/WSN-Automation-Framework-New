@@ -1,9 +1,9 @@
-Feature: Faculty Login
+Feature: RM Login
 
-  Scenario: Faculty login only
+  Scenario: RM login only
     Then current persona login should be successful
 
-  Scenario: Faculty Homescreen validation
+  Scenario: RM Homescreen validation
     Then user navigates through dashboard
     Then user clicks on Home menu
     Then user clicks on Batches menu

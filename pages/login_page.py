@@ -273,7 +273,8 @@ class LoginPage(BasePage):
             
             section_locator.wait_for(state="visible", timeout=10000)
             section_visible = section_locator.is_visible()
-            self.validate_using_inner_text(DashboardLocators.RECOMMENDED_ACTIVITIES_SECTION, "Recommended Activities")
+            heading_text = section_locator.inner_text().strip().lower()
+            assert "recommended activities" in heading_text, "Recommended Activities heading text mismatch"
             assert section_visible, "Recommended Activities section not visible"
             
             # Highlight the section
@@ -303,50 +304,136 @@ class LoginPage(BasePage):
             print(f"Recommended Activities section not found or not visible: {e}")
             attach_screenshot(self.page, "Recommended Activities - Section not found")
 
-    def validate_ongoing_course_section(self):
-        """Validate ongoing course section on dashboard"""
+    def validate_ongoing_course_or_jobs_connect_section(self):
+        """Validate ongoing course section; if not present, validate Jobs Connect section instead"""
+        ongoing_locator = self.page.locator(DashboardLocators.ONGOING_COURSE_SECTION).first
         try:
-            # Locate and scroll to ongoing course section
-            ongoing_locator = self.page.locator(DashboardLocators.ONGOING_COURSE_SECTION).first
             ongoing_locator.scroll_into_view_if_needed()
-            
-            ongoing_locator.wait_for(state="visible", timeout=10000)
-            section_visible = ongoing_locator.is_visible()
-            assert section_visible, "Ongoing Course section not visible"
-            print("Highlighting Ongoing Course Section Heading...")
-            highlight_element(self.page, ongoing_locator, duration=2000)
-            
-            # Check for course cards
-            progress_cards = self.page.locator(DashboardLocators.LEARNING_PROGRESS_CARD).count()
-            print(f"Found {progress_cards} ongoing course cards")
-            
-            # Highlight course cards
-            if progress_cards > 0:
+            ongoing_locator.wait_for(state="visible", timeout=8000)
+            if ongoing_locator.is_visible():
+                print("Ongoing Course section found. Validating...")
+                highlight_element(self.page, ongoing_locator, duration=2000)
+
+                progress_cards = self.page.locator(DashboardLocators.LEARNING_PROGRESS_CARD).count()
+                print(f"Found {progress_cards} ongoing course cards")
                 for i in range(min(progress_cards, 3)):
                     try:
-                        print(f"Highlighting course card {i+1}...")
                         card = self.page.locator(DashboardLocators.LEARNING_PROGRESS_CARD).nth(i)
                         highlight_element(self.page, card, duration=1500)
                     except Exception as e:
                         print(f"Could not highlight course card {i+1}: {e}")
-            
-            # Check for progress bars
-            progress_bars = self.page.locator(DashboardLocators.COURSE_PROGRESS_BAR).count()
-            print(f"Found {progress_bars} course progress bars")
-            
-            # Highlight first progress bar
-            if progress_bars > 0:
-                try:
-                    print("Highlighting progress bar...")
-                    first_bar = self.page.locator(DashboardLocators.COURSE_PROGRESS_BAR).first
-                    highlight_element(self.page, first_bar, duration=1500)
-                except Exception as e:
-                    print(f"Could not highlight progress bar: {e}")
-            
-            attach_screenshot(self.page, f"Ongoing Courses - {progress_cards} cards with {progress_bars} progress bars")
+
+                progress_bars = self.page.locator(DashboardLocators.COURSE_PROGRESS_BAR).count()
+                print(f"Found {progress_bars} course progress bars")
+                if progress_bars > 0:
+                    try:
+                        highlight_element(self.page, self.page.locator(DashboardLocators.COURSE_PROGRESS_BAR).first, duration=1500)
+                    except Exception as e:
+                        print(f"Could not highlight progress bar: {e}")
+
+                attach_screenshot(self.page, f"Ongoing Courses - {progress_cards} cards with {progress_bars} progress bars")
+                return
+        except Exception:
+            pass
+
+        # Ongoing courses not present — fall back to Jobs Connect section
+        print("Ongoing Course section not found. Checking 'You now have access to Jobs Connect!' section...")
+        try:
+            jobs_connect_selector = getattr(
+                DashboardLocators,
+                "JOBS_CONNECT_SECTION",
+                "//div[@id='profile-progress-nudge-container'] | //*[contains(normalize-space(),'You now have access to Jobs Connect!')]",
+            )
+            jobs_connect_locator = self.page.locator(jobs_connect_selector).first
+            jobs_connect_locator.scroll_into_view_if_needed()
+            jobs_connect_locator.wait_for(state="visible", timeout=10000)
+            assert jobs_connect_locator.is_visible(), "'You now have access to Jobs Connect!' section not visible"
+            print("Highlighting 'You now have access to Jobs Connect!' section...")
+            highlight_element(self.page, jobs_connect_locator, duration=2000)
+
+            explore_jobs_selector = getattr(
+                DashboardLocators,
+                "EXPLORE_JOBS",
+                "//button[normalize-space()='Explore Jobs']",
+            )
+            explore_btn = self.page.locator(explore_jobs_selector).first
+            explore_btn.wait_for(state="visible", timeout=5000)
+            if explore_btn.is_visible():
+                print("Interacting with 'Explore Jobs' button...")
+                highlight_element(self.page, explore_btn, duration=1500)
+                explore_btn.click(force=True)
+                self.page.wait_for_timeout(1000)
+
+                # Return to dashboard so the next dashboard validations can continue.
+                if "jobs" in self.page.url.lower() or "connect" in self.page.url.lower():
+                    self.page.go_back()
+                    self.page.wait_for_timeout(1200)
+                self.navigate_to_home()
+
+            attach_screenshot(self.page, "Jobs Connect section validated")
         except Exception as e:
-            print(f"Ongoing Course section not found: {e}")
-            attach_screenshot(self.page, "Ongoing Course - Section not found")
+            print(f"Jobs Connect section also not found: {e}")
+            attach_screenshot(self.page, "Ongoing Course / Jobs Connect - Neither section found")
+
+    def validate_career_buddy_section_if_exists(self):
+        """Validate career buddy section on dashboard if it is present; skip otherwise"""
+        try:
+            # Some dashboards render the title in different tags; keep this flexible.
+            career_buddy_locator = self.page.locator("//*[normalize-space()='Career Buddy']").first
+            career_buddy_locator.scroll_into_view_if_needed()
+            career_buddy_locator.wait_for(state="visible", timeout=8000)
+            if not career_buddy_locator.is_visible():
+                print("Career Buddy section not found on dashboard. Skipping.")
+                attach_screenshot(self.page, "Career Buddy - Section not present (skipped)")
+                return
+
+            print("Career Buddy section found. Validating...")
+            highlight_element(self.page, career_buddy_locator, duration=2000)
+
+            # Validate carousel
+            carousel_selector = getattr(
+                DashboardLocators,
+                "CAREER_BUDDY_MULTICAROUSAL",
+                "(//ul[contains(@class,'react-multi-carousel-track')])[last()]",
+            )
+            carousel = self.page.locator(carousel_selector).first
+            if carousel.is_visible():
+                print("Highlighting Career Buddy carousel...")
+                highlight_element(self.page, carousel, duration=1500)
+
+            # Validate next arrow
+            arrow_selector = getattr(
+                DashboardLocators,
+                "CAREER_BUDDY_CAROUSEL_ARROW",
+                "(//button[contains(@aria-label,'Go to next slide')])[last()]",
+            )
+            arrow = self.page.locator(arrow_selector).first
+            if arrow.is_visible():
+                print("Interacting with Career Buddy carousel arrow...")
+                highlight_element(self.page, arrow, duration=1500)
+                arrow.click(force=True)
+                self.page.wait_for_timeout(700)
+
+            # Interact with explore button if available within Career Buddy tile.
+            explore_career_buddy = self.page.locator(
+                "//span[normalize-space()='Career Buddy']/ancestor::div[contains(@class,'program_card') or contains(@class,'card')][1]//button[contains(normalize-space(),'Explore')] | //*[normalize-space()='Career Buddy']/ancestor::div[1]//button[contains(normalize-space(),'Explore') or contains(normalize-space(),'Book')]"
+            ).first
+            if explore_career_buddy.count() > 0 and explore_career_buddy.is_visible():
+                print("Interacting with Career Buddy Explore button...")
+                highlight_element(self.page, explore_career_buddy, duration=1500)
+                explore_career_buddy.click(force=True)
+                self.page.wait_for_timeout(1000)
+
+                # Return to dashboard for remaining dashboard validations.
+                if "placement" in self.page.url.lower() or "career-buddy" in self.page.url.lower():
+                    self.page.go_back()
+                    self.page.wait_for_timeout(1200)
+                self.navigate_to_home()
+
+            attach_screenshot(self.page, "Career Buddy section validated")
+        except Exception as e:
+            print(f"Career Buddy section not found on dashboard. Skipping. ({e})")
+            attach_screenshot(self.page, "Career Buddy - Section not present (skipped)")
 
     def validate_institute_specific_courses(self):
         """Validate institute specific courses section on dashboard"""

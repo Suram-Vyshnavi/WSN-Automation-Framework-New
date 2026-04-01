@@ -1,8 +1,9 @@
 playwright
-behave
+behave==1.2.6
 python-dotenv
 PyYAML
-allure-behave
+allure-behave==2.13.5
+allure-python-commons==2.13.5
 pdfkit
 matplotlib
 reportlab

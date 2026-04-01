@@ -1,3 +1,17 @@
 qa:
   base_url: https://example.com
   timeout: 300
+  username: ""
+  password: ""
+
+dev:
+  base_url: https://dev.skilling.wadhwanifoundation.org/en/guest
+  timeout: 300
+  username: ""
+  password: ""
+
+prod:
+  base_url: https://skilling.wadhwanifoundation.org/en/guest
+  timeout: 300
+  username: ""
+  password: ""
