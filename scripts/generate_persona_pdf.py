@@ -67,7 +67,7 @@ def load_statuses(results_dir):
     return status_map
 
 
-def generate_pdf(persona, feature_path, results_dir, output_pdf, exclude_tags=None):
+def generate_pdf(persona, feature_path, results_dir, output_pdf, exclude_tags=None, product_version="unknown"):
     scenarios = parse_feature(feature_path, exclude_tags=exclude_tags)
     status_map = load_statuses(results_dir)
 
@@ -101,7 +101,11 @@ def generate_pdf(persona, feature_path, results_dir, output_pdf, exclude_tags=No
     elements.append(Paragraph(f"{persona.title()} Persona - Test Execution Report", styles["Title"]))
     elements.append(
         Paragraph(
-            f"Feature: {Path(feature_path).name} | Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}",
+            (
+                f"Feature: {Path(feature_path).name} | "
+                f"Product Version: {product_version} | "
+                f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}"
+            ),
             small,
         )
     )
@@ -181,10 +185,18 @@ def main():
     parser.add_argument("--results", required=True, help="Allure results directory")
     parser.add_argument("--output", required=True, help="Output PDF path")
     parser.add_argument("--exclude-tags", default="", help="Comma-separated tags to exclude from feature parsing")
+    parser.add_argument("--product-version", default="unknown", help="Product version to print in report")
     args = parser.parse_args()
 
     exclude_tags = [tag.strip().lstrip("@") for tag in args.exclude_tags.split(",") if tag.strip()]
-    generate_pdf(args.persona, args.feature, args.results, args.output, exclude_tags=exclude_tags)
+    generate_pdf(
+        args.persona,
+        args.feature,
+        args.results,
+        args.output,
+        exclude_tags=exclude_tags,
+        product_version=args.product_version,
+    )
     print(f"PDF generated: {args.output}")
 
 

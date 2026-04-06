@@ -1,6 +1,7 @@
 param(
     [switch]$DryRun,
-    [string]$Env = "qa"
+    [string]$Env = "qa",
+    [string]$ProductVersion = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -18,6 +19,9 @@ if (!(Test-Path $RunnerScript)) {
 }
 
 $runArgs = @("--persona", "student")
+if ($ProductVersion) {
+    $runArgs += @("--product-version", $ProductVersion)
+}
 
 $cmd = "`"$PythonExe`" `"$RunnerScript`" $($runArgs -join ' ')"
 

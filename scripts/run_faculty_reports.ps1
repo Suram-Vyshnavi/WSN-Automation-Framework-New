@@ -1,6 +1,7 @@
 param(
     [switch]$DryRun,
     [string]$Env = "qa",
+    [string]$ProductVersion = "",
     [switch]$SkipBatchCreation
 )
 
@@ -19,6 +20,9 @@ if (!(Test-Path $RunnerScript)) {
 }
 
 $runArgs = @("--persona", "faculty")
+if ($ProductVersion) {
+    $runArgs += @("--product-version", $ProductVersion)
+}
 if ($SkipBatchCreation) {
     $runArgs += @("--exclude-tags", "faculty_only")
 }
