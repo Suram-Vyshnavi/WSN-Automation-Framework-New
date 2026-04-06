@@ -149,7 +149,29 @@ class CommonCreateMeetingPage(BasePage):
 		], timeout=4000)
 		return bool(batch_details_marker)
 
-	def navigate_to_batch_details_and_upcoming_activities(self):
+	def _navigate_rm_to_first_batch(self):
+		"""For RM persona: go Home → click first row in Assigned Batches table."""
+		self._click_first_visible([
+			"//div[@id='Home']",
+			"//div[@role='menuitem' and contains(translate(normalize-space(.), 'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 'HOME')]",
+		], timeout=7000)
+		self.page.wait_for_timeout(700)
+
+		assigned_title = self._first_visible([
+			"(//h2[normalize-space()='Assigned Batches'])[1]",
+			"//*[self::h2 or self::h3][contains(translate(normalize-space(.), 'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 'ASSIGNED BATCH')]",
+		], timeout=12000)
+		assert assigned_title, "Assigned Batches section is not visible on RM home screen"
+
+		clicked = self._click_first_visible([
+			"(//tbody//tr[1]//td[contains(@class,'batch-list-content-bold')])[1]",
+			"(//tbody//tr[1]//td[contains(@class,'batch-list-content')])[1]",
+			"(//tbody//tr[1]//td)[1]",
+			"(//div[contains(@class,'ant-table-tbody')]//tr[1]//td[1])[1]",
+		], timeout=10000)
+		assert clicked, "First batch row is not visible/clickable in RM Assigned Batches table"
+
+	def navigate_to_batch_details_and_upcoming_activities(self, persona=None):
 		if not self._batch_details_screen_visible():
 			try:
 				self.page.evaluate("window.scrollTo(0, 0)")
@@ -157,21 +179,24 @@ class CommonCreateMeetingPage(BasePage):
 			except Exception:
 				pass
 
-			clicked = False
-			for offset in (0, 250, 500, 750):
-				try:
-					self.page.evaluate(f"window.scrollTo(0, {offset})")
-					self.page.wait_for_timeout(120)
-				except Exception:
-					pass
+			if persona == 'rm':
+				self._navigate_rm_to_first_batch()
+			else:
+				clicked = False
+				for offset in (0, 250, 500, 750):
+					try:
+						self.page.evaluate(f"window.scrollTo(0, {offset})")
+						self.page.wait_for_timeout(120)
+					except Exception:
+						pass
 
-				clicked = self._click_first_visible([
-					BatchDetailsLocators.FIRST_BATCH_CARD,
-					"(//tbody//tr[1]//td[contains(@class,'batch-list-content')])[1]",
-				], timeout=5000)
-				if clicked:
-					break
-			assert clicked, "First active batch card is not visible/clickable"
+					clicked = self._click_first_visible([
+						BatchDetailsLocators.FIRST_BATCH_CARD,
+						"(//tbody//tr[1]//td[contains(@class,'batch-list-content')])[1]",
+					], timeout=5000)
+					if clicked:
+						break
+				assert clicked, "First active batch card is not visible/clickable"
 
 		assert self._batch_details_screen_visible(), "Batch details screen is not visible"
 		upcoming = self._scroll_to_upcoming_activities()

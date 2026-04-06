@@ -59,8 +59,8 @@ legacy_password = os.getenv("PASSWORD")
 # Avoid Windows OS USERNAME collision (it usually contains account name, not login email).
 # Prefer explicit test env vars and fallback to config.yaml/legacy email-like username.
 # KEEP ORIGINAL LOGIC - Do not change USERNAME/PASSWORD resolution
-USERNAME = os.getenv("STUDENT_USERNAME") or os.getenv("TEST_USERNAME") or legacy_username or env.get("username")
-PASSWORD = os.getenv("STUDENT_PASSWORD") or os.getenv("TEST_PASSWORD") or legacy_password or env.get("password")
+USERNAME = os.getenv(_env_key("STUDENT_USERNAME")) or os.getenv("STUDENT_USERNAME") or os.getenv("TEST_USERNAME") or legacy_username or env.get("username")
+PASSWORD = os.getenv(_env_key("STUDENT_PASSWORD")) or os.getenv("STUDENT_PASSWORD") or os.getenv("TEST_PASSWORD") or legacy_password or env.get("password")
 
 # Persona-specific credentials - check env-specific names first (DEV_*, PROD_*), then fall back to flat names
 # This allows different credentials per environment while maintaining backward compatibility

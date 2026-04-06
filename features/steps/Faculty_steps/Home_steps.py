@@ -48,8 +48,13 @@ def step_validate_active_inactive_tabs(context):
 
 @then("user clicks on the batches next arrow button")
 def step_click_batches_next_arrow(context):
-	page = FacultyHomePage(context.page)
-	page.click_batches_next_arrow_button()
+	if getattr(context, 'persona', None) == 'rm':
+		from pages.RM_pages.Home_page import RMHomePage
+		rm_page = RMHomePage(context.page)
+		rm_page.click_assigned_batches_next_arrow_button()
+	else:
+		page = FacultyHomePage(context.page)
+		page.click_batches_next_arrow_button()
 	attach_screenshot(context.page, "Clicked batches next arrow")
 
 

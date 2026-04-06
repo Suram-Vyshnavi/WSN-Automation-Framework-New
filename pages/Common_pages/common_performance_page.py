@@ -57,6 +57,18 @@ class CommonPerformancePage(BasePage):
 		assert self._click_first_visible([CommonPerformanceLocators.SELECT_COURSE_INPUT_FIELD]), "Select course input field is not visible/clickable"
 		assert self._click_first_visible([CommonPerformanceLocators.FIRST_COURSE_IN_DROPDOWN]), "First course option is not visible/clickable"
 
+	def select_course_by_name(self, course_name):
+		container = self._first_visible([CommonPerformanceLocators.COURSE_NAME_CONTAINER])
+		assert container, "Course name container is not visible"
+		assert self._click_first_visible([CommonPerformanceLocators.SELECT_COURSE_INPUT_FIELD]), "Select course input field is not visible/clickable"
+		clicked = self._click_first_visible([
+			f"(//div[@class='ant-select-item-option-content' and normalize-space()='{course_name}'])[1]",
+			f"(//div[contains(@class,'ant-select-item-option-content') and normalize-space()='{course_name}'])[1]",
+			f"(//span[normalize-space()='{course_name}'])[1]",
+			CommonPerformanceLocators.FIRST_COURSE_IN_DROPDOWN,
+		], timeout=10000)
+		assert clicked, f"Course '{course_name}' is not visible/clickable in dropdown"
+
 	def select_first_status(self):
 		container = self._first_visible([CommonPerformanceLocators.STATUS_CONTAINER])
 		assert container, "Status container is not visible"

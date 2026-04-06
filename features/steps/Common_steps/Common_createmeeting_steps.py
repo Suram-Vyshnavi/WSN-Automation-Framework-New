@@ -8,7 +8,7 @@ from utils.helpers import attach_screenshot
 @then("user navigates to the batch details screen and navigates the upcoming activities section")
 def step_navigate_to_batch_details_and_upcoming(context):
 	page = CommonCreateMeetingPage(context.page)
-	page.navigate_to_batch_details_and_upcoming_activities()
+	page.navigate_to_batch_details_and_upcoming_activities(persona=getattr(context, 'persona', None))
 	attach_screenshot(context.page, "Navigated to batch details and upcoming activities")
 
 

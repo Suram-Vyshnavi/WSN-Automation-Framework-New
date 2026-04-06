@@ -36,7 +36,7 @@ def login_user(context):
 @then("user navigates through dashboard")
 def navigate_dashboard(context):
     persona = getattr(context, "persona", "student")
-    if persona == "faculty":
+    if persona in ("faculty", "rm"):
         faculty_home_page = FacultyHomePage(context.page)
         faculty_home_page.navigate_to_dashboard()
     else:
@@ -83,7 +83,7 @@ def click_calender(context):
     page = context.page
     prev = page.url
 
-    if persona == "faculty":
+    if persona in ("faculty", "rm"):
         faculty_home_page = FacultyHomePage(page)
         faculty_home_page.click_calendar_menu()
     else:
@@ -106,7 +106,7 @@ def navigate_support(context):
 @then("user checks notifications and chat")
 def check_notifications_chat(context):
     persona = getattr(context, "persona", "student")
-    if persona == "faculty":
+    if persona in ("faculty", "rm"):
         faculty_home_page = FacultyHomePage(context.page)
         faculty_home_page.check_notifications_and_chat()
     else:
@@ -118,7 +118,7 @@ def check_notifications_chat(context):
 @then("user clicks on profile icon")
 def click_profile_icon(context):
     persona = getattr(context, "persona", "student")
-    if persona == "faculty":
+    if persona in ("faculty", "rm"):
         faculty_home_page = FacultyHomePage(context.page)
         faculty_home_page.click_profile_icon()
     else:

@@ -14,7 +14,7 @@ from pathlib import Path
 FEATURE_BY_PERSONA = {
     "student": "features/Student_All.feature",
     "faculty": "features/Faculty_All.feature",
-    "rm": "features/Faculty_All.feature",
+    "rm": "features/RM_All.feature",
 }
 
 EXCLUDE_TAGS_BY_PERSONA = {

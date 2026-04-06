@@ -38,8 +38,9 @@ class Config:
     # Persona-wise credentials. Defaults can be overridden by environment vars.
     CREDENTIALS = {
         "student": {
-            "username": os.getenv("STUDENT_USERNAME") or USERNAME_INPUT,
-            "password": os.getenv("STUDENT_PASSWORD") or PASSWORD_INPUT,
+            # Use env_config-resolved values so ENV=prod picks PROD_STUDENT_* first.
+            "username": USERNAME_INPUT,
+            "password": PASSWORD_INPUT,
         },
         "faculty": {
             "username": FACULTY_USERNAME_INPUT,

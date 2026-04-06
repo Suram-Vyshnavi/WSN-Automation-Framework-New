@@ -144,7 +144,7 @@ Feature: Faculty Login
 Scenario: Performance screen validation
   Then common user clicks on the performance menu
   Then common user validates the reports title 
-  Then common user validate the course name container and clicks on the select course name input field and clicks on the first course from dropdown
+  Then common user validate the course name container and clicks on the select course name input field and clicks on the "QA-Emp skill Test-V2-1.0.0" course from dropdown
   Then common user validates the status container and clicks on the select satus input field and clicks on the first status from the dropdown
   Then common user validates the batch name container and clicks on the select batch input field and clicks on the "RC2-Final-Batch" from dropdown
   Then common user validates the batch assessment title and batch assessment graph

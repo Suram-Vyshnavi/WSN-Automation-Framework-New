@@ -6,67 +6,21 @@ Feature: RM Login
   Scenario: RM Homescreen validation
     Then user navigates through dashboard
     Then user clicks on Home menu
-    Then user clicks on Batches menu
     Then user clicks on Performance menu
+    Then user clicks on All Batches menu
     Then user clicks on Calender
     Then user navigates with Help/support
     Then user checks notifications and chat
     Then user clicks on profile icon
     Then user edits profile details for first name and clicks on the save button
     Then user navigates to home page
-    Then user validates recommended activities section
-    Then user validates batches section and create new batch button
-    Then user validates Active and Inactive tabs under batches section
+    Then user validates Assigned batches section
+    Then user validates the batch name title , institute name title,course name title,start date title ,end date title,no.of student title , actions title
     Then user clicks on the batches next arrow button
-    Then user validates certified courses section and clicks on carousal arrow
-    Then user validates My Forums section and validates the recommended forums section
 
-  @faculty_only
-  Scenario: Faculty Createbatch validation
-    Then user navigates through dashboard
-    Then user clicks on craete new batch button
-    Then user validates the batch information header section and validates the batch information title
-    Then user clicks in Institute selection dropdown and select the "Test National Skill Training Instititute dev" name from list
-    Then user validates the faculty pre filled name
-    Then user clicks on select course selection dropdown and select the "QA-Emp skill Test-V2" course from list
-    Then user clicks on Batch name input filed and enters the "Automation-Batch" name
-    Then user validates the start date input field and click on the calendar icon and clicks on the today text
-    Then user validates the end date input field and clicks on the calendar icon and clicks on the next year/next month arrow and select "23" from month
-    Then user validates the student enrollment note section and validates the prefilled weekly class hours value
-    Then user check the confirmation checkbox and clicks on the maximum students allowed input field and enter 200 value and clicks on Next button
-    Then user validates the confirm dates popup and clicks on the confirm and proceed button
-    Then user validates the assessment details section and click on the next button
-    Then user validates the difficulty level 1 , difficulty level 2 , difficulty level 3 and clicks on the difficulty level 2 radio button
-    Then user clicks on the "job role or sector" input field and enters the "Automation Engineer" text and clicks on the enter button
-    Then user clicks on the save and finish button and validate the batch details card
-
-  Scenario: Settings ZoomConnect validation
-    Then common user clicks on ZoomConnect profile icon
-    Then common user clicks on settings menu
-    Then common user validates the settings sections
-    Then common user clicks on accounts menu and validates accounts_meetings section
-    Then common user clicks on sign in with zoom right arrow button
-    Then common user validates the zoom account delinked popup and closed the popup
-    Then common user validates the sign in with zoom section and turn on the toggle button
-    Then common user navigates to meetings section and click on signin button
-    Then common user navigates to zoom.us signin screen and validates the email address, password,signin buttons
-    Then common user clicks on email input field and enter the email id
-    Then common user clicks on password input field and enter the password
-    Then common user clicks on sigin button
-    Then common user navigates back to to signin with zoom screen and validates the toggle button status
-    Then common user click on back arrow and navigates to settings screen
-
-  Scenario: Settings WhatsappNotifications validation
-    Then common user clicks on ZoomConnect profile icon
-    Then common user clicks on settings menu
-    Then common user validates the settings sections
-    Then common user clicks on notifications menu and validates whatsapp container section
-    Then common user clicks on whatsapp container section right arrow button
-    Then common user validates the whatsapp section and clicks on the toggle button
-    Then common user clicks on the whatsapp section back arrow and validates the settings section
 
   Scenario: Batch Details validation
-    Then user clicks on first batch from Active batches list
+    Then user clicks on the first active batch from assigned batches list
     Then user validates the institute name and course name
     Then user validates the course timeline section and batch code section
     Then user clicks on the batch code and copy it
@@ -99,18 +53,18 @@ Feature: RM Login
     Then common user validates the delete event toast message and lands on the calendar screen
 
   Scenario: Batch details scorecard validation
-    Then user clicks on first batch from Active batches list
+    Then user clicks on the first active batch from Assigned batches list
     Then user validates the scorecard tab and clicks on it
     Then user validates the Assessment schedule title and validates the Assessment schedule container
 
   Scenario: Batch details collaboratesetup validation
-    Then user clicks on first batch from Active batches list
+    Then user clicks on the first active batch from Assigned batches list
     Then user validates the collaboratesetup tab and clicks on it
     Then user clicks on edit button and change level from 2 to 1 and clicks on the save button
     Then user navigates to batch details collaborate setup screen and validates the selected career plans section
 
  Scenario: Batch members validation
-   Then common user clicks on "RC2-Final-Batch" batch from Active batches list
+   Then user clicks on the first active batch from Assigned batches list
    Then common user validates the batch members tab and clicks on it
    Then common user clicks on the manage student button
    Then common user clicks on the invite students button and validated the batch code 
@@ -131,7 +85,7 @@ Feature: RM Login
    Then common user clicks on the home menu from header section
 
  Scenario: Activity insights validation
-   Then common user clicks on "RC2-Final-Batch" batch from Active batches list
+   Then user clicks on the first active batch from Assigned batches list
    Then common user validates the activity insights tab and clicks on it
    Then common user validates the submission insights header section and validates the module column title and lesson name column title
    Then common user clicks on the students submitted i icon and validates the text
@@ -144,7 +98,7 @@ Feature: RM Login
 Scenario: Performance screen validation
   Then common user clicks on the performance menu
   Then common user validates the reports title 
-  Then common user validate the course name container and clicks on the select course name input field and clicks on the first course from dropdown
+  Then common user validate the course name container and clicks on the select course name input field and clicks on the "QA-Emp skill Test-V2-1.0.0" course from dropdown
   Then common user validates the status container and clicks on the select satus input field and clicks on the first status from the dropdown
   Then common user validates the batch name container and clicks on the select batch input field and clicks on the "RC2-Final-Batch" from dropdown
   Then common user validates the batch assessment title and batch assessment graph
@@ -155,6 +109,14 @@ Scenario: Performance screen validation
   Then common user validates the course name card , institute name card , completion status card  and assessment score details card
   Then common user clicks on the home menu from header section
 
+Scenario: All batches validation
+  Then user clicks on all batches menu
+  Then user validates the all batches title and clicks on the seachbar and enters"qa test" 
+  Then user validates the status title
+  Then user clicks on the status dropdown and clicks on the active option
+  Then user validates the batches section
+  Then user clicks on the status dropdown and clicks on the inactive option
+  Then user validates the batches section
 
  Scenario: Chat Messages and discussions validation
    Then common user clicks on chat icon
@@ -173,3 +135,31 @@ Scenario: Notifications validation
   Then common user validates the notifications
   Then common user clicks on first notification
   Then common user navigates to home page
+
+
+  Scenario: Settings ZoomConnect validation
+    Then common user clicks on ZoomConnect profile icon
+    Then common user clicks on settings menu
+    Then common user validates the settings sections
+    Then common user clicks on accounts menu and validates accounts_meetings section
+    Then common user clicks on sign in with zoom right arrow button
+    Then common user validates the zoom account delinked popup and closed the popup
+    Then common user validates the sign in with zoom section and turn on the toggle button
+    Then common user navigates to meetings section and click on signin button
+    Then common user navigates to zoom.us signin screen and validates the email address, password,signin buttons
+    Then common user clicks on email input field and enter the email id
+    Then common user clicks on password input field and enter the password
+    Then common user clicks on sigin button
+    Then common user navigates back to to signin with zoom screen and validates the toggle button status
+    Then common user click on back arrow and navigates to settings screen
+
+  Scenario: Settings WhatsappNotifications validation
+    Then common user clicks on ZoomConnect profile icon
+    Then common user clicks on settings menu
+    Then common user validates the settings sections
+    Then common user clicks on notifications menu and validates whatsapp container section
+    Then common user clicks on whatsapp container section right arrow button
+    Then common user validates the whatsapp section and clicks on the toggle button
+    Then common user clicks on the whatsapp section back arrow and validates the settings section
+
+    

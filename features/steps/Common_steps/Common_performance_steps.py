@@ -25,6 +25,13 @@ def step_select_course_name(context):
 	attach_screenshot(context.page, "Selected first course from dropdown")
 
 
+@then('common user validate the course name container and clicks on the select course name input field and clicks on the "{course_name}" course from dropdown')
+def step_select_course_name_by_value(context, course_name):
+	page = CommonPerformancePage(context.page)
+	page.select_course_by_name(course_name)
+	attach_screenshot(context.page, f"Selected course '{course_name}' from dropdown")
+
+
 @then("common user validates the status container and clicks on the select satus input field and clicks on the first status from the dropdown")
 def step_select_status(context):
 	page = CommonPerformancePage(context.page)
