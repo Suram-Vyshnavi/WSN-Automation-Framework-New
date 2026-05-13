@@ -1,0 +1,151 @@
+name: Daily Automation Run (All Personas)
+
+on:
+  schedule:
+    - cron: "30 3 * * *"  # 09:00 AM IST (03:30 UTC) every day
+  workflow_dispatch:
+    inputs:
+      persona:
+        description: "Persona to run (leave empty to run all)"
+        required: false
+        default: ""
+        type: choice
+        options:
+          - ""
+          - student
+          - faculty
+          - rm
+      env:
+        description: "Environment"
+        required: false
+        default: "dev"
+        type: choice
+        options:
+          - dev
+          - prod
+      product_version:
+        description: "Product version (e.g. 2026.04.06)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  # ── Resolve which personas to run ─────────────────────────────────────────
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - id: set-matrix
+        run: |
+          INPUT="${{ github.event.inputs.persona }}"
+          if [ -z "$INPUT" ]; then
+            echo 'matrix={"persona":["student","faculty","rm"]}' >> "$GITHUB_OUTPUT"
+          else
+            echo "matrix={\"persona\":[\"$INPUT\"]}" >> "$GITHUB_OUTPUT"
+          fi
+
+  # ── Run each persona ───────────────────────────────────────────────────────
+  run-persona:
+    needs: setup
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false          # keep other personas running if one fails
+      matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
+
+    steps:
+      - name: Checkout framework
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Set up Java 17 (required by Allure CLI)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install OS dependencies
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y xvfb wget unzip wkhtmltopdf
+
+      - name: Install Allure CLI
+        run: |
+          ALLURE_VERSION=2.29.0
+          wget -q "https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.zip"
+          unzip -q "allure-${ALLURE_VERSION}.zip"
+          sudo mv "allure-${ALLURE_VERSION}" /opt/allure
+          echo "/opt/allure/bin" >> "$GITHUB_PATH"
+          /opt/allure/bin/allure --version
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install Playwright Chromium
+        run: |
+          python -m playwright install chromium
+          python -m playwright install-deps chromium
+
+      - name: Configure Git for reports repo push
+        env:
+          REPORTS_REPO_PAT: ${{ secrets.REPORTS_REPO_PAT }}
+        run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+          if [ -n "$REPORTS_REPO_PAT" ]; then
+            git config --global credential.helper store
+            echo "https://x-access-token:${REPORTS_REPO_PAT}@github.com" > ~/.git-credentials
+            echo "Git credentials configured for reports repo push."
+          else
+            echo "REPORTS_REPO_PAT not set — reports will be uploaded as artifact only."
+          fi
+
+      - name: Run ${{ matrix.persona }} persona tests
+        env:
+          ENV:             ${{ github.event.inputs.env || 'dev' }}
+          PRODUCT_VERSION: ${{ github.event.inputs.product_version || vars.PRODUCT_VERSION || '2026.04.06' }}
+          HEADLESS:        "true"
+          SLOW_MO:         "0"
+          PDF_MAX_SCREENSHOTS: "20"
+          # Reports repo
+          REPORTS_REPO_URL: ${{ secrets.REPORTS_REPO_URL }}
+          # Student credentials
+          STUDENT_USERNAME:      ${{ secrets.STUDENT_USERNAME }}
+          STUDENT_PASSWORD:      ${{ secrets.STUDENT_PASSWORD }}
+          PROD_STUDENT_USERNAME: ${{ secrets.PROD_STUDENT_USERNAME }}
+          PROD_STUDENT_PASSWORD: ${{ secrets.PROD_STUDENT_PASSWORD }}
+          # Faculty credentials
+          DEV_FACULTY_USERNAME:  ${{ secrets.DEV_FACULTY_USERNAME }}
+          DEV_FACULTY_PASSWORD:  ${{ secrets.DEV_FACULTY_PASSWORD }}
+          PROD_FACULTY_USERNAME: ${{ secrets.PROD_FACULTY_USERNAME }}
+          PROD_FACULTY_PASSWORD: ${{ secrets.PROD_FACULTY_PASSWORD }}
+          # RM credentials
+          DEV_RM_USERNAME:       ${{ secrets.DEV_RM_USERNAME }}
+          DEV_RM_PASSWORD:       ${{ secrets.DEV_RM_PASSWORD }}
+          PROD_RM_USERNAME:      ${{ secrets.PROD_RM_USERNAME }}
+          PROD_RM_PASSWORD:      ${{ secrets.PROD_RM_PASSWORD }}
+        run: |
+          xvfb-run -a python scripts/run_persona_reports.py \
+            --persona ${{ matrix.persona }} \
+            --product-version "$PRODUCT_VERSION"
+
+      - name: Upload reports as artifact (backup)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.persona }}-report-${{ github.run_number }}
+          path: |
+            reports/allure-report-${{ matrix.persona }}/index.html
+            reports/allure-report-${{ matrix.persona }}/*.pdf
+          if-no-files-found: warn
+          retention-days: 30

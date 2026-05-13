@@ -7,7 +7,14 @@ class CareerAdvisorPage(BasePage):
         self.page.locator(CareerAdvisorLocators.CARRER_ADVISOR).wait_for(state="visible", timeout=20000)
         self.page.click(CareerAdvisorLocators.CARRER_ADVISOR)
         print("Clicked on Career Advisor")
-        
+
+        # Wait for Career Advisor page to fully load
+        try:
+            self.page.wait_for_load_state("networkidle", timeout=15000)
+        except Exception:
+            pass
+        self.page.wait_for_timeout(2000)
+
         # Handle Got It popup if present
         self.handle_got_it_popup()
 
@@ -24,7 +31,7 @@ class CareerAdvisorPage(BasePage):
 
     def select_passions_preferences(self):
         """Click on Passions section to expand it"""
-        
+
         print("Looking for Passions section header...")
         # Try multiple possible locators for Passions header
         passions_header = None
@@ -32,17 +39,25 @@ class CareerAdvisorPage(BasePage):
             "//h4[text()='Passions']",
             "//h4[contains(text(),'Passions')]",
             "//div[contains(@class, 'passion')]//h4",
-            "text=Passions"
+            "//span[contains(text(),'Passions')]",
+            "//p[contains(text(),'Passions')]",
+            "text=Passions",
         ]
-        
+
         for locator in locators_to_try:
-            if self.page.locator(locator).count() > 0:
-                passions_header = self.page.locator(locator).first
-                print(f"Found Passions header using locator: {locator}")
-                break
-        
+            try:
+                count = self.page.locator(locator).count()
+                if count > 0:
+                    passions_header = self.page.locator(locator).first
+                    print(f"Found Passions header using locator: {locator}")
+                    break
+            except Exception:
+                continue
+
         if passions_header is None:
             print("ERROR: Could not find Passions header with any locator")
+            body_text = self.page.locator("body").inner_text(timeout=5000)
+            print(f"Page body preview: {body_text[:800]}")
             raise Exception("Passions header not found")
         
         # Click on Passions section header to expand it
@@ -86,12 +101,34 @@ class CareerAdvisorPage(BasePage):
 
     def validate_passions_review(self):
         """Validate selected items in passions review section"""
-        selected_items = self.page.locator(CareerAdvisorLocators.PASSIONS_SELECTED_ITEMS).first
-        selected_items.wait_for(state="visible", timeout=15000)
-        
+        # Try multiple locators for the review content
+        locators_to_try = [
+            "//div[@class='selected-items']",
+            "//div[contains(@class,'selected-items')]",
+            "//div[contains(@class,'passion')]//div[contains(@class,'selected')]",
+            "//div[contains(@class,'review')]//div[contains(@class,'item')]",
+            "//div[contains(@class,'passion')]//span",
+            "//div[contains(@class,'passion-review')]",
+            "//div[contains(@class,'review-container')]",
+        ]
+        selected_items = None
+        for locator in locators_to_try:
+            try:
+                el = self.page.locator(locator).first
+                el.wait_for(state="visible", timeout=5000)
+                selected_items = el
+                print(f"Found passions review element using: {locator}")
+                break
+            except Exception:
+                continue
+
+        if selected_items is None:
+            body_text = self.page.locator("body").inner_text(timeout=5000)
+            print(f"Page body preview: {body_text[:800]}")
+            raise Exception("No passions selected items found on review page")
+
         items_text = selected_items.text_content().strip()
         print(f"Selected passions items: {items_text}")
-        
         assert len(items_text) > 0, "No passions selected items found"
 
     def click_submit_passions(self):

@@ -9,7 +9,7 @@ class CareerAdvisorLocators:
     DRAWING_ILLUSTRATION_CHECKBOX="//div[text()='Drawing & Illustration']"
     SUBMIT="//button[text()='Submit']"
     BUSINESS_MARKETING="//*[contains(text(),'Business & Marketing')]"
-    BUSINESS_MARKETING_CHECKBOX="//button[text()='E‑commerce']"
+    BUSINESS_MARKETING_CHECKBOX="//div[text()='E‑commerce']"
     QUESTIONNAIRES="//h4[text()='Questionnaires']"
     APTITUDES_REVIEW="//h4[text()='Aptitudes']/ancestor::div[2]//button[text()='Review']"
     APTITUDES_START="//*[normalize-space()='Aptitudes']/following::button[normalize-space()='Start'][1]"
@@ -27,6 +27,11 @@ class CareerAdvisorLocators:
     GO_TO_MATCHED_ROLES="//button[text()='Go to Matched Roles']"
     WITHOUT_COLLEGE_DEGREE="//span[text()='Without College Degree']"
     VALIDATE_RECOMENDED_ROLES="//span[@class='header-count']"
+    RECOMENDED_ROLES_PASSIONS_SECTION="//span[text()='Passions']"
+    RECOMENDED_ROLES_QUESTIONNAIRES_SECTION="//span[text()='Questionnaires']"
+    RECOMENDED_ROLES_FILTERS_ICON="(//img[@alt='favouriteFilterIcon'])[1]"
+    FIRST_SECTOR_ON_FILTER_DROPDOWN="(//span[contains(@class,'ant-checkbox-wrapper')])[1]"
+    APPLY_BUTTON_ON_FILTER_POPUP="(//button[normalize-space()='Apply'])[1]"
     #Execute with find elements as validate with all the values in the list and not just the first one
     ##################################################################################################################
     SEARCH_ROLES="//h4[text()='Search Roles']"
@@ -34,6 +39,11 @@ class CareerAdvisorLocators:
     #Input a job role in the SEARCH_FOR_JOB_ROLE input box and click
     RESULTS_SEARCH="//h4[text()='Results']/following::h4[1]"
     ADD_FAVOURITE_JOB="//h4[text()='Favourite']"
+    COLLEGE_REQUIREMENT_FILTER="//label[normalize-space(text())='College Requirement']/following::div[contains(@class,'ant-select')][1]"
+    SELECT_SECTOR_FILTER="//label[normalize-space(text())='Select Sector']/following::div[contains(@class,'ant-select')][1]"
+    FIRST_SECTOR_FROM_FILTER="(//div[contains(@class,'ant-select-item-option')]//div[@class='ant-select-item-option-content'])[1]"
+    RESULTS_TITLE="//h4[contains(text(),'Results')]"
+    
     #################################################################################################################
     FAVOURITES="//h4[text()='Favourites']"
     REMOVE_FAVOURITE_JOB="//h4[text()='Favourite']"
