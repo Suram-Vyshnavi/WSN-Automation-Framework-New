@@ -1,0 +1,20 @@
+class programsLocators:
+    HOME = "//div[text()='Home']"
+    VALIDATE_WELCOME_HEADER = "//h1[text()='Welcome to']"
+    VALIDATE_WADHWANI_SKILLING_HEADER = "//h1[text()='Wadhwani Skilling']"
+    VALIDATE_EXPLORE_THINGS_TO_DO_HEADER = "//h4[text()='Explore things to do']"
+    PROGRAMS_CARD = "(//button[@class='new-student-dashboard__card'])[2]"
+    VALIDATE_INPROGRESS_TAB= "//h5[contains(text(), 'In Progress')]"
+    VALIDATE_COMPLETED_TAB= "//h5[contains(text(), 'Completed')]"
+    VALIDATE_RECOMMENDED_BY_INSTITUTE = "//h6[text()='Recommended by Institute']"
+    RECOMMENDED_PROGRAM_CARD = "(//div[@class='new-recommended-program-card'])[1]"
+    RECOMMENDED_PROGRAM_CARD_ARROW_BUTTON = "(//img[@class='wf_image  no-js-arrow-right-white'])[1]"
+    ENROLL_BUTTON = "//h6[text()='Enroll']"
+    VALIDATE_CONFIRM_BUTTON = "//h6[text()='Confirm']"
+    VALIDATE_CANCEL_BUTTON = "//h6[text()='Cancel']"
+    CLOSE_MODAL_BUTTON = "//span[@class='ant-modal-close-x']"
+    VALIDATE_OFFERED_BY_WADHWANI_FOUNDATION = "//h6[text()='Offered by Wadhwani Foundation']"
+    RECOMMENDED_PROGRAM_CARD_8 = "(//div[@class='new-recommended-program-card'])[8]"
+    RECOMMENDED_PROGRAM_CARD_8_ARROW_BUTTON = "(//img[@class='wf_image  no-js-arrow-right-white'])[8]"
+    
+

@@ -31,7 +31,7 @@ class LoginPage(BasePage):
 
     def click_continue_with_email(self):
         """Click Continue with Email/Login button"""
-        self.page.locator(LoginLocators.LOGIN_BUTTON).wait_for(state="visible", timeout=20000)
+        self.page.locator(LoginLocators.LOGIN_BUTTON).wait_for(state="visible", timeout=40000)
         self.validate_using_inner_text(LoginLocators.LOGIN_BUTTON, "continue with email")   
         self.page.click(LoginLocators.LOGIN_BUTTON)
 
@@ -41,7 +41,7 @@ class LoginPage(BasePage):
         self.page.fill(LoginLocators.USERNAME, username)
         self.page.click(LoginLocators.NEXT_BUTTON)
 
-        self.page.locator(LoginLocators.PASSWORD).wait_for(state="visible", timeout=20000)
+        self.page.locator(LoginLocators.PASSWORD).wait_for(state="visible", timeout=40000)
         self.page.fill(LoginLocators.PASSWORD, password)
         self.page.click(LoginLocators.SUBMIT_BUTTON)
 
@@ -90,8 +90,13 @@ class LoginPage(BasePage):
 
     def click_calendar(self):
         """Click on Calendar menu item"""
-        self.page.locator(LoginLocators.CALENDER).wait_for(state="visible", timeout=20000)
-        self.page.click(LoginLocators.CALENDER)
+        try:
+            self.page.locator(LoginLocators.CALENDER).wait_for(state="visible", timeout=10000)
+            self.page.click(LoginLocators.CALENDER)
+        except Exception:
+            from locators.student_persona_locators.new_homepage_locators import NewHomepageLocators
+            self.page.locator(NewHomepageLocators.CALENDAR).wait_for(state="visible", timeout=15000)
+            self.page.click(NewHomepageLocators.CALENDAR)
 
     def navigate_support(self):
         """Navigate to support page and return"""
@@ -123,8 +128,13 @@ class LoginPage(BasePage):
 
     def click_profile_icon(self):
         """Click on profile icon"""
-        self.page.locator(LoginLocators.PROFILE_ICON).wait_for(state="visible", timeout=20000)
-        self.page.click(LoginLocators.PROFILE_ICON)
+        try:
+            self.page.locator(LoginLocators.PROFILE_ICON).wait_for(state="visible", timeout=10000)
+            self.page.click(LoginLocators.PROFILE_ICON)
+        except Exception:
+            from locators.student_persona_locators.new_homepage_locators import NewHomepageLocators
+            self.page.locator(NewHomepageLocators.PROFILE_ICON).wait_for(state="visible", timeout=15000)
+            self.page.click(NewHomepageLocators.PROFILE_ICON)
     
 
 
@@ -240,10 +250,15 @@ class LoginPage(BasePage):
         print("Profile edit toggle completed successfully")
 
     def click_logout(self):
-        """Click logout button"""
-        # Wait for logout button to be visible in the dropdown
-        self.page.locator(LoginLocators.LOGOUT_BUTTON).wait_for(state="visible", timeout=15000)
-        self.page.click(LoginLocators.LOGOUT_BUTTON)
+        """Click logout button — navigates to dashboard and opens profile menu first."""
+        from pages.studentpersona.home_dashboard_page import HomeDashboardPage
+        from locators.student_persona_locators.new_homepage_locators import NewHomepageLocators
+        if HomeDashboardPage._shared_dashboard_url:
+            self.page.goto(HomeDashboardPage._shared_dashboard_url, wait_until="domcontentloaded", timeout=60000)
+        self.page.locator(NewHomepageLocators.HEADER_PROFILE_MENU_ICON).wait_for(state="attached", timeout=15000)
+        self.page.locator(NewHomepageLocators.HEADER_PROFILE_MENU_ICON).click(force=True)
+        self.page.locator(NewHomepageLocators.LOG_OUT).wait_for(state="visible", timeout=15000)
+        self.page.click(NewHomepageLocators.LOG_OUT)
 
     def logout(self):
         """Complete logout flow (click profile icon then logout)"""

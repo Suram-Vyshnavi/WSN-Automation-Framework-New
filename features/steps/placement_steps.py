@@ -169,8 +169,13 @@ def verify_interview_coach_and_explore(context):
 
 @then("user validates textbox and mic button in Interview Coach page")
 def validate_textbox_mic(context):
-    pp_page = PlacementPage(context.page)
-    pp_page.validate_textbox_and_mic()
+    if getattr(context, 'current_section', None) == 'interview_coach':
+        from pages.studentpersona.interview_coach_page import InterviewCoachPage
+        coach_page = InterviewCoachPage(context.page)
+        coach_page.validate_textbox_and_mic_button()
+    else:
+        pp_page = PlacementPage(context.page)
+        pp_page.validate_textbox_and_mic()
     attach_screenshot(context.page, "Interview Coach - Validated Textbox and Mic")
 
 @then("user sends required details for the interview coaching")
@@ -181,8 +186,13 @@ def send_interview_details(context):
 
 @then("user clicks on Practise Interviewing for the role")
 def click_practice_interviewing(context):
-    pp_page = PlacementPage(context.page)
-    pp_page.click_practice_interviewing()
+    if getattr(context, 'current_section', None) == 'interview_coach':
+        from pages.studentpersona.interview_coach_page import InterviewCoachPage
+        coach_page = InterviewCoachPage(context.page)
+        coach_page.click_practise_interviewing_for_role()
+    else:
+        pp_page = PlacementPage(context.page)
+        pp_page.click_practice_interviewing()
     attach_screenshot(context.page, "Interview Coach - Clicked Practice Interviewing")
 
 @then("user validates questions using start button")

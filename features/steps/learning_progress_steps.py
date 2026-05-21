@@ -5,8 +5,9 @@ from pages.login_page import LoginPage
 
 @then('user clicks on learning progress')
 def click_learning_progress(context):
-    learning_progress_page = LearningProgressPage(context.page)
-    learning_progress_page.click_learning_progress()
+    from pages.studentpersona.home_dashboard_page import HomeDashboardPage
+    dashboard = HomeDashboardPage(context.page)
+    dashboard.click_learning_progress()
 
 
 @then('user validates the learning progress')

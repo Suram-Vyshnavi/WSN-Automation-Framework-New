@@ -86,17 +86,10 @@ def after_scenario(context, scenario):
         pass
 
 def after_all(context):
-    """Logout and cleanup browser once after all scenarios"""
-    try:
-        login_page = LoginPage(context.page)
-        login_page.logout()
-        print("Logout completed")
-    except Exception as e:
-        print(f"Logout failed: {e}")
-    
+    """Cleanup browser once after all scenarios"""
     try:
         context.context.close()
         context.browser.close()
         context.playwright.stop()
-    except Exception as e:
-        print(f"Browser cleanup failed: {e}")
+    except Exception:
+        pass

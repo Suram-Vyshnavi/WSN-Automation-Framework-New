@@ -11,4 +11,6 @@ class InterviewPrepLocators:
     YOUR_RECENT_ROLES="//h1[text()='Your Recent Roles']"
     MORE_DETAILS_ICON="//img[@alt='moreDetails']"
     DELETE_ROLE="//p[text()='Delete this role']"
-    DELETE_ROLE_CONFIRM_BUTTON="//button[text()='Confirm']"
+    DELETE_ROLE_CONFIRM_BUTTON="//span[text()='Confirm']"
+    ONGOING_HEADER="//span[text()='Ongoing'] | //h2[text()='Ongoing'] | //p[text()='Ongoing']"
+    COMPLETED_HEADER="//span[text()='Completed'] | //h2[text()='Completed'] | //p[text()='Completed']"

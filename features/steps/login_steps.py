@@ -154,7 +154,13 @@ def edit_profile_details(context):
 def click_logout(context):
     login_page = LoginPage(context.page)
     login_page.click_logout()
-    attach_screenshot(context.page, "After Login")
+    attach_screenshot(context.page, "After Logout")
+    try:
+        context.context.close()
+        context.browser.close()
+        context.playwright.stop()
+    except Exception:
+        pass
 
 @then("user logs out")
 def step_logs_out(context):
