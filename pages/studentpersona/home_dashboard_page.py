@@ -1,5 +1,8 @@
 from pages.base_page import BasePage
 from locators.student_persona_locators.new_homepage_locators import NewHomepageLocators
+from locators.student_locators.messages_locators import Messages_and_discussionsLocators
+from locators.student_locators.learning_progress_locators import Learning_Progress_Locators
+from locators.student_locators.Settings_DeleteAccount_locators import SettingsDeleteAccountLocators
 from utils.helpers import attach_screenshot, highlight_element
 
 
@@ -153,7 +156,12 @@ class HomeDashboardPage(BasePage):
         self.page.locator(NewHomepageLocators.MESSAGES_AND_DISCUSSIONS).wait_for(state="visible", timeout=15000)
         highlight_element(self.page, NewHomepageLocators.MESSAGES_AND_DISCUSSIONS)
         self.page.locator(NewHomepageLocators.MESSAGES_AND_DISCUSSIONS).click()
+        # Validate Messages page loaded using student_locators
+        self.page.locator(Messages_and_discussionsLocators.SEND_MESSAGE_BUTTON).wait_for(state="visible", timeout=15000)
+        highlight_element(self.page, Messages_and_discussionsLocators.SEND_MESSAGE_BUTTON)
+        attach_screenshot(self.page, "Messages and Discussions Page")
         print("Clicked Messages & Discussions")
+        self._return_to_dashboard()
 
     def click_learning_progress(self):
         self._return_to_dashboard()
@@ -162,7 +170,12 @@ class HomeDashboardPage(BasePage):
         self.page.locator(NewHomepageLocators.LEARNING_PROGRESS).wait_for(state="visible", timeout=15000)
         highlight_element(self.page, NewHomepageLocators.LEARNING_PROGRESS)
         self.page.locator(NewHomepageLocators.LEARNING_PROGRESS).click()
+        # Validate Learning Progress page loaded using student_locators
+        self.page.locator(Learning_Progress_Locators.VALIDATE_LEARNING_PROGRESS).wait_for(state="visible", timeout=15000)
+        highlight_element(self.page, Learning_Progress_Locators.VALIDATE_LEARNING_PROGRESS)
+        attach_screenshot(self.page, "Learning Progress Page")
         print("Clicked Learning Progress")
+        self._return_to_dashboard()
 
     def click_settings(self):
         self._return_to_dashboard()
@@ -171,7 +184,12 @@ class HomeDashboardPage(BasePage):
         self.page.locator(NewHomepageLocators.SETTINGS).wait_for(state="visible", timeout=15000)
         highlight_element(self.page, NewHomepageLocators.SETTINGS)
         self.page.locator(NewHomepageLocators.SETTINGS).click()
+        # Validate Settings page loaded using student_locators
+        self.page.locator(SettingsDeleteAccountLocators.DELETE_ACCOUNT).wait_for(state="visible", timeout=15000)
+        highlight_element(self.page, SettingsDeleteAccountLocators.DELETE_ACCOUNT)
+        attach_screenshot(self.page, "Settings Page")
         print("Clicked Settings")
+        self._return_to_dashboard()
 
     def click_log_out(self):
         self._return_to_dashboard()

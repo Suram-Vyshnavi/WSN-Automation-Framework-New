@@ -155,12 +155,8 @@ def click_logout(context):
     login_page = LoginPage(context.page)
     login_page.click_logout()
     attach_screenshot(context.page, "After Logout")
-    try:
-        context.context.close()
-        context.browser.close()
-        context.playwright.stop()
-    except Exception:
-        pass
+    # Note: browser is shared across all scenarios (managed by before_all/after_all)
+    # Do NOT close browser/playwright here — before_scenario handles re-login
 
 @then("user logs out")
 def step_logs_out(context):

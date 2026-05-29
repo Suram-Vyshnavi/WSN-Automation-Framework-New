@@ -3,7 +3,7 @@ class programsLocators:
     VALIDATE_WELCOME_HEADER = "//h1[text()='Welcome to']"
     VALIDATE_WADHWANI_SKILLING_HEADER = "//h1[text()='Wadhwani Skilling']"
     VALIDATE_EXPLORE_THINGS_TO_DO_HEADER = "//h4[text()='Explore things to do']"
-    PROGRAMS_CARD = "(//button[@class='new-student-dashboard__card'])[2]"
+    PROGRAMS_CARD = "//h6[text()='Programs']"
     VALIDATE_INPROGRESS_TAB= "//h5[contains(text(), 'In Progress')]"
     VALIDATE_COMPLETED_TAB= "//h5[contains(text(), 'Completed')]"
     VALIDATE_RECOMMENDED_BY_INSTITUTE = "//h6[text()='Recommended by Institute']"

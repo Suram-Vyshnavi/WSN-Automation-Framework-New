@@ -2,6 +2,12 @@ from utils.config import Config
 
 
 class CommonChatLocators:
+    HOME = "//div[text()='Home']"
+    VALIDATE_WELCOME_HEADER = "//h1[text()='Welcome to']"
+    VALIDATE_WADHWANI_SKILLING_HEADER = "//h1[text()='Wadhwani Skilling']"
+    VALIDATE_EXPLORE_THINGS_TO_DO_HEADER = "//h4[text()='Explore things to do']"
+    HEADER_PROFILE_MENU_ICON = "//img[@class='wf_image header_profile_menu_trigger__icon no-js-svg%3e']"
+    
     message="hello"
     SEND_MESSAGE_BUTTON="//button[text()='Send Message']"
     FIRST_NEW_MESSAGE="(//div[@class='search_result_container']//div)[position()=1]"

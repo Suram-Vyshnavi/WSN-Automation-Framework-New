@@ -3,7 +3,7 @@ class personal_pitch_trainerLocators:
     VALIDATE_WELCOME_HEADER = "//h1[text()='Welcome to']"
     VALIDATE_WADHWANI_SKILLING_HEADER = "//h1[text()='Wadhwani Skilling']"
     VALIDATE_EXPLORE_THINGS_TO_DO_HEADER = "//h4[text()='Explore things to do']"
-    PERSONAL_PITCH_TRAINER = "(//button[@class='new-student-dashboard__card'])[3]"
+    PERSONAL_PITCH_TRAINER = "//h6[text()='Personal Pitch Trainer']"
     CREATE_YOUR_PITCH_BUTTON = "//button[text()='Create Your Pitch']"
     PITCH_TRAINER_BACK_ARROW_BUTTON = "//img[@class='wf_image redirection-image no-js-pitch-trainer-back-arrow']"
     PITCH_SUMMARY_VIEW_BUTTON = "//p[text()='View']"

@@ -3,7 +3,7 @@ class careerbuddy_locators:
     VALIDATE_WELCOME_HEADER = "//h1[text()='Welcome to']"
     VALIDATE_WADHWANI_SKILLING_HEADER = "//h1[text()='Wadhwani Skilling']"
     VALIDATE_EXPLORE_THINGS_TO_DO_HEADER = "//h4[text()='Explore things to do']"
-    CAREER_BUDDY_CARD = "(//button[@class='new-student-dashboard__card'])[7]"
+    CAREER_BUDDY_CARD = "//h6[text()='Career Buddy']"
     SEARCH_MENTORS_INPUT = "//input[@placeholder='Search Mentors']"
     RECOMMENDED_MENTOR_CARD = "(//span[@class='ant-avatar-string'])[2]"
     VALIDATE_SECTORS_HEADER = "(//p[text()='Sectors'])[1]"

@@ -3,7 +3,7 @@ class mycareeradvisorLocators:
     VALIDATE_WELCOME_HEADER = "//h1[text()='Welcome to']"
     VALIDATE_WADHWANI_SKILLING_HEADER = "//h1[text()='Wadhwani Skilling']"
     VALIDATE_EXPLORE_THINGS_TO_DO_HEADER = "//h4[text()='Explore things to do']"
-    MY_CAREER_ADVISOR = "(//button[@class='new-student-dashboard__card'])[6]"
+    MY_CAREER_ADVISOR = "//h6[text()='My Career Advisor']"
     PASSIONS_HEADER = "//h4[text()='Passions']"
     PASSION_REVIEW_BUTTON = "//button[text()='Review']"
     PASSION_SELECTED_ITEMS = "//div[@class='selected-items']"

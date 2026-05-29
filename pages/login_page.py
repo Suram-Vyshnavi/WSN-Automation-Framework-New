@@ -39,11 +39,62 @@ class LoginPage(BasePage):
         """Enter username and password and submit login form"""
         self.page.locator(LoginLocators.USERNAME).wait_for(state="visible", timeout=20000)
         self.page.fill(LoginLocators.USERNAME, username)
-        self.page.click(LoginLocators.NEXT_BUTTON)
 
-        self.page.locator(LoginLocators.PASSWORD).wait_for(state="visible", timeout=40000)
-        self.page.fill(LoginLocators.PASSWORD, password)
-        self.page.click(LoginLocators.SUBMIT_BUTTON)
+        next_clicked = False
+        next_selectors = [
+            LoginLocators.NEXT_BUTTON,
+            "//button[.//span[normalize-space()='Next'] or normalize-space()='Next']",
+            "//button[contains(translate(normalize-space(.), 'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 'NEXT')]",
+            "//button[@type='submit']",
+        ]
+        for selector in next_selectors:
+            locator = self.page.locator(selector).first
+            try:
+                locator.wait_for(state="visible", timeout=7000)
+                locator.click()
+                next_clicked = True
+                break
+            except Exception:
+                continue
+        if not next_clicked:
+            raise AssertionError("Unable to click Next button in login flow")
+
+        password_filled = False
+        password_selectors = [
+            LoginLocators.PASSWORD,
+            "//input[@type='password']",
+            "//input[contains(translate(@placeholder, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'password')]",
+        ]
+        for selector in password_selectors:
+            locator = self.page.locator(selector).first
+            try:
+                locator.wait_for(state="visible", timeout=40000)
+                locator.fill(password)
+                password_filled = True
+                break
+            except Exception:
+                continue
+        if not password_filled:
+            raise AssertionError("Password input is not visible/editable in login flow")
+
+        submit_clicked = False
+        submit_selectors = [
+            LoginLocators.SUBMIT_BUTTON,
+            "//button[.//span[normalize-space()='Submit'] or normalize-space()='Submit']",
+            "//button[contains(translate(normalize-space(.), 'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 'SIGN IN')]",
+            "//button[@type='submit']",
+        ]
+        for selector in submit_selectors:
+            locator = self.page.locator(selector).first
+            try:
+                locator.wait_for(state="visible", timeout=7000)
+                locator.click()
+                submit_clicked = True
+                break
+            except Exception:
+                continue
+        if not submit_clicked:
+            raise AssertionError("Unable to click Submit/Sign in button in login flow")
 
 
     def wait_for_home_page(self):

@@ -61,8 +61,52 @@ def before_all(context):
 
     print(f"Login completed for persona '{persona}' - ready to run scenarios")
 
+def _re_login(context):
+    """Re-login after session loss (e.g. after logout step)."""
+    persona = getattr(context, 'persona', 'student')
+    username, password = Config.get_credentials(persona)
+    try:
+        login_page = LoginPage(context.page)
+        login_page.open(Config.BASE_URL)
+        login_page.dismiss_popup_if_present()
+        login_page.click_get_started()
+        login_page.click_continue_with_email()
+        login_page.login(username, password)
+        login_page.wait_for_home_page()
+        print(f"Re-login successful for scenario (persona={persona})")
+    except Exception as e:
+        print(f"Re-login failed: {e}")
+
+
 def before_scenario(context, scenario):
-    """Start tracing for each scenario if enabled"""
+    """Navigate back to home dashboard before each scenario, then start tracing if enabled"""
+    if getattr(context, 'page', None) is not None:
+        # Step 1: Dismiss any open modal/dialog by pressing Escape
+        try:
+            context.page.keyboard.press("Escape")
+        except Exception:
+            pass
+
+        # Step 2: Check if we've been logged out (e.g. by a logout step)
+        try:
+            current_url = context.page.url
+        except Exception:
+            current_url = ""
+
+        logged_out = any(x in current_url for x in ('login', '/guest', 'sign-in', 'signin'))
+        if logged_out:
+            _re_login(context)
+        else:
+            # Step 3: Navigate to home dashboard via the HOME nav button
+            try:
+                from locators.student_locators.login_locators import LoginLocators
+                home_btn = context.page.locator(LoginLocators.HOME_BUTTON)
+                home_btn.wait_for(state="visible", timeout=8000)
+                home_btn.click()
+                context.page.wait_for_load_state("domcontentloaded", timeout=10000)
+            except Exception:
+                pass
+
     try:
         if context._trace_on:
             context.context.tracing.start(screenshots=True, snapshots=True, sources=True)

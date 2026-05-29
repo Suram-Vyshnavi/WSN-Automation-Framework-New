@@ -3,7 +3,7 @@ class coursesLocators:
     VALIDATE_WELCOME_HEADER = "//h1[text()='Welcome to']"
     VALIDATE_WADHWANI_SKILLING_HEADER = "//h1[text()='Wadhwani Skilling']"
     VALIDATE_EXPLORE_THINGS_TO_DO_HEADER = "//h4[text()='Explore things to do']"
-    COURSES_CARD = "(//button[@class='new-student-dashboard__card'])[1]"
+    COURSES_CARD = "//h6[text()='Courses']"
     VALIDATE_INPROGRESS_TAB= "//h5[contains(text(), 'In Progress')]"
     VALIDATE_COMPLETED_TAB= "//h5[contains(text(), 'Completed')]"
     ENROLLED_COURSE_CARD = "(//div[@class='new-enrolled-course-card'])[1]"

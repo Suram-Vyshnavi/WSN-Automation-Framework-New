@@ -58,6 +58,10 @@ class Config:
             "username": INSTITUTE_ADMIN_USERNAME_INPUT,
             "password": INSTITUTE_ADMIN_PASSWORD_INPUT,
         },
+        "mentor": {
+            "username": "wsn-men-oct0304@yopmail.com",
+            "password": "Demo@123",
+        },
     }
 
     @classmethod

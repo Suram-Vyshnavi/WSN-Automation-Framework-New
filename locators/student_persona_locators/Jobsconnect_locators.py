@@ -3,7 +3,7 @@ class jobsconnectLocators:
     VALIDATE_WELCOME_HEADER = "//h1[text()='Welcome to']"
     VALIDATE_WADHWANI_SKILLING_HEADER = "//h1[text()='Wadhwani Skilling']"
     VALIDATE_EXPLORE_THINGS_TO_DO_HEADER = "//h4[text()='Explore things to do']"
-    JOBS_CONNECT_CARD = "(//button[@class='new-student-dashboard__card'])[8]"
+    JOBS_CONNECT_CARD = "//h6[text()='Jobs Connect']"
     VALIDATE_JOBS_CONNECT_HEADER = "//h4[text()='Jobs Connect']"
     VALIDATE_ALL_FILTERS = "//div[text()='All Filters']"
     JOB_TYPE_FILTER = "//div[text()='Job Type']/parent::div/parent::div"

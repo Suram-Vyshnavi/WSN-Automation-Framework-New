@@ -3,7 +3,7 @@ class interviewCoachLocators:
     VALIDATE_WELCOME_HEADER = "//h1[text()='Welcome to']"
     VALIDATE_WADHWANI_SKILLING_HEADER = "//h1[text()='Wadhwani Skilling']"
     VALIDATE_EXPLORE_THINGS_TO_DO_HEADER = "//h4[text()='Explore things to do']"
-    INTERVIEW_COACH_CARD = "(//button[@class='new-student-dashboard__card'])[4]"
+    INTERVIEW_COACH_CARD = "//h6[text()='Interview Coach']"
     AUDIO_BUTTON_IMAGE = "//img[@class='audio-button-image']"
     VALIDATE_MIC_BUTTON = "//img[contains(@class,'mic-on-image')]"
     INTERVIEW_SEARCH_INPUT = "//input[@placeholder='For eg, Retail Sales Associate, Electronics']"
