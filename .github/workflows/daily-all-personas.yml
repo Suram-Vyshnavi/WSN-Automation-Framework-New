@@ -1,8 +1,6 @@
 name: Daily Automation Run (All Personas)
 
 on:
-  schedule:
-    - cron: "30 3 * * *"  # 09:00 AM IST (03:30 UTC) every day
   workflow_dispatch:
     inputs:
       persona:
