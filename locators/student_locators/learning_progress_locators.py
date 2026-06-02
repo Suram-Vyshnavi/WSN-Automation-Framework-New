@@ -1,6 +1,6 @@
 class Learning_Progress_Locators:
-    PROFILE_ICON="//div[@class='header_menu_container']//span[text()='BL']"
-    LEARNING_PROGRESS="//h1[text()='Learning Progress']"
+    ACCOUNTS_MENU="//button[@aria-label='Accounts menu']//img"
+    LEARNING_PROGRESS="//p[contains(text(),'Learning Progress')]"
     VALIDATE_LEARNING_PROGRESS="//h6[text()='Learning Progress']"
     MY_COURSES="//h4[text()='My Courses']"
     ONGOING_COURSES="//P[contains(text(),'Ongoing')]"

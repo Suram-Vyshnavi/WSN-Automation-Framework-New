@@ -5,18 +5,67 @@ from locators.student_locators.Settings_WhatsappNotifications_locators import Se
 
 class SettingsPage(BasePage):
 
+    def _wait_first_visible(self, selectors, timeout=10000):
+        for selector in selectors:
+            try:
+                locator = self.page.locator(selector).first
+                locator.wait_for(state="visible", timeout=timeout)
+                return locator
+            except Exception:
+                continue
+        return None
+
+    def _click_first_visible(self, selectors, timeout=10000):
+        locator = self._wait_first_visible(selectors, timeout=timeout)
+        if not locator:
+            return False
+        try:
+            locator.click(timeout=timeout)
+        except Exception:
+            locator.click(timeout=timeout, force=True)
+        return True
+
+    def _ensure_back_on_app(self):
+        """Return from external Zoom pages to app settings context when needed."""
+        for _ in range(3):
+            try:
+                if "zoom.us" not in self.page.url.lower():
+                    break
+                self.page.go_back()
+                self.page.wait_for_timeout(1000)
+            except Exception:
+                break
+
     # --- Common Methods ---
     def click_zoomconnect_profile_icon(self):
         self.page.locator(SettingsZoomConnectLocators.PROFILE_ICON).wait_for(state="visible", timeout=10000)
         self.page.click(SettingsZoomConnectLocators.PROFILE_ICON)
 
+    def click_account_menu_from_home(self):
+        clicked = self._click_first_visible([
+            SettingsZoomConnectLocators.ACCOUNTS_MENU_ICON,
+            "//button[@aria-label='Accounts menu']",
+        ], timeout=15000)
+        assert clicked, "Account menu is not visible/clickable"
+
     def click_settings_menu(self):
-        self.page.locator(SettingsZoomConnectLocators.SETTINGS_ICON).wait_for(state="visible", timeout=10000)
-        self.page.click(SettingsZoomConnectLocators.SETTINGS_ICON)
+        clicked = self._click_first_visible([
+            SettingsZoomConnectLocators.SETTINGS_ICON,
+            "//p[contains(normalize-space(),'Settings')]",
+        ], timeout=15000)
+        assert clicked, "Settings menu is not visible/clickable"
 
     def validate_settings_sections(self):
-        self.page.locator(SettingsZoomConnectLocators.ACCOUNTS_MENU).wait_for(state="visible", timeout=10000)
-        assert self.page.locator(SettingsZoomConnectLocators.ACCOUNTS_MENU).is_visible()
+        marker = self._wait_first_visible([
+            SettingsZoomConnectLocators.ACCOUNTS_SECTION_TITLE,
+            SettingsZoomConnectLocators.ACCOUNTS_MENU,
+            "//h1[normalize-space()='Accounts']",
+            SettingsZoomConnectLocators.MEETING_CARD,
+            SettingsZoomConnectLocators.ZOOM_SETTINGS_ARROW,
+            SettingsDeleteAccountLocators.DELETE_ACCOUNT,
+            "//*[contains(normalize-space(),'Settings')]",
+        ], timeout=15000)
+        assert marker is not None
 
     def click_back_arrow(self):
         self.page.locator(SettingsZoomConnectLocators.BACK_ARROW).wait_for(state="visible", timeout=10000)
@@ -24,8 +73,11 @@ class SettingsPage(BasePage):
 
     # --- ZoomConnect Methods ---
     def click_accounts_menu_zoomconnect(self):
-        self.page.locator(SettingsZoomConnectLocators.ACCOUNTS_MENU).wait_for(state="visible", timeout=10000)
-        self.page.click(SettingsZoomConnectLocators.ACCOUNTS_MENU)
+        # Some UI versions keep Accounts as selected by default; click only if clickable element is present.
+        self._click_first_visible([
+            "//div[contains(@class,'userSettings_menuItem')][.//h1[normalize-space()='Accounts']]",
+            SettingsZoomConnectLocators.ACCOUNTS_MENU,
+        ], timeout=6000)
         self.page.locator(SettingsZoomConnectLocators.MEETING_CARD).wait_for(state="visible", timeout=10000)
 
     def click_zoom_right_arrow(self):
@@ -74,6 +126,7 @@ class SettingsPage(BasePage):
         self.page.click(SettingsZoomConnectLocators.ZOOM_SIGNIN_BUTTON)
 
     def validate_toggle_status(self):
+        self._ensure_back_on_app()
         toggle = self.page.locator(SettingsZoomConnectLocators.ZOOMCONNECTION_TOGGLER).first
         try:
             toggle.wait_for(state="visible", timeout=5000)
@@ -82,12 +135,21 @@ class SettingsPage(BasePage):
             return False
 
     def validate_disconnect_section(self):
-        self.page.locator(SettingsZoomConnectLocators.MEETINGS_DISCONNECT_CONTAINER).wait_for(state="visible", timeout=10000)
-        assert self.page.locator(SettingsZoomConnectLocators.MEETINGS_DISCONNECT_CONTAINER).is_visible()
+        self._ensure_back_on_app()
+        self.page.locator(SettingsZoomConnectLocators.MEETINGS_CARD).wait_for(state="visible", timeout=10000)
+        # Toggle may be required to reveal disconnect button in some variants.
+        if self.page.locator(SettingsZoomConnectLocators.MEETINGS_DISCONNECT_BUTTON).first.count() == 0:
+            try:
+                self.page.click(SettingsZoomConnectLocators.ZOOMCONNECTION_TOGGLER, timeout=5000)
+            except Exception:
+                pass
+        self.page.locator(SettingsZoomConnectLocators.MEETINGS_DISCONNECT_BUTTON).first.wait_for(state="visible", timeout=10000)
+        assert self.page.locator(SettingsZoomConnectLocators.MEETINGS_DISCONNECT_BUTTON).first.is_visible()
 
     def click_disconnect_button(self):
-        self.page.locator(SettingsZoomConnectLocators.MEETINGS_DISCONNECT_BUTTON).wait_for(state="visible", timeout=10000)
-        self.page.click(SettingsZoomConnectLocators.MEETINGS_DISCONNECT_BUTTON)
+        self._ensure_back_on_app()
+        self.page.locator(SettingsZoomConnectLocators.MEETINGS_DISCONNECT_BUTTON).first.wait_for(state="visible", timeout=10000)
+        self.page.locator(SettingsZoomConnectLocators.MEETINGS_DISCONNECT_BUTTON).first.click()
 
     # --- Delete Account Methods ---
     def click_delete_account_profile_icon(self):

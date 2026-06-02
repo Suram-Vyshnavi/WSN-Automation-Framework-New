@@ -1,7 +1,9 @@
 class SettingsZoomConnectLocators:
-    PROFILE_ICON ="(//div[@class='ml-3 profile_container'])[1]"
-    SETTINGS_ICON="(//div[@class='app__layout_menu_item'])[3]"
-    ACCOUNTS_MENU="(//h1[text()='Accounts'])"
+    PROFILE_ICON = "//div[contains(@class,'profile_container')]"
+    ACCOUNTS_MENU_ICON = "//button[@aria-label='Accounts menu']//img"
+    SETTINGS_ICON = "//p[contains(text(),'Settings')]"
+    ACCOUNTS_SECTION_TITLE = "(//h1[text()='Accounts'])"
+    ACCOUNTS_MENU = ACCOUNTS_SECTION_TITLE
     MEETING_CARD="(//div[@class='section-container'])[1]"
     ZOOM_SETTINGS_ARROW="(//img[@alt='right_arrow'])[1]"
     DELINKED_POPUP="(//div[@class='ant-notification-notice alert-notification'])[1]"

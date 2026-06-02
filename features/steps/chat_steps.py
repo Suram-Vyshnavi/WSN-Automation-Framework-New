@@ -6,6 +6,30 @@ from utils.helpers import attach_screenshot
 import os
 
 
+def _project_root_from_here():
+    """Resolve repo root by walking up until behave.ini is found."""
+    current = os.path.abspath(os.path.dirname(__file__))
+    while True:
+        if os.path.exists(os.path.join(current, "behave.ini")):
+            return current
+        parent = os.path.dirname(current)
+        if parent == current:
+            raise FileNotFoundError("Could not locate project root (behave.ini not found)")
+        current = parent
+
+
+@then("user clicks on Accounts menu")
+def click_accounts_menu(context):
+    chat_page = ChatPage(context.page)
+    chat_page.click_accounts_menu()
+
+
+@then("user clicks on Messages & Discussions")
+def click_messages_and_discussions(context):
+    chat_page = ChatPage(context.page)
+    chat_page.click_messages_and_discussions()
+
+
 @then("user clicks on chat icon")
 def click_chat_icon(context):
     chat_page = ChatPage(context.page)
@@ -45,12 +69,14 @@ def click_file_upload(context):
 
 @then("user uploads photo in to chat and validates")
 def upload_photo(context):
-    # Get the absolute path to the photo file
-    workspace_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    photo_path = os.path.join(workspace_path, "files", "Test_Photo_Upload.png")
-    
-    if not os.path.exists(photo_path):
-        raise FileNotFoundError(f"Photo file not found: {photo_path}")
+    project_root = _project_root_from_here()
+    photo_candidates = [
+        os.path.join(project_root, "files", "Test_Photo_Upload.png"),
+        os.path.join(project_root, "files", "Institute-image.jpg"),
+    ]
+    photo_path = next((p for p in photo_candidates if os.path.exists(p)), None)
+    if photo_path is None:
+        raise FileNotFoundError(f"Photo file not found. Checked: {photo_candidates}")
     
     chat_page = ChatPage(context.page)
     chat_page.upload_photo(photo_path)
@@ -61,11 +87,9 @@ def upload_photo(context):
 
 @then("user uploads document in to the chat and validates")
 def upload_document(context):
-    # Get the absolute path to the document file
-    
-    workspace_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    document_path = os.path.join(workspace_path, "files", "Test_File_Upload.pdf")
-    
+    project_root = _project_root_from_here()
+    document_path = os.path.join(project_root, "files", "Test_File_Upload.pdf")
+
     if not os.path.exists(document_path):
         raise FileNotFoundError(f"Document file not found: {document_path}")
     
@@ -82,6 +106,6 @@ def navigate_to_home(context):
         faculty_home_page = FacultyHomePage(context.page)
         faculty_home_page.navigate_to_home()
     else:
-        login_page = LoginPage(context.page)
-        login_page.navigate_to_home()
+        chat_page = ChatPage(context.page)
+        chat_page.navigate_to_home_page()
     attach_screenshot(context.page, "Navigated to Home Page")

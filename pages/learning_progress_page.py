@@ -1,11 +1,31 @@
 from playwright.sync_api import Page
-from locators.student_locators import Learning_Progress_Locators, LoginLocators
+from locators.student_locators import Learning_Progress_Locators
 from utils.helpers import attach_screenshot
 
 
 class LearningProgressPage:
     def __init__(self, page: Page):
         self.page = page
+
+    def _wait_visible_any(self, selectors, timeout=10000):
+        for selector in selectors:
+            try:
+                locator = self.page.locator(selector).first
+                locator.wait_for(state="visible", timeout=timeout)
+                return locator
+            except Exception:
+                continue
+        return None
+
+    def _click_first_visible(self, selectors, timeout=10000):
+        locator = self._wait_visible_any(selectors, timeout=timeout)
+        if not locator:
+            return False
+        try:
+            locator.click(timeout=timeout)
+        except Exception:
+            locator.click(timeout=timeout, force=True)
+        return True
 
     def click_profile_icon(self):
         """Click on profile icon"""
@@ -15,18 +35,30 @@ class LearningProgressPage:
 
     def click_learning_progress(self):
         """Click on Learning Progress option"""
-        self.page.locator(Learning_Progress_Locators.LEARNING_PROGRESS).wait_for(state="visible", timeout=10000)
-        self.page.click(Learning_Progress_Locators.LEARNING_PROGRESS)
+        clicked = self._click_first_visible([
+            Learning_Progress_Locators.LEARNING_PROGRESS,
+            "//p[contains(normalize-space(),'Learning Progress')]",
+            "//h1[normalize-space()='Learning Progress']",
+            "//*[contains(normalize-space(),'Learning Progress')]",
+        ], timeout=15000)
+        assert clicked, "Learning Progress menu is not visible/clickable"
         attach_screenshot(self.page, "Learning Progress Clicked")
 
     def validate_learning_progress(self):
         """Validate Learning Progress page is loaded"""
-        self.page.locator(Learning_Progress_Locators.VALIDATE_LEARNING_PROGRESS).wait_for(state="visible", timeout=15000)
-        assert self.page.locator(Learning_Progress_Locators.VALIDATE_LEARNING_PROGRESS).is_visible(), "Learning Progress page not loaded"
+        heading = self._wait_visible_any([
+            Learning_Progress_Locators.VALIDATE_LEARNING_PROGRESS,
+            "//h6[normalize-space()='Learning Progress']",
+            "//h1[normalize-space()='Learning Progress']",
+        ], timeout=15000)
+        assert heading is not None, "Learning Progress page not loaded"
         
         # Validate My Courses section
-        self.page.locator(Learning_Progress_Locators.MY_COURSES).wait_for(state="visible", timeout=10000)
-        assert self.page.locator(Learning_Progress_Locators.MY_COURSES).is_visible(), "My Courses section not visible"
+        my_courses = self._wait_visible_any([
+            Learning_Progress_Locators.MY_COURSES,
+            "//*[contains(normalize-space(),'My Courses')]",
+        ], timeout=10000)
+        assert my_courses is not None, "My Courses section not visible"
         attach_screenshot(self.page, "Learning Progress Page Validated")
 
     def click_ongoing_courses_and_validate_overview(self):
@@ -35,14 +67,24 @@ class LearningProgressPage:
         self.page.go_back()
         
         # Click on Ongoing Courses tab
-        self.page.locator(Learning_Progress_Locators.ONGOING_COURSES).wait_for(state="visible", timeout=10000)
-        self.page.click(Learning_Progress_Locators.ONGOING_COURSES)
+        clicked = self._click_first_visible([
+            Learning_Progress_Locators.ONGOING_COURSES,
+            "//p[contains(normalize-space(),'Ongoing')]",
+        ], timeout=10000)
+        assert clicked, "Ongoing courses tab is not visible/clickable"
         attach_screenshot(self.page, "Ongoing Courses Tab Clicked")
         
         # Click on first ongoing course
-        self.page.locator(Learning_Progress_Locators.FIRST_ONGOING_COURSE).wait_for(state="visible", timeout=10000)
-        self.page.locator(Learning_Progress_Locators.FIRST_ONGOING_COURSE).scroll_into_view_if_needed()
-        self.page.locator(Learning_Progress_Locators.FIRST_ONGOING_COURSE).click()
+        first_course = self._wait_visible_any([
+            Learning_Progress_Locators.FIRST_ONGOING_COURSE,
+            "(//div[contains(@class,'course_card_container')])[1]",
+        ], timeout=10000)
+        assert first_course is not None, "First ongoing course is not visible"
+        first_course.scroll_into_view_if_needed()
+        try:
+            first_course.click()
+        except Exception:
+            first_course.click(force=True)
         
         # Validate course page heading
         self.page.locator(Learning_Progress_Locators.VALIDATE_LEARNING_PROGRESSFIRST_ONGOING_COURSE_HEADING).wait_for(state="visible", timeout=10000)
@@ -95,16 +137,27 @@ class LearningProgressPage:
     def navigate_to_learning_progress_and_click_completed_courses(self):
         # Click on Completed Courses tab
         # Click on Completed Courses tab (no need to go back as we're on learning progress page)
-        self.page.locator(Learning_Progress_Locators.COMPLETED_COURSES).wait_for(state="visible", timeout=10000)
-        self.page.click(Learning_Progress_Locators.COMPLETED_COURSES)
+        clicked = self._click_first_visible([
+            Learning_Progress_Locators.COMPLETED_COURSES,
+            "//p[contains(normalize-space(),'Completed')]",
+        ], timeout=10000)
+        assert clicked, "Completed courses tab is not visible/clickable"
         attach_screenshot(self.page, "Completed Courses Tab Clicked")
 
     def click_completed_course_and_validate_all_sections(self):
         """Click on a completed course and validate overview, content, performance sections, score value and overall progress"""
         # Click on first completed course
-        self.page.locator(Learning_Progress_Locators.FIRST_COMPLETED_COURSE).wait_for(state="visible", timeout=10000)
-        self.page.locator(Learning_Progress_Locators.FIRST_COMPLETED_COURSE).scroll_into_view_if_needed()
-        self.page.locator(Learning_Progress_Locators.FIRST_COMPLETED_COURSE).click()
+        first_completed = self._wait_visible_any([
+            Learning_Progress_Locators.FIRST_COMPLETED_COURSE,
+            "(//div[contains(@class,'course_card_container')][.//*[contains(normalize-space(),'Completed')]])[1]",
+            "(//div[contains(@class,'course_card_container')])[1]",
+        ], timeout=10000)
+        assert first_completed is not None, "First completed course is not visible"
+        first_completed.scroll_into_view_if_needed()
+        try:
+            first_completed.click()
+        except Exception:
+            first_completed.click(force=True)
         
         # Validate course page heading
         self.page.locator(Learning_Progress_Locators.VALIDATE_LEARNING_PROGRESSFIRST_COMPLETED_COURSE_HEADING).wait_for(state="visible", timeout=10000)
@@ -142,25 +195,37 @@ class LearningProgressPage:
     def click_share_certificate_and_validate_download(self):
         """Click on share certificate button and validate download certificate option"""
         # Click on Share Certificate button
-        self.page.locator(Learning_Progress_Locators.CERTIFICATE_SHARE_BUTTON).wait_for(state="visible", timeout=10000)
-        assert self.page.locator(Learning_Progress_Locators.CERTIFICATE_SHARE_BUTTON).is_visible(), "Share certificate button not visible"
-        self.page.click(Learning_Progress_Locators.CERTIFICATE_SHARE_BUTTON)
+        clicked_share = self._click_first_visible([
+            Learning_Progress_Locators.CERTIFICATE_SHARE_BUTTON,
+            "//span[normalize-space()='Share']",
+            "//button[.//span[normalize-space()='Share'] or normalize-space()='Share']",
+        ], timeout=10000)
+        assert clicked_share, "Share certificate button not visible"
         attach_screenshot(self.page, "Share Certificate Button Clicked")
         
         # Validate Copy Link option
-        self.page.locator(Learning_Progress_Locators.CERTIFICATE_COPY_LINK).wait_for(state="visible", timeout=10000)
-        assert self.page.locator(Learning_Progress_Locators.CERTIFICATE_COPY_LINK).is_visible(), "Copy Link option not visible"
-        self.page.click(Learning_Progress_Locators.CERTIFICATE_COPY_LINK)
+        clicked_copy = self._click_first_visible([
+            Learning_Progress_Locators.CERTIFICATE_COPY_LINK,
+            "//*[normalize-space()='Copy Link' or normalize-space()='Copy link']",
+        ], timeout=10000)
+        assert clicked_copy, "Copy Link option not visible"
         
         # Validate certificate link copied message
-        self.page.locator(Learning_Progress_Locators.VALIDATE_CERTIFICATE_LINK_COPIED).wait_for(state="visible", timeout=10000)
-        assert self.page.locator(Learning_Progress_Locators.VALIDATE_CERTIFICATE_LINK_COPIED).is_visible(), "Certificate link copied message not visible"
+        copied_toast = self._wait_visible_any([
+            Learning_Progress_Locators.VALIDATE_CERTIFICATE_LINK_COPIED,
+            "//*[contains(normalize-space(),'Certificate link copied') or contains(normalize-space(),'Link copied')]",
+        ], timeout=10000)
+        assert copied_toast is not None, "Certificate link copied message not visible"
         attach_screenshot(self.page, "Certificate Link Copied")
 
         
         # Validate Download Certificate option
-        self.page.locator(Learning_Progress_Locators.VALIDATE_CERTIFICATE_DOWNLOAD_BUTTON).wait_for(state="visible", timeout=10000)
-        assert self.page.locator(Learning_Progress_Locators.VALIDATE_CERTIFICATE_DOWNLOAD_BUTTON).is_visible(), "Download certificate option not visible"
+        download_option = self._wait_visible_any([
+            Learning_Progress_Locators.VALIDATE_CERTIFICATE_DOWNLOAD_BUTTON,
+            "//*[normalize-space()='Download']",
+            "//button[.//span[normalize-space()='Download'] or normalize-space()='Download']",
+        ], timeout=10000)
+        assert download_option is not None, "Download certificate option not visible"
         attach_screenshot(self.page, "Download Certificate Option Validated")
 
     def click_overview_and_view_batch(self):

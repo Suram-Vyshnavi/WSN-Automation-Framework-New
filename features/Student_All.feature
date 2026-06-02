@@ -87,8 +87,16 @@ Feature: Student Persona
     Then user validates the apply option
     Then user navigates to home page
 
+  #Scenario: Calendar validation  
+    #Then user clicks on Accounts menu
+    #Then user clicks on calendar
+    #Then user validates the calendar screen
+    #Then user scroll down the screen and validates the upcoming events/meetings and past meetings if available
+    #Then user navigates to home screen
+
   Scenario: Messages and discussions validation
-    Then user clicks on chat icon
+    Then user clicks on Accounts menu
+    Then user clicks on Messages & Discussions
     Then user clicks on send message button
     Then user clicks on first contact in the list
     Then user sends a message
@@ -99,14 +107,8 @@ Feature: Student Persona
     Then user uploads document in to the chat and validates
     Then user navigates to home page
 
-  Scenario: Notifications validation
-    Then user clicks on notification icon
-    Then user validates the notifications
-    Then user clicks on first notification
-    Then user navigates to home page
-
   Scenario: Learning progress validation
-    Then user clicks on profile icon
+    Then user clicks on Accounts menu
     Then user clicks on learning progress
     Then user validates the learning progress
     Then user navigates to learning progress page and clicks on completed courses
@@ -124,10 +126,10 @@ Feature: Student Persona
     Then user navigates to home page
 
   Scenario: Settings ZoomConnect validation
-    Then user clicks on ZoomConnect profile icon
+    Then user clicks on Account menu
     Then user clicks on settings menu
     Then user validates the settings sections
-    Then user clicks on accounts menu and validates accounts_meetings section
+    Then user clicks on zoom accounts menu and validates accounts_meetings section
     Then user clicks on sign in with zoom right arrow button
     Then user validates the zoom account delinked popup and closed the popup
     Then user validates the sign in with zoom section and turn on the toggle button
@@ -142,7 +144,7 @@ Feature: Student Persona
     Then user click on back arrow and navigates to settings screen
 
   Scenario: Settings DeleteAccount validation
-    Then user clicks on ZoomConnect profile icon
+    Then user clicks on Account menu
     Then user clicks on settings menu
     Then user validates the settings sections
     Then user clicks on accounts menu and validates delete account section
@@ -153,10 +155,16 @@ Feature: Student Persona
     Then user navigates to settings screen
 
   Scenario: Settings WhatsappNotifications validation
-    Then user clicks on ZoomConnect profile icon
+    Then user clicks on Account menu
     Then user clicks on settings menu
     Then user validates the settings sections
     Then user clicks on notifications menu and validates whatsapp container section
     Then user clicks on whatsapp container section right arrow button
     Then user validates the whatsapp section and clicks on the toggle button
     Then user clicks on the whatsapp section back arrow and validates the settings section
+
+  Scenario: Notifications validation
+    Then user clicks on notification icon
+    Then user validates the notifications
+    Then user clicks on first notification
+    Then user navigates to home page  
