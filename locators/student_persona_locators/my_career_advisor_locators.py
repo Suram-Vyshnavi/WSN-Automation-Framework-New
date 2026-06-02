@@ -30,4 +30,6 @@ class mycareeradvisorLocators:
     SHARE_REPORT = "(//h4[text()='Share Report'])[1]"
     SHARE_BUTTON = "//button[text()='Share']"
     REMOVE_FAVOURITE = "//h4[text()='Favourite']"
+    ROLES_SAVED = "//*[contains(text(), 'Role') and contains(text(), 'Saved')]"
+    VALIDATE_FAVOURITE_ROLES_HEADER = "//h4[contains(text(), 'Favourite Roles')]"
     

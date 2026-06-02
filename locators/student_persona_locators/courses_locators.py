@@ -24,8 +24,8 @@ class coursesLocators:
     BACK_ARROW_BUTTON = "//img[@class='wf_image redirection-image no-js-pitch-trainer-back-arrow']"
     CREATE_POST_VIDEO_BUTTON = "//button[text()='Create Post-Video']"
     PITCH_TRAINER_BACK_ARROW_BUTTON = "//img[@class='wf_image back-btn false no-js-ArrowLeftDark']"
-    COURSES_RECOMMENDED_BY_INSTITUTE = "//h6[text()='Courses recommended by institute']"
+    COURSES_RECOMMENDED_BY_INSTITUTE = "//h6[text()='Courses Recommended by Your Institute']"
     VALIDATE_RECOMMENDED_COURSE_CARD = "(//div[@class='new-recommended-course-card'])[1]"
     COURSES_OFFERED_BY_WADHWANI_FOUNDATION = "//h6[text()='Courses offered by wadhwani foundation']"
-    VALIDATE_OFFERED_COURSE_CARD = "(//div[@class='new-recommended-course-card'])[1]"
+    VALIDATE_OFFERED_COURSE_CARD = "(//div[@class='new-recommended-course-card'])[13]"
     

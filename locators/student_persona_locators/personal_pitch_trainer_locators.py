@@ -13,3 +13,5 @@ class personal_pitch_trainerLocators:
     SHARE_PITCH_BUTTON = "//button[@class='ant-btn ant-btn-default secondary_button view-pitch-button default-share-button share-pitch-button']"
     COPY_SHARE_BUTTON = "//img[@class='wf_image  no-js-share-button-copy']"
     SHARE_PITCH_CLOSE_BUTTON = "//span[@class='ant-modal-close-x']"
+    PERSONAL_PITCH_TRAINER_PASSED_TEXT = "//p[contains(text(), 'Passed')]"
+    VALIDATE_CHECK_BUTTON = "(//div[@class='dot-line'])[5]"

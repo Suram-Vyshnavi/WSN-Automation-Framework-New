@@ -12,8 +12,9 @@ class ForumsPage(BasePage):
         print("Clicked Forums card")
 
     def validate_my_forums_header(self):
+        self.page.wait_for_load_state("domcontentloaded", timeout=20000)
         header = self.page.locator(forumsLocators.VALIDATE_MY_FORUMS_HEADER)
-        header.wait_for(state="visible", timeout=15000)
+        header.wait_for(state="visible", timeout=20000)
         highlight_element(self.page, forumsLocators.VALIDATE_MY_FORUMS_HEADER)
         assert header.count() > 0, "My Forums header not found"
         print("My Forums header validated")

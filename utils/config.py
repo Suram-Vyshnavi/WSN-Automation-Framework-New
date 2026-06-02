@@ -38,9 +38,8 @@ class Config:
     # Persona-wise credentials. Defaults can be overridden by environment vars.
     CREDENTIALS = {
         "student": {
-            # Use env_config-resolved values so ENV=prod picks PROD_STUDENT_* first.
-            "username": USERNAME_INPUT,
-            "password": PASSWORD_INPUT,
+            "username": USERNAME_INPUT or "wadhwani.foundation99@yopmail.com",
+            "password": PASSWORD_INPUT or "Demo@123",
         },
         "faculty": {
             "username": FACULTY_USERNAME_INPUT,

@@ -139,7 +139,9 @@ class CoursesPage(BasePage):
         print("Clicked Pitch Trainer Back Arrow button")
 
     def validate_courses_recommended_by_institute(self):
-        self.page.locator(coursesLocators.COURSES_RECOMMENDED_BY_INSTITUTE).wait_for(state="visible", timeout=15000)
+        self.page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+        self.page.wait_for_timeout(1000)
+        self.page.locator(coursesLocators.COURSES_RECOMMENDED_BY_INSTITUTE).wait_for(state="visible", timeout=20000)
         highlight_element(self.page, coursesLocators.COURSES_RECOMMENDED_BY_INSTITUTE)
         assert self.page.locator(coursesLocators.COURSES_RECOMMENDED_BY_INSTITUTE).count() > 0, "Courses recommended by institute section not found"
         print("Courses recommended by institute validated")

@@ -57,7 +57,10 @@ def search_by_role_title_and_find_jobs(context):
 @then("user clicks on first job card")
 def click_first_job_card(context):
     jobsconnect = JobsConnectPage(context.page)
-    jobsconnect.click_first_job_card()
+    new_page = jobsconnect.click_first_job_card()
+    if new_page:
+        context.original_page = context.page
+        context.page = new_page
     attach_screenshot(context.page, "First Job Card Clicked")
 
 
@@ -70,8 +73,12 @@ def validate_about_job_and_company_sections(context):
 
 @then("user validates apply button and closes the current tab and navigate to jobs connect page")
 def validate_apply_button_and_navigate_back(context):
+    original_page = getattr(context, 'original_page', None)
     jobsconnect = JobsConnectPage(context.page)
-    jobsconnect.validate_apply_button_and_navigate_back()
+    jobsconnect.validate_apply_button_and_navigate_back(original_page=original_page)
+    if original_page:
+        context.page = original_page
+        context.original_page = None
     attach_screenshot(context.page, "Apply Button Validated and Navigated Back to Jobs Connect")
 
 
@@ -80,3 +87,17 @@ def click_reset_button(context):
     jobsconnect = JobsConnectPage(context.page)
     jobsconnect.click_reset_button()
     attach_screenshot(context.page, "Reset Button Clicked")
+
+
+@then("user clicks on jobs connect applied status card")
+def click_jobs_connect_applied_status_card(context):
+    jobsconnect = JobsConnectPage(context.page)
+    jobsconnect.click_jobs_connect_applied_status_card()
+    attach_screenshot(context.page, "Jobs Connect Applied Status Card Clicked")
+
+
+@then("user clicks on applied jobs button and validates the applied job card")
+def click_applied_jobs_button_and_validate(context):
+    jobsconnect = JobsConnectPage(context.page)
+    jobsconnect.click_applied_jobs_button_and_validate()
+    attach_screenshot(context.page, "Applied Jobs Button Clicked and Applied Job Card Validated")

@@ -15,7 +15,8 @@ class jobsconnectLocators:
     EDUCATION_LEVEL_FILTER = "//div[text()='Education Level']/parent::div/parent::div"
     GRADUATE_OPTION = "//span[text()='Graduate']"
     PREFERRED_COMPANIES_FILTER = "//div[text()='Preferred Companies']/parent::div/parent::div"
-    DIATOZ_OPTION = "//a[text()='DIATOZ']"
+    JOB_OPTION = "//div[text()='Test_Full Job Creation']"
+    JOBS_LINK = "//a[text()='Jobs']"
     SEARCH_BY_JOB_TITLE = "//input[@placeholder='Search by job title/roles']"
     FIND_JOBS_BUTTON = "//button[text()='Find Jobs']"
     FIRST_JOB_CARD = "(//div[@class='job-card-upper-wrapper'])[1]"
@@ -23,3 +24,7 @@ class jobsconnectLocators:
     VALIDATE_ABOUT_THE_COMPANY_BUTTON = "//button[text()='About the company']"
     VALIDATE_APPLY_BUTTON = "(//button[text()='Apply'])[1]"
     RESET_BUTTON = "(//button[text()='Reset'])[1]"
+    JOBS_CONNECT_APPLIED_STATUS = "//p[contains(text(), 'Applied')]"
+    APPLIED_JOBS_BUTTON = "//button[text()='Applied Jobs']"
+    APPLIED_JOB_CARD = "(//div[contains(@class,'job-card-upper-wrapper')])[1]"
+    

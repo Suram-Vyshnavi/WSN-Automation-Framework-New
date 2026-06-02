@@ -128,3 +128,17 @@ def click_favourite_and_remove(context):
     page = MyCareerAdvisorPage(context.page)
     page.click_favourite_and_remove()
     attach_screenshot(context.page, "Favourite Removed")
+
+
+@then('user clicks on the home icon and navigates to home page')
+def click_home_icon_and_navigate_home(context):
+    page = MyCareerAdvisorPage(context.page)
+    page.click_home_icon_and_navigate_home()
+    attach_screenshot(context.page, "Home Icon Clicked and Navigated to Home")
+
+
+@then('user clicks on roles saved card and click on favourites header and validate the favourite role header')
+def click_roles_saved_and_validate_favourite_role_header(context):
+    page = MyCareerAdvisorPage(context.page)
+    page.click_roles_saved_and_validate_favourite_role_header()
+    attach_screenshot(context.page, "Roles Saved Card and Favourite Role Header Validated")

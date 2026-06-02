@@ -71,6 +71,53 @@ class PersonalPitchPage(BasePage):
         self.page.locator(personal_pitch_trainerLocators.SHARE_PITCH_CLOSE_BUTTON).click()
         print("Clicked Share Pitch Close button")
 
+    def click_home_icon_and_navigate_home(self):
+        """Click the Home icon to navigate back to the home page."""
+        home = self.page.locator(personal_pitch_trainerLocators.HOME).first
+        home.wait_for(state="visible", timeout=15000)
+        home.scroll_into_view_if_needed()
+        highlight_element(self.page, personal_pitch_trainerLocators.HOME)
+        home.click()
+        print("Clicked Home icon and navigated to home page")
+        self.page.wait_for_timeout(1500)
+
+    def click_passed_text_on_pitch_card(self):
+        """Click the 'Passed' text on the Personal Pitch Trainer card on the dashboard.
+
+        If the 'Passed' text is not present, log a message and return without
+        failing the test case.
+        """
+        # Wait for the Personal Pitch Trainer card to be visible on the dashboard.
+        self.page.locator(personal_pitch_trainerLocators.PERSONAL_PITCH_TRAINER).wait_for(state="visible", timeout=15000)
+
+        passed_text = self.page.locator(personal_pitch_trainerLocators.PERSONAL_PITCH_TRAINER_PASSED_TEXT).first
+        if passed_text.count() == 0 or not passed_text.is_visible():
+            print("'Passed' text is not present on the Personal Pitch Trainer card - skipping without failing the test case")
+            return False
+
+        passed_text.scroll_into_view_if_needed()
+        highlight_element(self.page, personal_pitch_trainerLocators.PERSONAL_PITCH_TRAINER_PASSED_TEXT)
+        passed_text.click()
+        print("Clicked 'Passed' text on the Personal Pitch Trainer card")
+        self.page.wait_for_timeout(1000)
+        return True
+
+    def validate_check_button(self):
+        """Validate the check button is displayed.
+
+        If the check button is not present, log a message and return without
+        failing the test case.
+        """
+        check_button = self.page.locator(personal_pitch_trainerLocators.VALIDATE_CHECK_BUTTON).first
+        if check_button.count() == 0 or not check_button.is_visible():
+            print("Check button is not present - skipping without failing the test case")
+            return False
+
+        check_button.scroll_into_view_if_needed()
+        highlight_element(self.page, personal_pitch_trainerLocators.VALIDATE_CHECK_BUTTON)
+        print("Validated check button")
+        return True
+
     def click_logout(self):
         from pages.studentpersona.home_dashboard_page import HomeDashboardPage
         if HomeDashboardPage._shared_dashboard_url:

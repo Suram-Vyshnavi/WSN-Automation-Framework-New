@@ -18,7 +18,7 @@ class careerbuddy_locators:
     APPLY_BUTTON = "//button[text()='Apply']"
     SECTOR_CLOSE_BUTTON = "(//*[name()='svg'])[2]"
     LOCATION_BUTTON = "//button[text()='Location  ']"
-    LOCATION_OPTION_BANGALORE = "//p[text()='Bangalore, India']"
+    LOCATION_OPTION_BENGALURU = "//p[contains(text(),'Bengaluru')]|//p[contains(text(),'bengaluru')]|//li[contains(text(),'Bengaluru')]|//span[contains(text(),'Bengaluru')]|//div[contains(text(),'Bengaluru')]|//a[contains(text(),'Bengaluru')]"
     APPLY_BUTTON = "//button[text()='Apply']"
     LOCATION_CLOSE_BUTTON = "(//*[name()='svg'])[3]"
     JOBROLE_BUTTON = "//button[text()='Job Role  ']"
