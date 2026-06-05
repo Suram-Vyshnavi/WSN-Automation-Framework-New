@@ -7,10 +7,14 @@ class personal_pitch_trainerLocators:
     CREATE_YOUR_PITCH_BUTTON = "//button[text()='Create Your Pitch']"
     PITCH_TRAINER_BACK_ARROW_BUTTON = "//img[@class='wf_image redirection-image no-js-pitch-trainer-back-arrow']"
     PITCH_SUMMARY_VIEW_BUTTON = "//p[text()='View']"
+    #for prod environment use the below locator
+    PITCH_SUMMARY_VIEW_BUTTON = "(//p[text()='View'])[1]"
     VIEW_PITCH_BUTTON = "//p[text()='View Pitch']"
     VIDEO_PLAY_BUTTON = "//video[text()='Your browser does not support the video tag.']"
     VIDEO_CLOSE_BUTTON = "//span[@class='ant-modal-close-x']"
     SHARE_PITCH_BUTTON = "//button[@class='ant-btn ant-btn-default secondary_button view-pitch-button default-share-button share-pitch-button']"
+    #for prod environment use the below locator
+    SHARE_PITCH_BUTTON = "//button[@class='ant-btn ant-btn-default secondary_button view-pitch-button default-share-button false']"
     COPY_SHARE_BUTTON = "//img[@class='wf_image  no-js-share-button-copy']"
     SHARE_PITCH_CLOSE_BUTTON = "//span[@class='ant-modal-close-x']"
     PERSONAL_PITCH_TRAINER_PASSED_TEXT = "//p[contains(text(), 'Passed')]"

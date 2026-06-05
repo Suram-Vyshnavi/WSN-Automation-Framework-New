@@ -59,7 +59,14 @@ def click_interview_coach_card(context):
 
 @then("user clicks on forums card")
 def click_forums_card(context):
-    if context.feature.name.lower() == "forums":
+    # If the scenario continues into the Forums page (validates the My Forums
+    # header), stay on the page via ForumsPage. Otherwise (e.g. home dashboard
+    # validation) use HomeDashboardPage, which returns to the dashboard.
+    stays_on_forums = any(
+        "my forums header" in step.name.lower()
+        for step in context.scenario.steps
+    )
+    if context.feature.name.lower() == "forums" or stays_on_forums:
         from pages.studentpersona.forums_page import ForumsPage
         forums = ForumsPage(context.page)
         forums.click_forums_card()

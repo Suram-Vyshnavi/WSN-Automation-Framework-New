@@ -3,8 +3,8 @@ from pages.studentpersona.interview_coach_page import InterviewCoachPage
 from utils.helpers import attach_screenshot
 
 
-@then('user clicks on interview coach card')
-def click_interview_coach_card(context):
+@then('user navigates to interview coach card')
+def navigate_to_interview_coach_card(context):
     context.current_section = 'interview_coach'
     coach_page = InterviewCoachPage(context.page)
     coach_page._navigate_to_interview_coach()

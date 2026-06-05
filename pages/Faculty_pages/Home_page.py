@@ -147,11 +147,7 @@ class FacultyHomePage(BasePage):
 		self.page.bring_to_front()
 
 	def check_notifications_and_chat(self):
-		chat_menu = self.page.locator(HomeLocators.CHAT_MENU).first
-		chat_menu.wait_for(state="visible", timeout=10000)
-		self._show_element(chat_menu, duration=1200)
-		chat_menu.click()
-
+		# Faculty header has no chat icon; only the notifications panel is available here.
 		notifications_menu = self.page.locator(HomeLocators.NOTIFICATIONS_MENU).first
 		notifications_menu.wait_for(state="visible", timeout=10000)
 		self._show_element(notifications_menu, duration=1200)
@@ -172,10 +168,12 @@ class FacultyHomePage(BasePage):
 		profile_menu.click()
 
 	def edit_profile_details(self):
-		profile = self._first_visible([HomeLocators.MY_PROFILE, "//span[contains(.,'My Profile')]"], timeout=8000)
-		assert profile, "My Profile option is not visible"
-		self._show_element(profile, duration=1200)
-		profile.click()
+		# Clicking the profile avatar already navigates to the profile page.
+		# If a separate "My Profile" entry is present, open it; otherwise continue.
+		profile = self._first_visible([HomeLocators.MY_PROFILE, "//span[contains(.,'My Profile')]"], timeout=3000)
+		if profile:
+			self._show_element(profile, duration=1200)
+			profile.click()
 
 		first_name = self.page.locator(HomeLocators.FIRST_NAME).first
 		is_edit_mode_open = False

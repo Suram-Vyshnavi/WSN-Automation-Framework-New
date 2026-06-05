@@ -1,5 +1,5 @@
 from behave import given, when, then
-from pages.chat_page import ChatPage
+from pages.studentpersona.chat_page import ChatPage
 from pages.login_page import LoginPage
 from utils.config import Config
 from utils.helpers import attach_screenshot
@@ -43,6 +43,7 @@ def click_send_message(context):
 
 
 @then("user clicks on first contact in the list")
+@then("user clicks on first chat in the list")
 def click_first_contact(context):
     chat_page = ChatPage(context.page)
     chat_page.click_first_contact()

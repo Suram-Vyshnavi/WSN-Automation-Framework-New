@@ -12,9 +12,9 @@ from .interview_prep_locators import InterviewPrepLocators
 from .placement_locators import PlacementLocators
 from .career_buddy_locators import CareerBuddyLocators
 from .jobs_connect_locators import JobsConnectLocators
-from .messages_locators import Messages_and_discussionsLocators
-from .learning_progress_locators import Learning_Progress_Locators
-from .notification_locators import NotificationLocators
+from ..student_persona_locators.messages_locators import Messages_and_discussionsLocators
+from ..student_persona_locators.learning_progress_locators import Learning_Progress_Locators
+from ..student_persona_locators.notification_locators import NotificationLocators
 from .Settings_ZoomConnect_locators import SettingsZoomConnectLocators
 from .Settings_DeleteAccount_locators import SettingsDeleteAccountLocators
 from .Settings_WhatsappNotifications_locators import SettingsWhatsappNotificationsLocators

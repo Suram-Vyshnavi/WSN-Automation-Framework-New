@@ -58,8 +58,9 @@ Feature: Student Persona
     Then user validates overview course content and performance tabs
     Then user clicks on performance tab
     Then user validates final score certificate and performance tab
+    #for prod environment the below steps are not present
     Then user clicks on view analysis button
-    Then user clicks on view pitch button
+    Then user clciks on view pitch button
     Then user clicks on video play button
     Then user clicks on video close button
     Then user clicks on share pitch button
@@ -97,7 +98,7 @@ Feature: Student Persona
   Scenario: Validate Interview Coach
     Given user is on the home page
     Then user navigates to home page
-    Then user clicks on interview coach card
+    Then user navigates to interview coach card
     Then user clicks on audio button image
     Then user validates textbox and mic button in Interview Coach page
     Then user fills the textbox and clicks on send icon
@@ -139,7 +140,7 @@ Feature: Student Persona
     Given user is on the home page
     Then user navigates to home page
     Then user clicks on personal pitch trainer card
-    Then user clicks on create your pitch button
+    Then user clicks on create pitch button
     Then user clicks on create your pitch back button
     Then user clicks on pitch summary view button
     Then user clicks on view pitch button
@@ -167,24 +168,20 @@ Feature: Student Persona
     Then user validates offered by wadhwani foundation header
     Then user clicks on offered by wadhwani foundation tab
 
-  Scenario: Validate Messages and Discussions
-    Given user is on the home page
-    Then user clicks on header profile menu icon
-    Then user clicks on messages and discussions
-    Then user clicks on chat icon
-    Then user clicks on send message button
-    Then user clicks on first contact in the list
+  Scenario: Messages and discussions validation
+    Then user clicks on Accounts menu
+    Then user clicks on Messages & Discussions
+    Then user clicks on first chat in the list
     Then user sends a message
     Then user validates the latest message sent
     Then user clicks on file upload button
-    Then user uploads photo in to chat and validates
-    Then user clicks on file upload button
     Then user uploads document in to the chat and validates
-
-  Scenario: Validate Learning Progress
-    Given user is on the home page
+    Then user clicks on file upload button
+    Then user uploads photo in to chat and validates
     Then user navigates to home page
-    Then user clicks on profile icon
+
+Scenario: Learning progress validation
+    Then user clicks on Accounts menu
     Then user clicks on learning progress
     Then user validates the learning progress
     Then user navigates to learning progress page and clicks on completed courses
@@ -199,43 +196,48 @@ Feature: Student Persona
     Then user clicks on chat button
     Then user sends a message
     Then user validates the latest message sent
-
-  Scenario: Validate Settings
-    Given user is on the home page
     Then user navigates to home page
-    Then user clicks on ZoomConnect profile icon
-    Then user clicks on settings menu
-    Then user validates the settings sections
-    Then user clicks on accounts menu and validates accounts_meetings section
-    Then user clicks on sign in with zoom right arrow button
-    Then user validates the zoom account delinked popup and closed the popup
-    Then user validates the sign in with zoom section and turn on the toggle button
-    Then user navigates to meetings section and click on signin button
-    Then user navigates to zoom.us signin screen and validates the email address, password, signin buttons
-    Then user clicks on email input field and enter the email id
-    Then user clicks on password input field and enter the password
-    Then user clicks on sigin button
-    Then user navigates back to to signin with zoom screen and validates the toggle button status
-    Then user click on the toggle button and validates the disconnect section
-    Then user clicks on the disconnect button
-    Then user click on back arrow and navigates to settings screen
-    Then user clicks on accounts menu and validates delete account section
-    Then user clicks on delete account right arrow button
-    Then user validates the delete account popup and clicks on the get otp button
-    Then user validates the otp input field and clicks on the delete account otp section back arrow
-    Then user navigates to delete account section and click on close icon
-    Then user navigates to settings screen
-    Then user clicks on notifications menu and validates whatsapp container section
-    Then user clicks on whatsapp container section right arrow button
-    Then user validates the whatsapp section and clicks on the toggle button
-    Then user clicks on the whatsapp section back arrow and validates the settings section
-    Then user clicks on logout
 
+  Scenario: Settings ZoomConnect validation
+      Then user clicks on Account menu
+      Then user clicks on settings menu
+      Then user validates the settings sections
+      Then user clicks on zoom accounts menu and validates accounts_meetings section
+      Then user clicks on sign in with zoom right arrow button
+      Then user validates the zoom account delinked popup and closed the popup
+      Then user validates the sign in with zoom section and turn on the toggle button
+      Then user navigates to meetings section and click on signin button
+      Then user navigates to zoom.us signin screen and validates the email address, password, signin buttons
+      Then user clicks on email input field and enter the email id
+      Then user clicks on password input field and enter the password
+      Then user clicks on sigin button
+      Then user navigates back to to signin with zoom screen and validates the toggle button status
+      Then user click on the toggle button and validates the disconnect section
+      Then user clicks on the disconnect button
+      Then user click on back arrow and navigates to settings screen
 
+  Scenario: Settings DeleteAccount validation
+      Then user clicks on Account menu
+      Then user clicks on settings menu
+      Then user validates the settings sections
+      Then user clicks on accounts menu and validates delete account section
+      Then user clicks on delete account right arrow button
+      Then user validates the delete account popup and clicks on the get otp button
+      Then user validates the otp input field and clicks on the delete account otp section back arrow
+      Then user navigates to delete account section and click on close icon
+      Then user navigates to settings screen
 
+  Scenario: Settings WhatsappNotifications validation
+      Then user clicks on Account menu
+      Then user clicks on settings menu
+      Then user validates the settings sections
+      Then user clicks on notifications menu and validates whatsapp container section
+      Then user clicks on whatsapp container section right arrow button
+      Then user validates the whatsapp section and clicks on the toggle button
+      Then user clicks on the whatsapp section back arrow and validates the settings section
 
-
-
-
-
-
+  Scenario: Notifications validation
+      Then user clicks on notification icon
+      Then user validates the notifications
+      Then user clicks on first notification
+      Then user navigates to home page

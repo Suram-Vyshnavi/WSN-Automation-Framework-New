@@ -1,5 +1,5 @@
 from playwright.sync_api import Page
-from locators.student_locators import Learning_Progress_Locators
+from locators.student_persona_locators import Learning_Progress_Locators
 from utils.helpers import attach_screenshot
 
 
@@ -27,6 +27,59 @@ class LearningProgressPage:
             locator.click(timeout=timeout, force=True)
         return True
 
+    def _remove_ad_interstitial(self):
+        """Remove the Google AdSense interstitial overlay if it slipped through.
+
+        Ad requests are blocked at the browser-context level, but if the
+        #wiz-iframe-intent / #intentPreview overlay is already in the DOM it can
+        intercept clicks - strip it out defensively. Non-blocking.
+        """
+        try:
+            self.page.evaluate(
+                "document.querySelectorAll('#intentPreview, #wiz-iframe-intent').forEach(e => e.remove())"
+            )
+        except Exception:
+            pass
+
+    def dismiss_personalize_journey_popup(self):
+        """Best-effort close of the 'Help us personalize your journey' popup.
+
+        The popup appears intermittently and blocks clicks underneath. Simply
+        clicking the close (x) control is not enough - the popup only stays
+        dismissed after the page is refreshed, so we click the x and then
+        reload. This is non-blocking - if the popup isn't present the flow
+        continues unchanged.
+        """
+        popup = None
+        try:
+            popup = self.page.locator(Learning_Progress_Locators.PERSONALIZE_JOURNEY_POPUP).first
+            popup.wait_for(state="visible", timeout=3000)
+        except Exception:
+            return  # Popup not shown - nothing to do.
+
+        closed = self._click_first_visible([
+            "//div[contains(@class,'ant-modal')]//button[contains(@class,'ant-modal-close') or contains(@aria-label,'close') or contains(@aria-label,'Close')]",
+            "//div[contains(@class,'ant-modal')]//span[contains(@class,'close')]",
+            "//div[contains(@class,'ant-modal')]//button[normalize-space()='x' or normalize-space()='X' or normalize-space()='×']",
+            "//button[normalize-space()='Skip' or normalize-space()='Maybe Later' or normalize-space()='Close' or normalize-space()='No, Thanks']",
+            "//*[normalize-space()='Skip' or normalize-space()='Maybe Later' or normalize-space()='Close']",
+        ], timeout=3000)
+        if not closed:
+            # Fall back to dismissing via Escape if no close control matched.
+            try:
+                self.page.keyboard.press("Escape")
+            except Exception:
+                pass
+
+        # Clicking close alone leaves the popup able to re-appear/keep blocking
+        # clicks; refreshing the page is what actually clears it for the run.
+        try:
+            self.page.reload(wait_until="domcontentloaded", timeout=20000)
+            self.page.wait_for_load_state("networkidle", timeout=15000)
+        except Exception:
+            pass
+        attach_screenshot(self.page, "Personalize Journey Popup Dismissed")
+
     def click_profile_icon(self):
         """Click on profile icon"""
         self.page.locator(Learning_Progress_Locators.PROFILE_ICON).wait_for(state="visible", timeout=10000)
@@ -46,6 +99,8 @@ class LearningProgressPage:
 
     def validate_learning_progress(self):
         """Validate Learning Progress page is loaded"""
+        # Clear the "Help us personalize your journey" popup if it interrupts.
+        self.dismiss_personalize_journey_popup()
         heading = self._wait_visible_any([
             Learning_Progress_Locators.VALIDATE_LEARNING_PROGRESS,
             "//h6[normalize-space()='Learning Progress']",
@@ -73,7 +128,7 @@ class LearningProgressPage:
         ], timeout=10000)
         assert clicked, "Ongoing courses tab is not visible/clickable"
         attach_screenshot(self.page, "Ongoing Courses Tab Clicked")
-        
+
         # Click on first ongoing course
         first_course = self._wait_visible_any([
             Learning_Progress_Locators.FIRST_ONGOING_COURSE,
@@ -109,10 +164,16 @@ class LearningProgressPage:
         self.page.click(Learning_Progress_Locators.FIRST_ONGOING_COURSE_CONTENT)
         attach_screenshot(self.page, "Content Section Clicked")
         
-        # Click on Resume button
-        self.page.locator(Learning_Progress_Locators.FIRST_ONGOING_COURSE_RESUME).wait_for(state="visible", timeout=10000)
-        assert self.page.locator(Learning_Progress_Locators.FIRST_ONGOING_COURSE_RESUME).is_visible(), "Resume button not visible"
-        self.page.click(Learning_Progress_Locators.FIRST_ONGOING_COURSE_RESUME)
+        # Click on Resume button. Courses that have been started show "Resume",
+        # while courses with 0% progress show "Start Course"/"Start" instead.
+        clicked = self._click_first_visible([
+            Learning_Progress_Locators.FIRST_ONGOING_COURSE_RESUME,
+            "(//span[text()='Resume'])[position()=1]",
+            "(//span[text()='Start Course'])[position()=1]",
+            "(//span[normalize-space()='Start'])[position()=1]",
+            "//button[.//span[normalize-space()='Resume' or normalize-space()='Start Course' or normalize-space()='Start']]",
+        ], timeout=10000)
+        assert clicked, "Resume/Start button not visible"
         attach_screenshot(self.page, "Resume Button Clicked")
         self.page.go_back()
 
@@ -123,7 +184,11 @@ class LearningProgressPage:
         assert self.page.locator(Learning_Progress_Locators.FIRST_ONGOING_COURSE_PERFORMANCE).is_visible(), "Performance section not visible"
         self.page.click(Learning_Progress_Locators.FIRST_ONGOING_COURSE_PERFORMANCE)
         attach_screenshot(self.page, "Performance Section Clicked")
-        
+        self.page.wait_for_timeout(2000)
+        self.page.screenshot(path="debug_performance.png", full_page=True)
+        texts = self.page.locator("//button | //span | //a | //h2 | //h3").all_inner_texts()
+        print("DEBUG performance texts:", [t.strip() for t in texts if t.strip()][:80])
+
         # Try to validate Final Score if available (may not be present in ongoing courses)
         try:
             self.page.locator(Learning_Progress_Locators.VALIDATE_FINAL_SCORE).wait_for(state="visible", timeout=5000)
@@ -231,6 +296,7 @@ class LearningProgressPage:
     def click_overview_and_view_batch(self):
         """Click on overview section, click view batch button and validate batch details"""
         # Click on Overview section
+        self._remove_ad_interstitial()
         self.page.locator(Learning_Progress_Locators.FIRST_ONGOING_COURSE_OVERVIEW).wait_for(state="visible", timeout=10000)
         self.page.click(Learning_Progress_Locators.FIRST_ONGOING_COURSE_OVERVIEW)
         attach_screenshot(self.page, "Overview Section Clicked")

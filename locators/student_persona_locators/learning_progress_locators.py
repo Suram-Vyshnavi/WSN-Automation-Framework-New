@@ -13,7 +13,7 @@ class Learning_Progress_Locators:
     FIRST_ONGOING_COURSE_PERFORMANCE="//p[text()='Performance']"
     VALIDATE_FINAL_SCORE="//span[text()='Final Score']"
     COMPLETED_COURSES="//P[contains(text(),'Completed')]"
-    FIRST_COMPLETED_COURSE="//div[@class='course_card_container']//div[text()='Completed'][1]"
+    FIRST_COMPLETED_COURSE="(//div[@class='course_card_container']//div[text()='Completed'])[1]"
     VALIDATE_LEARNING_PROGRESSFIRST_COMPLETED_COURSE_HEADING="//h1[@class='typography-text page-title heading-text']"
     FIRST_COMPLETED_COURSE_OVERVIEW="//p[text()='Overview']"
     FIRST_COMPLETED_COURSE_CONTENT="//p[text()='Course Content']"
@@ -34,5 +34,7 @@ class Learning_Progress_Locators:
     VALIDATE_MAXIMUM_ALLOWED="//p[contains(text(),'Maximum Allowed')]"
     VALIDATE_STUDENT_NAME="(//section[contains(@class,'cohort-students-list')]//*[self::h6 or self::h2])[1]"
     FIRST_CHAT_BUTTON="(//section[@class='cohort-students-list']//h2)[1]"
+    # "Help us personalize your journey" interstitial popup
+    PERSONALIZE_JOURNEY_POPUP="//*[contains(normalize-space(),'personalize your journey') or contains(normalize-space(),'personalise your journey')]"
 
 

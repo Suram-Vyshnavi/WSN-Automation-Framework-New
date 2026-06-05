@@ -3,7 +3,7 @@ Feature: Interview Coach
         Given user is on the home page
         Then user validates the home icon
         Then user validates the welcome header and wadhwani skilling header
-        Then user clicks on interview coach card
+        Then user navigates to interview coach card
         Then user clicks on audio button image
         Then user validates textbox and mic button in Interview Coach page
         Then user fills the textbox and clicks on send icon

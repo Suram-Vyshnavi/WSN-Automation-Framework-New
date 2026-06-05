@@ -36,14 +36,21 @@ class InterviewCoachPage(BasePage):
         assert mic.is_visible(), "Mic button not visible"
         print("Validated textbox and mic button in Interview Coach page")
 
-    def fill_textbox_and_click_send(self):
-        self.page.locator(interviewCoachLocators.INTERVIEW_SEARCH_INPUT).wait_for(state="visible", timeout=15000)
+    def _fill_textbox_and_send(self, text):
+        textbox = self.page.locator(interviewCoachLocators.INTERVIEW_SEARCH_INPUT)
+        textbox.wait_for(state="visible", timeout=15000)
         highlight_element(self.page, interviewCoachLocators.INTERVIEW_SEARCH_INPUT)
-        self.page.locator(interviewCoachLocators.INTERVIEW_SEARCH_INPUT).fill("Product Manager")
-        self.page.locator(interviewCoachLocators.INTERVIEW_COACH_SEND_ICON).wait_for(state="visible", timeout=15000)
+        textbox.fill(text)
+        send_icon = self.page.locator(interviewCoachLocators.INTERVIEW_COACH_SEND_ICON)
+        send_icon.wait_for(state="visible", timeout=15000)
         highlight_element(self.page, interviewCoachLocators.INTERVIEW_COACH_SEND_ICON)
-        self.page.locator(interviewCoachLocators.INTERVIEW_COACH_SEND_ICON).click()
-        print("Filled textbox with 'Product Manager' and clicked send icon")
+        send_icon.click()
+        print(f"Filled textbox with '{text}' and clicked send icon")
+
+    def fill_textbox_and_click_send(self):
+        # First fill 'Product Manager' and send, then fill 'healthcare' and send
+        self._fill_textbox_and_send("Product Manager")
+        self._fill_textbox_and_send("healthcare")
 
     def click_practise_interviewing_for_role(self):
         self.page.locator(interviewCoachLocators.PRACTISE_INTERVIEW_BUTTON).wait_for(state="visible", timeout=20000)

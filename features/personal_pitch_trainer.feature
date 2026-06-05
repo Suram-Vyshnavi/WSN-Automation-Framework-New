@@ -4,7 +4,7 @@ Scenario: Validate personal pitch card on homepage dashboard
     Then user validates the home icon
     Then user validates the welcome header and wadhwani skilling header
     Then user clicks on personal pitch trainer card
-    Then user clicks on create your pitch button
+    Then user clicks on create pitch button
     Then user clicks on create your pitch back button
     Then user clicks on pitch summary view button
     Then user clicks on view pitch button

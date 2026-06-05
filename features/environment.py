@@ -23,7 +23,6 @@ def before_all(context):
         no_viewport=True,
         permissions=[]  # Deny all permissions (camera, microphone, notifications, etc.)
     )
-    
     # Check if tracing should be enabled
     context._trace_on = os.getenv("TRACE_ON", "false").lower() in ("1", "true", "yes")
     

@@ -14,6 +14,7 @@ class coursesLocators:
     VALIDATE_FINAL_SCORE = "//div[@class='ant-col ant-col-md-7 score_container']"
     VALIDATE_CERTIFICATE = "//div[@class='firstScenario_container']"
     VALIDATE_PERFORMANCE = "//div[@class='assessmentBasedScenario_container']"
+    #for prod environment the below locators till pitch trainer back arrow button will not work so these locators will be executed only in dev environment
     VIEW_ANALYSIS_BUTTON = "//button[text()='View Analysis']"
     VIEW_PITCH_BUTTON = "//p[text()='View Pitch']"
     VIDEO_PLAY_BUTTON = "//video[text()='Your browser does not support the video tag.']"

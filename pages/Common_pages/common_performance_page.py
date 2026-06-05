@@ -47,20 +47,11 @@ class CommonPerformancePage(BasePage):
 		], timeout=12000)
 		assert clicked, "Performance menu is not visible/clickable"
 
-	def validate_reports_title(self):
-		title = self._first_visible([CommonPerformanceLocators.REPORTS_TITLE], timeout=12000)
-		assert title, "Reports title is not visible"
-
-	def select_first_course(self):
-		container = self._first_visible([CommonPerformanceLocators.COURSE_NAME_CONTAINER])
-		assert container, "Course name container is not visible"
-		assert self._click_first_visible([CommonPerformanceLocators.SELECT_COURSE_INPUT_FIELD]), "Select course input field is not visible/clickable"
-		assert self._click_first_visible([CommonPerformanceLocators.FIRST_COURSE_IN_DROPDOWN]), "First course option is not visible/clickable"
-
-	def select_course_by_name(self, course_name):
-		container = self._first_visible([CommonPerformanceLocators.COURSE_NAME_CONTAINER])
-		assert container, "Course name container is not visible"
-		assert self._click_first_visible([CommonPerformanceLocators.SELECT_COURSE_INPUT_FIELD]), "Select course input field is not visible/clickable"
+	def validate_course_program_label_and_select_course(self, course_name):
+		assert self._first_visible([CommonPerformanceLocators.VALIDATE_COURSE_PROGRAM_LABEL], timeout=12000), \
+			"Course / Program label is not visible"
+		assert self._click_first_visible([CommonPerformanceLocators.SELECT_COURSE_INPUT_FIELD]), \
+			"Select course input field is not visible/clickable"
 		clicked = self._click_first_visible([
 			f"(//div[@class='ant-select-item-option-content' and normalize-space()='{course_name}'])[1]",
 			f"(//div[contains(@class,'ant-select-item-option-content') and normalize-space()='{course_name}'])[1]",
@@ -69,51 +60,92 @@ class CommonPerformancePage(BasePage):
 		], timeout=10000)
 		assert clicked, f"Course '{course_name}' is not visible/clickable in dropdown"
 
-	def select_first_status(self):
-		container = self._first_visible([CommonPerformanceLocators.STATUS_CONTAINER])
-		assert container, "Status container is not visible"
-		assert self._click_first_visible([CommonPerformanceLocators.SELECT_STATUS_INPUT_FIELD]), "Select status input field is not visible/clickable"
-		assert self._click_first_visible([CommonPerformanceLocators.FIRST_STATUS_IN_DROPDOWN]), "First status option is not visible/clickable"
+	def validate_risk_category_and_select_critical(self):
+		assert self._first_visible([CommonPerformanceLocators.VALIDATE_RISK_CATEGORY_LABEL], timeout=12000), \
+			"Risk Category label is not visible"
+		assert self._click_first_visible([CommonPerformanceLocators.SELECT_STATUS_INPUT_FIELD]), \
+			"Select status input field is not visible/clickable"
+		assert self._click_first_visible([CommonPerformanceLocators.FIRST_STATUS_IN_DROPDOWN]), \
+			"Critical status option is not visible/clickable"
 
-	def select_batch_name(self, batch_name):
-		container = self._first_visible([CommonPerformanceLocators.BATCH_NAME_CONTAINER])
-		assert container, "Batch name container is not visible"
-		assert self._click_first_visible([CommonPerformanceLocators.SELECT_BATCH_INPUT_FIELD]), "Select batch input field is not visible/clickable"
+	def validate_batch_status_and_select_active(self):
+		# Batch Status is a pill toggle (All / Active / Inactive) - just click the Active pill.
+		assert self._first_visible([CommonPerformanceLocators.VALIDATE_BATCH_STATUS_LABEL], timeout=12000), \
+			"Batch Status label is not visible"
+		assert self._click_first_visible([CommonPerformanceLocators.BATCH_STATUS]), \
+			"Active batch status pill is not visible/clickable"
 
-		clicked = self._click_first_visible([
-			f"(//div[@class='ant-select-item-option-content' and normalize-space()='{batch_name}'])[1]",
-			f"(//span[normalize-space()='{batch_name}'])[1]",
-			CommonPerformanceLocators.BATCH_NAME_IN_DROPDOWN,
-		], timeout=10000)
-		assert clicked, f"Batch '{batch_name}' is not visible/clickable in dropdown"
+	def click_clear_button(self):
+		assert self._click_first_visible([CommonPerformanceLocators.CLEAR_BUTTON], timeout=12000), \
+			"Clear button is not visible/clickable"
 
-	def validate_batch_assessment_title_and_graph(self):
-		title = self._first_visible([CommonPerformanceLocators.BATCH_ASSESEMENT_TITLE], timeout=12000)
-		graph = self._first_visible([CommonPerformanceLocators.BATCH_ASSESSMENT_GRAPH], timeout=12000)
-		assert title, "Batch assessment title is not visible"
-		assert graph, "Batch assessment graph is not visible"
+	def click_batch_row_and_validate_certification_status(self):
+		assert self._click_first_visible([CommonPerformanceLocators.BATCH_DETAILS_ROW_OPTION], timeout=12000), \
+			"Batch details row is not visible/clickable"
+		assert self._first_visible([CommonPerformanceLocators.VALIDATE_CERTIFICATION_STATUS_LABEL], timeout=12000), \
+			"Certification Status label is not visible"
 
-	def validate_assessment_status_and_toggle(self):
-		status = self._first_visible([CommonPerformanceLocators.ASSESSMENT_STATUS_TITLE], timeout=12000)
-		toggle = self._first_visible([CommonPerformanceLocators.SHOW_SCORE_TOGGLE_BUTTON], timeout=12000)
-		assert status, "Assessment status title is not visible"
-		assert toggle, "Show score toggle button is not visible"
+	def validate_student_activity_and_click_plus_icons(self):
+		assert self._first_visible([CommonPerformanceLocators.VALIDATE_STUDENT_ACTIVITY_LABEL], timeout=12000), \
+			"Student Activity label is not visible"
+		assert self._click_first_visible([CommonPerformanceLocators.PLUS_ICON_PREVIDEO]), \
+			"Pre-video plus icon is not visible/clickable"
+		assert self._click_first_visible([CommonPerformanceLocators.PLUS_ICON_POSTVIDEO]), \
+			"Post-video plus icon is not visible/clickable"
 
-	def click_score_toggle_and_next_arrow(self):
-		toggled = self._click_first_visible([CommonPerformanceLocators.SHOW_SCORE_TOGGLE_BUTTON])
-		assert toggled, "Score toggle button is not visible/clickable"
+	def validate_assessment_activity_and_click_quiz_plus(self):
+		assert self._first_visible([CommonPerformanceLocators.VALIDATE_STUDENT_ACTIVITY_ASSESSMENTS_LABEL], timeout=12000), \
+			"Student Activity - Assessments label is not visible"
+		assert self._click_first_visible([CommonPerformanceLocators.QUIZ_PLUS_ICON]), \
+			"Quiz plus icon is not visible/clickable"
 
-		next_clicked = self._click_first_visible([CommonPerformanceLocators.ASSESSMENT_STATUS_NEXTSCREEN_ARROW], timeout=12000)
-		assert next_clicked, "Assessment status next arrow button is not visible/clickable"
+	def click_back_to_dashboard(self):
+		assert self._click_first_visible([CommonPerformanceLocators.BACK_TO_DASHBOARD_BUTTON], timeout=12000), \
+			"Back to Dashboard button is not visible/clickable"
 
-	def click_student_name_link(self):
-		clicked = self._click_first_visible([CommonPerformanceLocators.STUDENT_NAME_LINK], timeout=12000)
-		assert clicked, "Student name link is not visible/clickable"
+	def _scroll_into_view(self, locator):
+		try:
+			locator.scroll_into_view_if_needed(timeout=5000)
+		except Exception:
+			pass
 
-	def validate_student_performance_cards(self):
-		assert self._first_visible([CommonPerformanceLocators.COURSE_NAME_DROPDOWN], timeout=12000), "Course name dropdown is not visible"
-		assert self._first_visible([CommonPerformanceLocators.STUDENT_NAME_CARD], timeout=12000), "Student name card is not visible"
-		assert self._first_visible([CommonPerformanceLocators.COURSE_NAME_CARD], timeout=12000), "Course name card is not visible"
-		assert self._first_visible([CommonPerformanceLocators.INSTITUTE_NAME_CARD], timeout=12000), "Institute name card is not visible"
-		assert self._first_visible([CommonPerformanceLocators.COMPLETION_STATUS_CARD], timeout=12000), "Completion status card is not visible"
-		assert self._first_visible([CommonPerformanceLocators.ASSESSMENT_SCORE_DETAILS_CARD], timeout=12000), "Assessment score details card is not visible"
+	def click_next_and_validate_page_number(self):
+		# Pagination sits at the bottom of the list - bring it into view first.
+		active = self._first_visible([CommonPerformanceLocators.ACTIVE_PAGE_BUTTON], timeout=12000)
+		assert active, "Pagination active page indicator is not visible"
+		self._scroll_into_view(active)
+		# Page numbers 1/2/3 are always rendered, so assert the *active* page actually moves.
+		page_before = active.inner_text().strip()
+
+		assert self._click_first_visible([CommonPerformanceLocators.NEXT_BUTTON], timeout=12000), \
+			"Pagination Next button is not visible/clickable"
+		self.page.wait_for_timeout(1000)
+
+		new_active = self._first_visible([CommonPerformanceLocators.ACTIVE_PAGE_BUTTON], timeout=12000)
+		assert new_active, "Pagination active page indicator is not visible after clicking Next"
+		page_after = new_active.inner_text().strip()
+		assert page_after != page_before, \
+			f"Page number did not advance after clicking Next (still on page '{page_after}')"
+		print(f"Pagination advanced from page {page_before} to page {page_after}")
+
+	def select_perpage_and_validate(self, per_page="25"):
+		dropdown = self._first_visible([CommonPerformanceLocators.PER_PAGE_DROPDOWN], timeout=12000)
+		assert dropdown, "Per page dropdown is not visible"
+		# Per-page control sits at the bottom of the list - bring it into view first.
+		self._scroll_into_view(dropdown)
+
+		options = dropdown.locator("option").all_inner_texts()
+		assert options, "Per page dropdown has no options"
+		assert any(per_page in option for option in options), \
+			f"Per page option '{per_page}' is not available in {options}"
+
+		dropdown.select_option(per_page)
+		self.page.wait_for_timeout(1000)
+
+		# Changing per-page resets the list to page 1 - validate the active page reflects that.
+		active = self._first_visible([CommonPerformanceLocators.ACTIVE_PAGE_BUTTON], timeout=12000)
+		assert active, "Pagination active page indicator is not visible after changing per page"
+		page_after = active.inner_text().strip()
+		assert page_after == "1", \
+			f"Expected to reset to page 1 after selecting {per_page} per page, but on page '{page_after}'"
+		print(f"Per page set to {per_page}; active page is {page_after}")

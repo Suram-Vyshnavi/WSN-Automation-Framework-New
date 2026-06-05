@@ -9,6 +9,12 @@ class programsLocators:
     VALIDATE_RECOMMENDED_BY_INSTITUTE = "//h6[text()='Programs Recommended by your Institute']"
     RECOMMENDED_PROGRAM_CARD = "(//div[@class='new-recommended-program-card'])[1]"
     RECOMMENDED_PROGRAM_CARD_ARROW_BUTTON = "(//img[@class='wf_image  no-js-arrow-right-white'])[1]"
+    #for prod environment use the below locators 
+    ENROLL_NOW_BUTTON = "(//h6[text()='Enroll Now'])[1]"
+    ENROLLNOW_BUTTON = "(//button[text()='Enroll Now'])[1]"
+    VALIDATE_ENROLLNOW_BUTTON_2 = "(//button[text()='Enroll Now'])[2]"
+    VALIDATE_NOT_NOW_BUTTON = "//button[text()='Not now']"
+    #for dev environment use the below locator enroll button
     ENROLL_BUTTON = "//h6[text()='Enroll']"
     VALIDATE_CONFIRM_BUTTON = "//h6[text()='Confirm']"
     VALIDATE_CANCEL_BUTTON = "//h6[text()='Cancel']"

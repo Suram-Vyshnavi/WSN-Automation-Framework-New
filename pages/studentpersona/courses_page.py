@@ -1,6 +1,12 @@
 from pages.base_page import BasePage
 from locators.student_persona_locators.courses_locators import coursesLocators
 from utils.helpers import attach_screenshot, highlight_element
+from config.env_config import ENV
+
+# The pitch-trainer flow (View Analysis -> ... -> Pitch Trainer back arrow) only
+# exists in the dev environment. On prod those elements are not rendered, so the
+# corresponding steps are skipped and we simply return to Home and re-open Courses.
+_IS_PROD = ENV.strip().lower() == "prod"
 
 
 class CoursesPage(BasePage):
@@ -72,65 +78,114 @@ class CoursesPage(BasePage):
         assert self.page.locator(coursesLocators.VALIDATE_FINAL_SCORE).count() > 0, "Final score section not found"
         highlight_element(self.page, coursesLocators.VALIDATE_CERTIFICATE)
         assert self.page.locator(coursesLocators.VALIDATE_CERTIFICATE).count() > 0, "Certificate section not found"
-        highlight_element(self.page, coursesLocators.VALIDATE_PERFORMANCE)
-        assert self.page.locator(coursesLocators.VALIDATE_PERFORMANCE).count() > 0, "Performance section not found"
-        print("Final score, Certificate, and Performance sections validated")
-
+        # The assessment-based scenario section is course-specific and may not render
+        # for every enrolled course (e.g. courses without an assessment-based scenario).
+        # Skip gracefully instead of waiting out the default 30s scroll timeout.
+        if self.page.locator(coursesLocators.VALIDATE_PERFORMANCE).count() > 0:
+            highlight_element(self.page, coursesLocators.VALIDATE_PERFORMANCE)
+            print("Final score, Certificate, and Performance sections validated")
+        else:
+            print("Final score and Certificate validated; "
+                  "assessment-based scenario section not present for this course - skipping")
+    
+    #for prod environment the below steps are not present, so these steps will be executed only in dev environment
     def click_view_analysis_button(self):
+        if _IS_PROD:
+            print("Prod environment - skipping View Analysis button (dev-only step)")
+            return
         self.page.locator(coursesLocators.VIEW_ANALYSIS_BUTTON).wait_for(state="visible", timeout=15000)
         highlight_element(self.page, coursesLocators.VIEW_ANALYSIS_BUTTON)
         self.page.locator(coursesLocators.VIEW_ANALYSIS_BUTTON).click()
         print("Clicked View Analysis button")
 
+    #for prod environment the below steps are not present, so these steps will be executed only in dev environment
     def click_view_pitch_button(self):
+        if _IS_PROD:
+            print("Prod environment - skipping View Pitch button (dev-only step)")
+            return
         self.page.locator(coursesLocators.VIEW_PITCH_BUTTON).wait_for(state="visible", timeout=15000)
         highlight_element(self.page, coursesLocators.VIEW_PITCH_BUTTON)
         self.page.locator(coursesLocators.VIEW_PITCH_BUTTON).click()
         print("Clicked View Pitch button")
 
+    #for prod environment the below steps are not present, so these steps will be executed only in dev environment
     def click_video_play_button(self):
+        if _IS_PROD:
+            print("Prod environment - skipping video play button (dev-only step)")
+            return
         self.page.locator(coursesLocators.VIDEO_PLAY_BUTTON).wait_for(state="attached", timeout=15000)
         self.page.locator(coursesLocators.VIDEO_PLAY_BUTTON).click(force=True)
         print("Clicked video play button")
 
+    #for prod environment the below steps are not present, so these steps will be executed only in dev environment
     def click_video_close_button(self):
+        if _IS_PROD:
+            print("Prod environment - skipping video close button (dev-only step)")
+            return
         self.page.locator(coursesLocators.VIDEO_CLOSE_BUTTON).wait_for(state="visible", timeout=15000)
         highlight_element(self.page, coursesLocators.VIDEO_CLOSE_BUTTON)
         self.page.locator(coursesLocators.VIDEO_CLOSE_BUTTON).click()
         print("Clicked video close button")
 
+    #for prod environment the below steps are not present, so these steps will be executed only in dev environment
     def click_share_pitch_button(self):
+        if _IS_PROD:
+            print("Prod environment - skipping Share Pitch button (dev-only step)")
+            return
         self.page.locator(coursesLocators.SHARE_PITCH_BUTTON).wait_for(state="visible", timeout=15000)
         highlight_element(self.page, coursesLocators.SHARE_PITCH_BUTTON)
         self.page.locator(coursesLocators.SHARE_PITCH_BUTTON).click()
         print("Clicked Share Pitch button")
 
+    #for prod environment the below steps are not present, so these steps will be executed only in dev environment
     def click_copy_pitch_button(self):
+        if _IS_PROD:
+            print("Prod environment - skipping Copy Pitch button (dev-only step)")
+            return
         self.page.locator(coursesLocators.COPY_SHARE_BUTTON).wait_for(state="visible", timeout=15000)
         highlight_element(self.page, coursesLocators.COPY_SHARE_BUTTON)
         self.page.locator(coursesLocators.COPY_SHARE_BUTTON).click()
         print("Clicked Copy Pitch button")
 
+    #for prod environment the below steps are not present, so these steps will be executed only in dev environment
     def click_share_pitch_close_button(self):
+        if _IS_PROD:
+            print("Prod environment - skipping Share Pitch Close button (dev-only step)")
+            return
         self.page.locator(coursesLocators.SHARE_PITCH_CLOSE_BUTTON).wait_for(state="visible", timeout=15000)
         highlight_element(self.page, coursesLocators.SHARE_PITCH_CLOSE_BUTTON)
         self.page.locator(coursesLocators.SHARE_PITCH_CLOSE_BUTTON).click()
         print("Clicked Share Pitch Close button")
-
+    #for prod environment the below steps are not present, so these steps will be executed only in dev environment
     def click_back_arrow_button(self):
+        if _IS_PROD:
+            print("Prod environment - skipping Back Arrow button (dev-only step)")
+            return
         self.page.locator(coursesLocators.BACK_ARROW_BUTTON).wait_for(state="visible", timeout=15000)
         highlight_element(self.page, coursesLocators.BACK_ARROW_BUTTON)
         self.page.locator(coursesLocators.BACK_ARROW_BUTTON).click()
         self.page.locator(coursesLocators.PERFORMANCE).click()
         print("Clicked Back Arrow button")
-
+    #for prod environment the below steps are not present, so these steps will be executed only in dev environment
     def click_create_post_video_button(self):
+        if _IS_PROD:
+            print("Prod environment - skipping Create Post-Video button (dev-only step)")
+            return
         self.page.locator(coursesLocators.CREATE_POST_VIDEO_BUTTON).wait_for(state="visible", timeout=15000)
         highlight_element(self.page, coursesLocators.CREATE_POST_VIDEO_BUTTON)
         self.page.locator(coursesLocators.CREATE_POST_VIDEO_BUTTON).click()
         print("Clicked Create Post-Video button")
-
+    #for prod environment the below steps are not present, so these steps will be executed only in dev environment
     def click_pitch_trainer_back_arrow_button(self):
+        if _IS_PROD:
+            # Pitch trainer flow is absent on prod; just return to Home and re-open Courses
+            # so the subsequent recommended/offered course validations can run.
+            self.page.locator(coursesLocators.HOME).wait_for(state="visible", timeout=15000)
+            self.page.locator(coursesLocators.HOME).click()
+            self.page.locator(coursesLocators.COURSES_CARD).wait_for(state="visible", timeout=15000)
+            self.page.locator(coursesLocators.COURSES_CARD).click()
+            print("Prod environment - navigated to Home and re-opened Courses")
+            return
         self.page.locator(coursesLocators.PITCH_TRAINER_BACK_ARROW_BUTTON).wait_for(state="visible", timeout=15000)
         highlight_element(self.page, coursesLocators.PITCH_TRAINER_BACK_ARROW_BUTTON)
         self.page.locator(coursesLocators.PITCH_TRAINER_BACK_ARROW_BUTTON).click()

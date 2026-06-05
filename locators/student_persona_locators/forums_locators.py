@@ -6,4 +6,6 @@ class forumsLocators:
     FORUMS_CARD = "//h6[text()='Forums']"
     VALIDATE_MY_FORUMS_HEADER = "//h4[text()='My Forums']"
     VIEW_FORUM_BUTTON = "//span[text()='View Forum']"
+    #for prod environment use the below locator for view forum button
+    VIEW_FORUM_BUTTON = "(//span[text()='View Forum'])[1]"
     

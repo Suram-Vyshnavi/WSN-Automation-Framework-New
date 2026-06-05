@@ -7,6 +7,7 @@ class Messages_and_discussionsLocators:
     CHAT_ICON = "//p[contains(text(),'Messages & Discussions')]"
     SEND_MESSAGE_BUTTON="//button[normalize-space()='Send Message']"
     FIRST_NEW_MESSAGE="(//div[@class='search_result_container']//div)[position()=1]"
+    FIRST_CHAT_IN_LIST="(//div[contains(@class,'chat_list_overflow')]//div[contains(@class,'conversation_card_container')])[1]"
     MESSAGE_TEXTAREA="//div[contains(@class,'input_message')]//textarea | //div[contains(@class,'input_message')]//*[@contenteditable='true']"
     # send hello in the above textarea
     SEND_MESSAGE_ICON="//div[contains(@class,'input_message_send')]//img"

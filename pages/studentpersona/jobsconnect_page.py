@@ -78,6 +78,8 @@ class JobsConnectPage(BasePage):
         self.page.locator(jobsconnectLocators.SEARCH_BY_JOB_TITLE).wait_for(state="visible", timeout=15000)
         highlight_element(self.page, jobsconnectLocators.SEARCH_BY_JOB_TITLE)
         self.page.locator(jobsconnectLocators.SEARCH_BY_JOB_TITLE).fill("Product Manager")
+        #for prod environment consider below line to fill the search box with "Backoffice & Voice Executive"
+        self.page.locator(jobsconnectLocators.SEARCH_BY_JOB_TITLE).fill("Backoffice & Voice Executive")
         self.page.locator(jobsconnectLocators.FIND_JOBS_BUTTON).click()
         highlight_element(self.page, jobsconnectLocators.FIND_JOBS_BUTTON)
         try:

@@ -3,7 +3,7 @@ from pages.studentpersona.personal_pitch_page import PersonalPitchPage
 from utils.helpers import attach_screenshot
 
 
-@then('user clicks on create your pitch button')
+@then('user clicks on create pitch button')
 def click_create_your_pitch_button(context):
     pitch_page = PersonalPitchPage(context.page)
     pitch_page.click_create_your_pitch_button()

@@ -50,18 +50,45 @@ class ProgramsPage(BasePage):
         print("Clicked Recommended by Institute tab arrow")
 
     def click_enroll_button(self):
-        self.page.locator(programsLocators.ENROLL_BUTTON).wait_for(state="visible", timeout=15000)
-        highlight_element(self.page, programsLocators.ENROLL_BUTTON)
-        self.page.locator(programsLocators.ENROLL_BUTTON).click()
-        print("Clicked Enroll button")
+        # For prod environment click "Enroll Now" h6 then the "Enroll Now" button (opens the
+        # confirmation modal). For dev environment click the "Enroll" button directly as there
+        # is no "Enroll Now" button in dev.
+        from config.env_config import ENV
+        if ENV.lower() == "prod":
+            self.page.locator(programsLocators.ENROLL_NOW_BUTTON).wait_for(state="visible", timeout=15000)
+            highlight_element(self.page, programsLocators.ENROLL_NOW_BUTTON)
+            self.page.locator(programsLocators.ENROLL_NOW_BUTTON).click()
+            print("Clicked Enroll Now button")
+            self.page.locator(programsLocators.ENROLLNOW_BUTTON).wait_for(state="visible", timeout=15000)
+            highlight_element(self.page, programsLocators.ENROLLNOW_BUTTON)
+            self.page.locator(programsLocators.ENROLLNOW_BUTTON).click()
+            print("Clicked Enroll Now button (modal)")
+        else:
+            self.page.locator(programsLocators.ENROLL_BUTTON).wait_for(state="visible", timeout=15000)
+            highlight_element(self.page, programsLocators.ENROLL_BUTTON)
+            self.page.locator(programsLocators.ENROLL_BUTTON).click()
+            print("Clicked Enroll button")
 
     def validate_confirm_and_cancel_buttons(self):
-        self.page.locator(programsLocators.VALIDATE_CONFIRM_BUTTON).wait_for(state="visible", timeout=15000)
-        highlight_element(self.page, programsLocators.VALIDATE_CONFIRM_BUTTON)
-        assert self.page.locator(programsLocators.VALIDATE_CONFIRM_BUTTON).count() > 0, "Confirm button not found"
-        highlight_element(self.page, programsLocators.VALIDATE_CANCEL_BUTTON)
-        assert self.page.locator(programsLocators.VALIDATE_CANCEL_BUTTON).count() > 0, "Cancel button not found"
-        print("Confirm and Cancel buttons validated")
+        # For prod environment validate the "Enroll Now" (2nd) and "Not now" buttons in the
+        # confirmation modal. For dev environment validate the Confirm and Cancel buttons, as
+        # there is no Confirm/Cancel button in prod.
+        from config.env_config import ENV
+        if ENV.lower() == "prod":
+            self.page.locator(programsLocators.VALIDATE_ENROLLNOW_BUTTON_2).wait_for(state="visible", timeout=15000)
+            highlight_element(self.page, programsLocators.VALIDATE_ENROLLNOW_BUTTON_2)
+            assert self.page.locator(programsLocators.VALIDATE_ENROLLNOW_BUTTON_2).count() > 0, "Enroll Now button not found"
+            self.page.locator(programsLocators.VALIDATE_NOT_NOW_BUTTON).wait_for(state="visible", timeout=15000)
+            highlight_element(self.page, programsLocators.VALIDATE_NOT_NOW_BUTTON)
+            assert self.page.locator(programsLocators.VALIDATE_NOT_NOW_BUTTON).count() > 0, "Not Now button not found"
+            print("Enroll Now and Not Now buttons validated")
+        else:
+            self.page.locator(programsLocators.VALIDATE_CONFIRM_BUTTON).wait_for(state="visible", timeout=15000)
+            highlight_element(self.page, programsLocators.VALIDATE_CONFIRM_BUTTON)
+            assert self.page.locator(programsLocators.VALIDATE_CONFIRM_BUTTON).count() > 0, "Confirm button not found"
+            highlight_element(self.page, programsLocators.VALIDATE_CANCEL_BUTTON)
+            assert self.page.locator(programsLocators.VALIDATE_CANCEL_BUTTON).count() > 0, "Cancel button not found"
+            print("Confirm and Cancel buttons validated")
 
     def click_close_modal_button(self):
         self.page.locator(programsLocators.CLOSE_MODAL_BUTTON).wait_for(state="visible", timeout=15000)
@@ -83,18 +110,10 @@ class ProgramsPage(BasePage):
         highlight_element(self.page, programsLocators.RECOMMENDED_PROGRAM_CARD_8_ARROW_BUTTON)
         self.page.locator(programsLocators.RECOMMENDED_PROGRAM_CARD_8_ARROW_BUTTON).click()
         print("Clicked Offered by Wadhwani Foundation tab arrow")
-        # Enroll
-        self.page.locator(programsLocators.ENROLL_BUTTON).wait_for(state="visible", timeout=15000)
-        highlight_element(self.page, programsLocators.ENROLL_BUTTON)
-        self.page.locator(programsLocators.ENROLL_BUTTON).click()
-        print("Clicked Enroll button")
-        # Validate Confirm and Cancel
-        self.page.locator(programsLocators.VALIDATE_CONFIRM_BUTTON).wait_for(state="visible", timeout=15000)
-        highlight_element(self.page, programsLocators.VALIDATE_CONFIRM_BUTTON)
-        assert self.page.locator(programsLocators.VALIDATE_CONFIRM_BUTTON).count() > 0, "Confirm button not found"
-        highlight_element(self.page, programsLocators.VALIDATE_CANCEL_BUTTON)
-        assert self.page.locator(programsLocators.VALIDATE_CANCEL_BUTTON).count() > 0, "Cancel button not found"
-        print("Confirm and Cancel buttons validated")
+        # Enroll (env-aware: prod uses the "Enroll Now" flow, dev uses the "Enroll" button)
+        self.click_enroll_button()
+        # Validate the confirmation modal buttons (env-aware)
+        self.validate_confirm_and_cancel_buttons()
         # Close modal
         self.page.locator(programsLocators.CLOSE_MODAL_BUTTON).wait_for(state="visible", timeout=15000)
         highlight_element(self.page, programsLocators.CLOSE_MODAL_BUTTON)

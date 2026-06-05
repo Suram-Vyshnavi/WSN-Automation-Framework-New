@@ -16,6 +16,8 @@ class jobsconnectLocators:
     GRADUATE_OPTION = "//span[text()='Graduate']"
     PREFERRED_COMPANIES_FILTER = "//div[text()='Preferred Companies']/parent::div/parent::div"
     JOB_OPTION = "//div[text()='Test_Full Job Creation']"
+    #for prod environment consider below locator
+    JOB_OPTION = "//div[text()='Backoffice &amp; Voice Executive']"
     JOBS_LINK = "//a[text()='Jobs']"
     SEARCH_BY_JOB_TITLE = "//input[@placeholder='Search by job title/roles']"
     FIND_JOBS_BUTTON = "//button[text()='Find Jobs']"

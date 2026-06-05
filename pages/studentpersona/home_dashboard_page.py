@@ -1,7 +1,7 @@
 from pages.base_page import BasePage
 from locators.student_persona_locators.new_homepage_locators import NewHomepageLocators
-from locators.student_locators.messages_locators import Messages_and_discussionsLocators
-from locators.student_locators.learning_progress_locators import Learning_Progress_Locators
+from locators.student_persona_locators.messages_locators import Messages_and_discussionsLocators
+from locators.student_persona_locators.learning_progress_locators import Learning_Progress_Locators
 from locators.student_locators.Settings_DeleteAccount_locators import SettingsDeleteAccountLocators
 from utils.helpers import attach_screenshot, highlight_element
 
@@ -20,6 +20,8 @@ class HomeDashboardPage(BasePage):
 
     def _return_to_dashboard(self):
         """Navigate back to the stored dashboard URL and wait for cards to render."""
+        if not HomeDashboardPage._shared_dashboard_url:
+            self._capture_dashboard_url()
         self.page.goto(HomeDashboardPage._shared_dashboard_url, wait_until="domcontentloaded", timeout=60000)
         self.page.locator(NewHomepageLocators.COURSES_CARD).wait_for(state="visible", timeout=20000)
 
@@ -66,6 +68,7 @@ class HomeDashboardPage(BasePage):
         self.page.locator(NewHomepageLocators.PERSONAL_PITCH_TRAINER).click()
         print("Clicked Personal Pitch Trainer card")
         self._return_to_dashboard()
+
 
     def click_interview_coach_card(self):
         self._capture_dashboard_url()
@@ -175,7 +178,10 @@ class HomeDashboardPage(BasePage):
         highlight_element(self.page, Learning_Progress_Locators.VALIDATE_LEARNING_PROGRESS)
         attach_screenshot(self.page, "Learning Progress Page")
         print("Clicked Learning Progress")
-        self._return_to_dashboard()
+        # NOTE: Do not return to dashboard here. The "Learning progress validation"
+        # scenario continues operating on the Learning Progress page. The home
+        # dashboard smoke test still works because each subsequent menu method
+        # calls _return_to_dashboard() at its start.
 
     def click_settings(self):
         self._return_to_dashboard()

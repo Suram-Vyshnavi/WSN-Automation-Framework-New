@@ -1,5 +1,5 @@
 from behave import given, when, then
-from pages.learning_progress_page import LearningProgressPage
+from pages.studentpersona.learning_progress_page import LearningProgressPage
 from pages.login_page import LoginPage
 
 

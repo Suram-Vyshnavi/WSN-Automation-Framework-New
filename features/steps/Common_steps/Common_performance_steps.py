@@ -11,78 +11,71 @@ def step_click_performance_menu(context):
 	attach_screenshot(context.page, "Clicked performance menu")
 
 
-@then("common user validates the reports title")
-def step_validate_reports_title(context):
+@then('common user validate the course program label and clicks on the select course input field and selects  the "{course_name}" from the dropdown')
+def step_validate_course_program_and_select_course(context, course_name):
 	page = CommonPerformancePage(context.page)
-	page.validate_reports_title()
-	attach_screenshot(context.page, "Validated reports title")
-
-
-@then("common user validate the course name container and clicks on the select course name input field and clicks on the first course from dropdown")
-def step_select_course_name(context):
-	page = CommonPerformancePage(context.page)
-	page.select_first_course()
-	attach_screenshot(context.page, "Selected first course from dropdown")
-
-
-@then('common user validate the course name container and clicks on the select course name input field and clicks on the "{course_name}" course from dropdown')
-def step_select_course_name_by_value(context, course_name):
-	page = CommonPerformancePage(context.page)
-	page.select_course_by_name(course_name)
+	page.validate_course_program_label_and_select_course(course_name)
 	attach_screenshot(context.page, f"Selected course '{course_name}' from dropdown")
 
 
-@then("common user validates the status container and clicks on the select satus input field and clicks on the first status from the dropdown")
-def step_select_status(context):
+@then("common user validates the risk category label and clicks on the select status input field and clicks on the first status from the dropdown and selects critical")
+def step_validate_risk_category_and_select_critical(context):
 	page = CommonPerformancePage(context.page)
-	page.select_first_status()
-	attach_screenshot(context.page, "Selected first status from dropdown")
+	page.validate_risk_category_and_select_critical()
+	attach_screenshot(context.page, "Selected Critical risk category status")
 
 
-@then('common user validates the batch name container and clicks on the select batch input field and clicks on the "{batch_name}" from dropdown')
-def step_select_batch_name(context, batch_name):
+@then("common user validates the batch status label and clicks on the select batch input field and select batch status as active")
+def step_validate_batch_status_and_select_active(context):
 	page = CommonPerformancePage(context.page)
-	page.select_batch_name(batch_name)
-	attach_screenshot(context.page, f"Selected batch {batch_name} from dropdown")
+	page.validate_batch_status_and_select_active()
+	attach_screenshot(context.page, "Selected Active batch status")
 
 
-@then("common user validates the batch assessment title and batch assessment graph")
-def step_validate_batch_assessment(context):
+@then("common user clicks on the clear button")
+def step_click_clear_button(context):
 	page = CommonPerformancePage(context.page)
-	page.validate_batch_assessment_title_and_graph()
-	attach_screenshot(context.page, "Validated batch assessment title and graph")
+	page.click_clear_button()
+	attach_screenshot(context.page, "Clicked Clear button")
 
 
-@then("common user validates the assessment status title and validates the show score toggle button")
-def step_validate_assessment_status_and_toggle(context):
+@then("common user clicks on the batch details row option and validates certification status label")
+def step_click_batch_row_and_validate_certification(context):
 	page = CommonPerformancePage(context.page)
-	page.validate_assessment_status_and_toggle()
-	attach_screenshot(context.page, "Validated assessment status and show score toggle")
+	page.click_batch_row_and_validate_certification_status()
+	attach_screenshot(context.page, "Opened batch details row and validated certification status label")
 
 
-@then("common user clicks on the score toggle button and clicks on the assessment status next arrow button")
-def step_click_toggle_and_next_arrow(context):
+@then("common user validates the student activity label and clicks on plus icon prevideo and plus icon postvideo")
+def step_validate_student_activity_and_click_plus_icons(context):
 	page = CommonPerformancePage(context.page)
-	page.click_score_toggle_and_next_arrow()
-	attach_screenshot(context.page, "Clicked score toggle and next arrow")
+	page.validate_student_activity_and_click_plus_icons()
+	attach_screenshot(context.page, "Validated student activity and clicked pre/post video plus icons")
 
 
-@then("common user clicks on the student name link from second screen")
-def step_click_student_name_link(context):
+@then("common user validates the student activity assesment label and clicks on the quiz plus icon")
+def step_validate_assessment_activity_and_click_quiz_plus(context):
 	page = CommonPerformancePage(context.page)
-	page.click_student_name_link()
-	attach_screenshot(context.page, "Clicked student name link")
+	page.validate_assessment_activity_and_click_quiz_plus()
+	attach_screenshot(context.page, "Validated assessment activity and clicked quiz plus icon")
 
 
-@then("common user validates the course name dropdown and validates the student name card")
-def step_validate_course_dropdown_and_student_card(context):
+@then("common user clicks on back to dashboard button")
+def step_click_back_to_dashboard(context):
 	page = CommonPerformancePage(context.page)
-	page.validate_student_performance_cards()
-	attach_screenshot(context.page, "Validated course dropdown and student card")
+	page.click_back_to_dashboard()
+	attach_screenshot(context.page, "Clicked Back to Dashboard button")
 
 
-@then("common user validates the course name card , institute name card , completion status card  and assessment score details card")
-def step_validate_performance_detail_cards(context):
+@then("common user clicks on the pagination next button and validates the page number")
+def step_click_next_and_validate_page_number(context):
 	page = CommonPerformancePage(context.page)
-	page.validate_student_performance_cards()
-	attach_screenshot(context.page, "Validated performance detail cards")
+	page.click_next_and_validate_page_number()
+	attach_screenshot(context.page, "Clicked pagination Next and validated page number")
+
+
+@then("common user clicks on the perpage dropdown and validates the options and selects 25 perpage option and validates the page number")
+def step_select_perpage_and_validate(context):
+	page = CommonPerformancePage(context.page)
+	page.select_perpage_and_validate("25")
+	attach_screenshot(context.page, "Selected 25 per page option and validated page number")

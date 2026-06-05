@@ -1,5 +1,5 @@
 from pages.base_page import BasePage
-from locators.student_locators import Messages_and_discussionsLocators
+from locators.student_persona_locators import Messages_and_discussionsLocators
 from utils.helpers import attach_screenshot
 from utils.config import Config
 import os
@@ -73,6 +73,51 @@ class ChatPage(BasePage):
                 continue
         return False
 
+    def _click_send_when_ready(self, wait_ready_timeout=12000, confirm_timeout=10000):
+        ready_selector = (
+            "//div[contains(@class,'input_message_send') "
+            "and not(contains(@class,'disable_button'))]"
+        )
+        disabled_selector = (
+            "//div[contains(@class,'input_message_send') "
+            "and contains(@class,'disable_button')]"
+        )
+
+        ready_wrapper = self.page.locator(ready_selector).first
+        try:
+            ready_wrapper.wait_for(state="visible", timeout=wait_ready_timeout)
+        except Exception:
+            attach_screenshot(self.page, "Send Button Not Ready (attachment not staged)")
+            raise AssertionError("Send button never became ready - attachment was not staged")
+
+        send_img = self.page.locator(ready_selector + "//img").first
+        clicked = False
+        for attempt in range(3):
+            try:
+                send_img.wait_for(state="visible", timeout=4000)
+                try:
+                    send_img.click(timeout=4000)
+                except Exception:
+                    send_img.click(timeout=4000, force=True)
+                clicked = True
+            except Exception:
+                pass
+
+            # Confirm the send consumed the staged content: the wrapper goes
+            # back to the disabled state once nothing is left to send.
+            try:
+                self.page.locator(disabled_selector).first.wait_for(state="visible", timeout=confirm_timeout)
+                attach_screenshot(self.page, "Send Confirmed (composer cleared)")
+                return True
+            except Exception:
+                # Still staged - the click may not have registered; retry.
+                continue
+
+        assert clicked, "Send button is not visible/clickable"
+        # Clicked but couldn't confirm clearing; let downstream validation decide.
+        attach_screenshot(self.page, "Send Clicked (clear not confirmed)")
+        return clicked
+
     def _close_visible_modal_if_any(self):
         """Close any blocking modal that may intercept menu clicks."""
         for selector in [
@@ -136,19 +181,21 @@ class ChatPage(BasePage):
         attach_screenshot(self.page, "Send Message Button Not Required In Current UI")
 
     def click_first_contact(self):
-        """Click on first contact in the search results"""
+        """Open the first existing chat/conversation in the Messages list."""
         self.page.wait_for_timeout(2000)
 
         clicked = self._click_first_visible([
+            Messages_and_discussionsLocators.FIRST_CHAT_IN_LIST,
+            "(//div[contains(@class,'conversation_card_container')])[1]",
+            "(//div[contains(@class,'conversation__card__container')])[1]",
             Messages_and_discussionsLocators.FIRST_NEW_MESSAGE,
             "(//*[contains(@class,'search_result') and normalize-space(.)])[1]",
-            "(//*[contains(@class,'conversation') and normalize-space(.)])[1]",
             "(//*[contains(@class,'chat') and contains(@class,'item') and normalize-space(.)])[1]",
             "(//li[normalize-space(.)])[1]",
         ], timeout=15000)
-        assert clicked, "First contact is not visible/clickable"
+        assert clicked, "First chat in the list is not visible/clickable"
 
-        attach_screenshot(self.page, "First Contact Selected")
+        attach_screenshot(self.page, "First Chat Selected")
 
     def send_message(self, message_text=None):
         """Type and send a message in the chat"""
@@ -165,17 +212,31 @@ class ChatPage(BasePage):
             "//input[contains(translate(@placeholder,'MESSAGE','message'),'message')]",
             "//textarea",
         ]
-        composer = self._first_visible_in_any_frame(composer_candidates, timeout_per_try=3000)
+        # The conversation pane + composer load asynchronously after the
+        # contact is selected, so poll over a few attempts. If the composer
+        # still hasn't rendered, re-select the contact and keep trying. This
+        # guards against a timing race where the composer isn't yet attached.
+        composer = None
+        for attempt in range(4):
+            # Let any in-flight conversation load settle before searching.
+            try:
+                self.page.wait_for_load_state("networkidle", timeout=4000)
+            except Exception:
+                pass
 
-        if composer is None:
-            # Some revamped flows require selecting a thread once more before composer appears.
+            composer = self._first_visible_in_any_frame(composer_candidates, timeout_per_try=3000)
+            if composer is not None:
+                break
+
+            # Re-select the thread once more before retrying; some revamped
+            # flows only render the composer after a second selection.
             try:
                 self.click_first_contact()
             except Exception:
                 pass
-            composer = self._first_visible_in_any_frame(composer_candidates, timeout_per_try=3000)
 
         if composer is None:
+            attach_screenshot(self.page, "Message Composer Not Visible")
             raise AssertionError("Message composer not visible")
 
         print(f"Typing message: {message_text}")
@@ -320,15 +381,20 @@ class ChatPage(BasePage):
                 bound = self._set_file_on_available_input(photo_path, prefer_last=True, timeout=6000, accept_hint="image")
 
             assert bound, "Unable to attach photo file after selecting image upload option"
-            
-            # Click send
-            send_clicked = self._click_first_visible([
-                Messages_and_discussionsLocators.SEND_MESSAGE_ICON,
-                "//img[@alt='send message']",
-                "//button[contains(@aria-label,'send') or contains(@title,'send')]",
-            ], timeout=10000)
-            assert send_clicked, "Send message icon/button is not visible after photo upload"
-            
+
+            # Wait for the photo to actually register in the composer before
+            # sending; the image attaches asynchronously and an early send click
+            # would otherwise be a no-op.
+            attached = self._first_visible_in_any_frame([
+                "//div[contains(@class,'input_message')]//*[contains(@class,'attached-image')]",
+                "//div[contains(@class,'input_message')]//*[contains(@class,'attached')]",
+            ], timeout_per_try=10000)
+            if attached is None:
+                attach_screenshot(self.page, "Photo Attachment Indicator Not Found")
+
+            # Click send only once ready, then confirm it was sent.
+            self._click_send_when_ready()
+
             # Validate photo was uploaded
             self.validate_latest_image()
             print("Photo uploaded and validated successfully")
@@ -370,15 +436,18 @@ class ChatPage(BasePage):
                 bound = self._set_file_on_available_input(document_path, prefer_last=False, timeout=6000, accept_hint="document")
 
             assert bound, "Unable to attach document file after selecting document upload option"
-            
-            # Click send
-            send_clicked = self._click_first_visible([
-                Messages_and_discussionsLocators.SEND_MESSAGE_ICON,
-                "//img[@alt='send message']",
-                "//button[contains(@aria-label,'send') or contains(@title,'send')]",
-            ], timeout=10000)
-            assert send_clicked, "Send message icon/button is not visible after document upload"
-            
+
+            # Wait for the document to register in the composer before sending.
+            attached = self._first_visible_in_any_frame([
+                "//div[contains(@class,'input_message')]//*[contains(@class,'attached-file')]",
+                "//div[contains(@class,'input_message')]//*[contains(@class,'attached')]",
+            ], timeout_per_try=10000)
+            if attached is None:
+                attach_screenshot(self.page, "Document Attachment Indicator Not Found")
+
+            # Click send only once ready, then confirm it was sent.
+            self._click_send_when_ready()
+
             # Validate document was uploaded
             self.validate_latest_document()
             print("Document uploaded and validated successfully")

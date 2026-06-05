@@ -1,31 +1,31 @@
 class CommonPerformanceLocators:
     PERFORMANCE_MENU="(//div[@id='Performance'])[1]"
-    REPORTS_TITLE="(//span[@class='display2 bold3 reports-title'])[1]"
-    COURSE_NAME_CONTAINER="(//div[@class='course-container'])[1]"
+    VALIDATE_COURSE_PROGRAM_LABEL="//div[text()='Course / Program']"
     SELECT_COURSE_INPUT_FIELD="(//div[@class='ant-select-selection-overflow'])[1]"
-    FIRST_COURSE_IN_DROPDOWN="(//div[@class='ant-select-item-option-content'])[1]"
-    STATUS_CONTAINER="(//div[@class='status-container'])[1]"
+    FIRST_COURSE_IN_DROPDOWN="//span[text()=' QA-Emp skill Test-V2-1.0.0']"
+    VALIDATE_RISK_CATEGORY_LABEL="//div[text()='Risk Category']"
     SELECT_STATUS_INPUT_FIELD="(//div[@class='ant-select-selection-overflow'])[2]"
-    FIRST_STATUS_IN_DROPDOWN="(//div[@class='ant-select-item-option-content'])[1]"
-    BATCH_NAME_CONTAINER="(//div[@class='batch-container'])[1]"
-    SELECT_BATCH_INPUT_FIELD="(//div[@class='ant-select-selection-overflow'])[3]"
-    BATCH_NAME_IN_DROPDOWN="(//span[contains(text(),'RC2-Final-Batch')])[2]"
-    #Batch assessment scorecard details assessment status details
-    BATCH_ASSESEMENT_TITLE="(//p[contains(text(),'Batch Assessment Scorecard')])"
-    BATCH_ASSESSMENT_GRAPH="(//canvas[@role='img'])[1]"
-    ASSESSMENT_STATUS_TITLE="(//canvas[@role='img'])[1]"
-    SHOW_SCORE_TOGGLE_BUTTON="(//button[@role='switch'])[1]"
-    ASSESSMENT_STATUS_NEXTSCREEN_ARROW="(//*[name()='svg'][@class='lucide lucide-chevron-right h-4 w-4'])[1]"
-    STUDENT_NAME_LINK="(//button[normalize-space()='TestDemo'])[1]"
-    #STUDENT PERFORMANCE DETAILS
-    COURSE_NAME_DROPDOWN="(//div[@class='ant-select-selector'])[1]"
-    STUDENT_NAME_CARD="(//div[@class='ant-col ant-col-xs-12 ant-col-md-6 profile-image-container'])[1]"
-    COURSE_NAME_CARD="(//div[@class='ant-col ant-col-xs-12 ant-col-md-6 course-container'])[1]"
-    INSTITUTE_NAME_CARD="(//div[@class='ant-col ant-col-xs-12 ant-col-md-6 course-container'])[2]"
-    COMPLETION_STATUS_CARD="(//div[@class='ant-col ant-col-xs-12 ant-col-md-6 course-container'])[3]"
-    ASSESSMENT_SCORE_DETAILS_CARD="(//div[@class='section-card-white-container assessment-scores-graph'])[1]"
-    HOME_MENU="(//div[@id='Home'])[1]"
-
+    FIRST_STATUS_IN_DROPDOWN="//span[text()='Critical']"
+    VALIDATE_BATCH_STATUS_LABEL="//div[text()='Batch Status']"
+    # Batch Status is a set of pill buttons (All / Active / Inactive), not a dropdown.
+    SELECT_BATCH_INPUT_FIELD="//div[contains(@class,'status-field')]//div[contains(@class,'status-pills')]"
+    BATCH_STATUS ="//button[contains(@class,'status-pill') and normalize-space()='Active']"
+    CLEAR_BUTTON ="//button[contains(@class,'status-pill-clear') and normalize-space()='Clear']"
+    BATCH_DETAILS_ROW_OPTION ="(//tr[@class='batch-row'])[1]"
+    VALIDATE_CERTIFICATION_STATUS_LABEL="//div[text()='Certification Status']"
+    VALIDATE_STUDENT_ACTIVITY_LABEL="//div[text()='Student Activity - Pitch Trainer']"
+    # Target each plus icon by its row label - clicking one toggles it to a minus and
+    # re-indexes positional locators, so positional [1]/[2]/[3] are unreliable here.
+    PLUS_ICON_PREVIDEO="//tr[contains(.,'Pre-Video')]//img[contains(@class,'no-js-row-plus')]"
+    PLUS_ICON_POSTVIDEO="//tr[contains(.,'Post-Video')]//img[contains(@class,'no-js-row-plus')]"
+    VALIDATE_STUDENT_ACTIVITY_ASSESSMENTS_LABEL="//div[text()='Student Activity - Assessments']"
+    QUIZ_PLUS_ICON="//tr[contains(.,'Quiz')]//img[contains(@class,'no-js-row-plus')]"
+    BACK_TO_DASHBOARD_BUTTON="//button[text()='Back to Dashboard']"
+    PAGINATION_BUTTON="//button[text()='1']"
+    # The currently selected page is marked with the 'page-active' class.
+    ACTIVE_PAGE_BUTTON="//button[contains(@class,'page-active')]"
+    NEXT_BUTTON="//button[contains(@class,'page-next')]"
+    PER_PAGE_DROPDOWN="//select[@class='per-page-btn']"
 
 # Backward compatibility for any existing imports.
 CommonCreateMeetingLocators = CommonPerformanceLocators
