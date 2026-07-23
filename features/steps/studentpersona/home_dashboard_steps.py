@@ -25,6 +25,12 @@ def validate_welcome_and_wadhwani_header(context):
     dashboard.validate_welcome_and_wadhwani_header()
     attach_screenshot(context.page, "Welcome and Wadhwani Headers Validated")
 
+@then("user validates genie")
+def validate_genie_ai(context):
+    dashboard = HomeDashboardPage(context.page)
+    dashboard.validate_genie_ai()
+    attach_screenshot(context.page, "Genie AI Validated")
+
 
 @then("user clicks on courses card")
 def click_courses_card(context):

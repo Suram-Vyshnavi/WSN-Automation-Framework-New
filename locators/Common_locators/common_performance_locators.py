@@ -12,6 +12,9 @@ class CommonPerformanceLocators:
     BATCH_STATUS ="//button[contains(@class,'status-pill') and normalize-space()='Active']"
     CLEAR_BUTTON ="//button[contains(@class,'status-pill-clear') and normalize-space()='Clear']"
     BATCH_DETAILS_ROW_OPTION ="(//tr[@class='batch-row'])[1]"
+    # Placeholder the dashboard renders when no batch matches the current filters
+    # (e.g. the account has no performance data at all).
+    NO_DATA_FOUND="//*[contains(translate(normalize-space(.),'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ'),'NO DATA FOUND')]"
     VALIDATE_CERTIFICATION_STATUS_LABEL="//div[text()='Certification Status']"
     VALIDATE_STUDENT_ACTIVITY_LABEL="//div[text()='Student Activity - Pitch Trainer']"
     # Target each plus icon by its row label - clicking one toggles it to a minus and

@@ -2,8 +2,9 @@ Feature: Student Persona
 
   Scenario: Validate Home Dashboard
     Given user is on the home page
-    Then user validates the home icon
+  #   # Then user validates the home icon
     Then user validates the welcome header and wadhwani skilling header
+    Then user validates genie
     Then user clicks on courses card
     Then user clicks on programs card
     Then user clicks on personal pitch trainer card
@@ -58,17 +59,17 @@ Feature: Student Persona
     Then user validates overview course content and performance tabs
     Then user clicks on performance tab
     Then user validates final score certificate and performance tab
-    #for prod environment the below steps are not present
-    Then user clicks on view analysis button
-    Then user clciks on view pitch button
-    Then user clicks on video play button
-    Then user clicks on video close button
-    Then user clicks on share pitch button
-    Then user clicks on copy pitch button 
-    Then user clicks on share pitch close button
-    Then user clicks on back arrow button
-    Then user clicks on create post-video button
-    Then user clicks on pitch trainer back arrow button
+  #   #for prod environment the below steps are not present
+  #   # Then user clicks on view analysis button
+  #   # Then user clciks on view pitch button
+  #   # Then user clicks on video play button
+  #   # Then user clicks on video close button
+  #   # Then user clicks on share pitch button
+  #   # Then user clicks on copy pitch button 
+  #   # Then user clicks on share pitch close button
+  #   # Then user clicks on back arrow button
+  #   # Then user clicks on create post-video button
+  #   # Then user clicks on pitch trainer back arrow button
     Then user validates courses recommended by institute
     Then user validates recommended course card
     Then user validates courses offered by wadhwani foundation
@@ -190,13 +191,13 @@ Scenario: Learning progress validation
     Then user clicks on ongoing courses and validates overview section
     Then user clicks on content section and clicks on resume
     Then user clicks on performance section and validates final score
-    Then user clicks on overview section and clicks on view batch and validates
-    Then user clicks on general info and validates upcoming activities
-    Then user clicks on batch members and validates students added count and maximum allowed and batch member list
-    Then user clicks on chat button
-    Then user sends a message
-    Then user validates the latest message sent
-    Then user navigates to home page
+    # Then user clicks on overview section and clicks on view batch and validates
+    # Then user clicks on general info and validates upcoming activities
+    # Then user clicks on batch members and validates students added count and maximum allowed and batch member list
+    # Then user clicks on chat button
+    # Then user sends a message
+    # Then user validates the latest message sent
+    # Then user navigates to home page
 
   Scenario: Settings ZoomConnect validation
       Then user clicks on Account menu

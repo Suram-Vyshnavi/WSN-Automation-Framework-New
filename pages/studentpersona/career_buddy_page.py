@@ -82,14 +82,19 @@ class CareerBuddyPage(BasePage):
     def search_mentor_and_fill_details(self):
         self.page.locator(careerbuddy_locators.SEARCH_MENTORS_INPUT).wait_for(state="visible", timeout=15000)
         highlight_element(self.page, careerbuddy_locators.SEARCH_MENTORS_INPUT)
-        self.page.locator(careerbuddy_locators.SEARCH_MENTORS_INPUT).fill("leela b")
+        self.page.locator(careerbuddy_locators.SEARCH_MENTORS_INPUT).fill("Anand")
         print("Mentor search filled with details")
 
     def click_recommended_mentor_card(self):
-        self.page.locator(careerbuddy_locators.RECOMMENDED_MENTOR_CARD).wait_for(state="visible", timeout=15000)
+        cards = self.page.locator(careerbuddy_locators.RECOMMENDED_MENTOR_CARD)
+        cards.first.wait_for(state="visible", timeout=15000)
+
+        matching_card = cards.filter(has_text="Anand")
+        matching_card.first.wait_for(state="visible", timeout=15000)  # actively retries/polls until text appears
+
         highlight_element(self.page, careerbuddy_locators.RECOMMENDED_MENTOR_CARD)
-        self.page.locator(careerbuddy_locators.RECOMMENDED_MENTOR_CARD).click()
-        print("Clicked on recommended mentor card")
+        matching_card.first.click()
+        print("Clicked on the mentor card matching 'Anand'")
 
     def validate_sector_jobrole_language_details(self):
         sectors = self.page.locator(careerbuddy_locators.VALIDATE_SECTORS_HEADER)

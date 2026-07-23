@@ -27,6 +27,44 @@ except Exception:
     REPORTLAB_AVAILABLE = False
 
 
+# Wadhwani brand theme for Allure reports. Mirrors the behave HTML report:
+# red brand chrome + orange accent, with passed-status green recolored to
+# orange so the report uses only red/orange (no green).
+WADHWANI_THEME_CSS = """<style id="wadhwani-theme-overrides">
+.side-nav{background:#C8102E !important}
+.side-nav__head{border-bottom:1px solid #9e0c24 !important}
+.side-nav__link_active{border-right:4px solid #F47920 !important;color:#fff !important}
+.side-nav__link:hover{color:#F47920 !important}
+.bar__fill_status_passed,.label_status_passed,.chart__legend-icon_status_passed,.y-label_status_passed{background:#F47920 !important}
+.alert_status_passed{background:#fbd2b3 !important}
+.text_status_passed,.n-label_status_passed{color:#F47920 !important}
+.chart__fill_status_passed{fill:#F47920 !important}
+.message_status_passed,.status-details_status_passed,.n-label_status_passed{border-color:#F47920 !important}
+.status-details_status_passed{background:#ffe8d6 !important}
+</style>"""
+
+
+def apply_wadhwani_theme(report_index_path):
+    """Inject Wadhwani brand color overrides into a generated Allure single-file report."""
+    try:
+        index_path = Path(report_index_path)
+        if not index_path.exists():
+            return
+        html = index_path.read_text(encoding="utf-8")
+        if "wadhwani-theme-overrides" in html:
+            return  # already themed
+        if "</head>" in html:
+            html = html.replace("</head>", WADHWANI_THEME_CSS + "</head>", 1)
+        elif "</body>" in html:
+            html = html.replace("</body>", WADHWANI_THEME_CSS + "</body>", 1)
+        else:
+            html += WADHWANI_THEME_CSS
+        index_path.write_text(html, encoding="utf-8")
+        print(f"🎨 Applied Wadhwani theme to {index_path}")
+    except Exception as e:
+        print(f"❌ Failed to apply Wadhwani theme to {report_index_path}: {e}")
+
+
 def find_wkhtmltopdf_executable():
     possible_paths = [
         Path("C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe"),
@@ -518,6 +556,7 @@ def run_tests(feature_path=None, tags=None, trace_on=False, headless=False, pers
             "--single-file"
         ], check=True, shell=True, env=run_env)
         print(f"✅ Allure report generated at {report_dir}/index.html")
+        apply_wadhwani_theme(report_dir / "index.html")
 
         output_pdf = str(report_dir / f"allure-report-{persona_key}.pdf")
         output_pdf_path = Path(output_pdf)
@@ -555,6 +594,19 @@ def run_tests(feature_path=None, tags=None, trace_on=False, headless=False, pers
         chart_path = create_chart(passed, failed, broken, chart_path=str(report_dir / f"results_chart_{persona_key}.png"))
         summary_html = build_summary_html(total, passed, failed, broken, chart_path)
         generate_summary_pdf(summary_html, output_pdf=str(report_dir / f"summary-report-{persona_key}.pdf"))
+
+        # Executive stakeholder dashboard (self-contained HTML).
+        try:
+            from utils.executive_report import generate_executive_dashboard
+            dashboard_path = generate_executive_dashboard(
+                results_dir,
+                report_dir / f"executive-dashboard-{persona_key}.html",
+                persona=persona_key,
+            )
+            print(f"✅ Executive dashboard generated at {dashboard_path}")
+            webbrowser.open(Path(dashboard_path).resolve().as_uri())
+        except Exception as e:
+            print(f"❌ Failed to generate executive dashboard: {e}")
 
     except FileNotFoundError:
         print("❌ Allure CLI not found. Please install Allure Commandline and add it to PATH.")
@@ -608,6 +660,7 @@ def run_persona_sequence(personas=None, trace_on=False, headless=False):
             "--single-file"
         ], check=True, shell=True)
         print(f"✅ Combined Allure report generated at {combined_report_dir}/index.html")
+        apply_wadhwani_theme(combined_report_dir / "index.html")
 
         combined_pdf_primary = combined_report_dir / "allure-report-combined.pdf"
         combined_pdf_fallback = combined_report_dir / f"allure-report-combined-{datetime.now().strftime('%Y%m%d-%H%M%S')}.pdf"
@@ -641,6 +694,19 @@ def run_persona_sequence(personas=None, trace_on=False, headless=False):
         )
         combined_summary = build_summary_html(total, passed, failed, broken, combined_chart)
         generate_summary_pdf(combined_summary, output_pdf=str(combined_report_dir / "summary-report-combined.pdf"))
+
+        # Combined executive stakeholder dashboard.
+        try:
+            from utils.executive_report import generate_executive_dashboard
+            combined_dashboard = generate_executive_dashboard(
+                combined_results_dir,
+                combined_report_dir / "executive-dashboard-combined.html",
+                persona="combined",
+            )
+            print(f"✅ Combined executive dashboard generated at {combined_dashboard}")
+            webbrowser.open(Path(combined_dashboard).resolve().as_uri())
+        except Exception as e:
+            print(f"❌ Failed to generate combined executive dashboard: {e}")
     except FileNotFoundError:
         print("❌ Allure CLI not found. Please install Allure Commandline and add it to PATH.")
     except subprocess.CalledProcessError as e:
@@ -652,7 +718,236 @@ def run_persona_sequence(personas=None, trace_on=False, headless=False):
 
     return 0 if all(code == 0 for code in exit_codes.values()) else 1
 
+# ---------------------------------------------------------------------------
+# Combined dev + prod, all-personas matrix run (single "executive" report)
+# ---------------------------------------------------------------------------
+PERSONA_PRETTY = {
+    "student": "Student",
+    "faculty": "Faculty",
+    "rm": "Relationship Manager",
+    "mentor": "Mentor",
+    "career_buddy": "Career Buddy",
+    "institute_admin": "Institute Admin",
+}
+
+DEFAULT_FEATURE_BY_PERSONA = {
+    # Student runs the card-based student.feature (matches the prod/new student
+    # dashboard), not the older left-nav Student_All.feature.
+    "student": "features/student.feature",
+    "faculty": "features/Faculty_All.feature",
+    "rm": "features/RM_All.feature",
+    "mentor": "features/mentor.feature",
+    "career_buddy": "features/career_buddy.feature",
+}
+
+# Env var key fragment per persona, used to detect whether credentials exist for
+# a given (environment, persona) pair before attempting a run.
+_PERSONA_CRED_KEY = {
+    "faculty": "FACULTY",
+    "rm": "RM",
+    "career_buddy": "CAREER_BUDDY",
+    "institute_admin": "INSTITUTE_ADMIN",
+}
+
+
+def _ensure_dotenv_loaded():
+    """Load .env into os.environ so credential detection sees env-specific keys."""
+    try:
+        from dotenv import load_dotenv
+        for candidate in (Path(".env"), Path("utils/.env/.env")):
+            if candidate.exists():
+                load_dotenv(dotenv_path=str(candidate), override=False)
+                break
+    except Exception:
+        pass
+
+
+def has_credentials(env_name, persona):
+    """True when a username is configured for this (environment, persona) pair.
+
+    Mirrors the resolution order in config/env_config.py: env-specific key
+    (e.g. PROD_FACULTY_USERNAME) first, then the flat fallback.
+    """
+    e = env_name.upper()
+    if persona == "student":
+        return bool(os.getenv(f"{e}_STUDENT_USERNAME") or os.getenv("STUDENT_USERNAME"))
+    if persona == "mentor":
+        # Dedicated mentor account first, then Career Buddy (back-compat), then a
+        # hardcoded dev-only fallback account.
+        return bool(
+            os.getenv(f"{e}_MENTOR_USERNAME")
+            or os.getenv("MENTOR_USERNAME")
+            or os.getenv(f"{e}_CAREER_BUDDY_USERNAME")
+            or os.getenv("CAREER_BUDDY_USERNAME")
+            or env_name.lower() == "dev"
+        )
+    key = _PERSONA_CRED_KEY.get(persona)
+    if not key:
+        return False
+    return bool(os.getenv(f"{e}_{key}_USERNAME") or os.getenv(f"{key}_USERNAME"))
+
+
+def _run_behave_once(feature_path, persona, env_name, results_dir, trace_on=False, headless=False):
+    """Run behave for a single (environment, persona) and emit allure results.
+
+    Each run is its own subprocess, so ENV/PERSONA are read fresh by
+    config/env_config.py — that is how we switch between dev and prod within one
+    orchestrated execution.
+    """
+    python_exe = sys.executable
+    cmd = [python_exe, "-m", "behave", feature_path,
+           "-f", "pretty", "-o", "-",
+           "-f", "allure_behave.formatter:AllureFormatter", "-o", str(results_dir)]
+
+    run_env = os.environ.copy()
+    run_env["ENV"] = env_name
+    run_env["PERSONA"] = persona
+    run_env["PYTHONUTF8"] = "1"
+    run_env["PYTHONIOENCODING"] = "utf-8"
+    if trace_on:
+        run_env["TRACE_ON"] = "true"
+    if headless:
+        run_env["HEADLESS"] = "true"
+
+    print(f"▶ Running [{env_name}] / [{persona}] | feature: {feature_path}")
+    result = subprocess.run(cmd, env=run_env)
+    print(f"✅ Completed [{env_name}] / [{persona}] (exit={result.returncode})")
+    return result.returncode
+
+
+def _merge_run_into_combined(run_results_dir, combined_results_dir, env_name, persona):
+    """Copy one run's allure files into the combined dir, tagging each scenario
+    result with its environment + persona role.
+
+    Attachment / container files keep their original (uuid) names so the
+    `source` references inside the result JSON still resolve — only the
+    *-result.json files are rewritten to carry the extra labels.
+    """
+    pretty_role = PERSONA_PRETTY.get(persona, persona.replace("_", " ").title())
+    for item in Path(run_results_dir).iterdir():
+        if not item.is_file():
+            continue
+        destination = combined_results_dir / item.name
+        if item.name.endswith("-result.json"):
+            try:
+                data = json.loads(item.read_text(encoding="utf-8"))
+                labels = [l for l in data.get("labels", [])
+                          if l.get("name") not in ("environment", "persona_role")]
+                labels.append({"name": "environment", "value": env_name})
+                labels.append({"name": "persona_role", "value": pretty_role})
+                data["labels"] = labels
+                destination.write_text(json.dumps(data), encoding="utf-8")
+                continue
+            except Exception:
+                pass  # fall through to a verbatim copy
+        shutil.copy2(item, destination)
+
+
+def run_full_matrix(personas=None, envs=None, trace_on=False, headless=False):
+    """Execute every (environment × persona) pair in one go and produce a single
+    combined Allure report + combined executive dashboard (the NEN-style report).
+
+    Pairs without configured credentials are skipped (not failed) so a missing
+    prod account for, say, Career Buddy does not poison the combined health.
+    """
+    _ensure_dotenv_loaded()
+    envs = [e.strip().lower() for e in (envs or ["dev", "prod"])]
+    personas = [p.strip().lower() for p in (personas or ["student", "faculty", "rm", "mentor", "career_buddy"])]
+
+    project_root = Path(__file__).resolve().parent
+    combined_results_dir = project_root / "reports" / "allure-results-combined"
+    combined_report_dir = project_root / "reports" / "allure-report-combined"
+    if combined_results_dir.exists():
+        shutil.rmtree(combined_results_dir)
+    combined_results_dir.mkdir(parents=True, exist_ok=True)
+
+    matrix = []  # (env, persona, status)
+    for env_name in envs:
+        for persona in personas:
+            if not has_credentials(env_name, persona):
+                print(f"⏭  Skipping [{env_name}] / [{persona}] — no credentials configured")
+                matrix.append((env_name, persona, "skipped"))
+                continue
+
+            feature_path = DEFAULT_FEATURE_BY_PERSONA.get(persona, "features/")
+            run_results_dir = project_root / "reports" / f"allure-results-{env_name}-{persona}"
+            if run_results_dir.exists():
+                shutil.rmtree(run_results_dir)
+            run_results_dir.mkdir(parents=True, exist_ok=True)
+
+            code = _run_behave_once(feature_path, persona, env_name, run_results_dir, trace_on, headless)
+            _merge_run_into_combined(run_results_dir, combined_results_dir, env_name, persona)
+            matrix.append((env_name, persona, "passed" if code == 0 else "failed"))
+
+    # ---- One combined report for the whole matrix ----
+    try:
+        allure_exe = find_allure_executable()
+        subprocess.run([
+            allure_exe, "generate",
+            str(combined_results_dir),
+            "-o", str(combined_report_dir),
+            "--clean",
+            "--single-file",
+        ], check=True, shell=True)
+        print(f"✅ Combined Allure report generated at {combined_report_dir}/index.html")
+        apply_wadhwani_theme(combined_report_dir / "index.html")
+    except FileNotFoundError:
+        print("❌ Allure CLI not found. Please install Allure Commandline and add it to PATH.")
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Failed to generate combined Allure report: {e}")
+
+    total, passed, failed, broken = parse_results(combined_results_dir)
+    create_chart(passed, failed, broken, chart_path=str(combined_report_dir / "results_chart_combined.png"))
+
+    # Combined executive dashboard (the stakeholder NEN-style report).
+    try:
+        from utils.executive_report import generate_executive_dashboard
+        combined_dashboard = generate_executive_dashboard(
+            combined_results_dir,
+            combined_report_dir / "executive-dashboard-combined.html",
+            persona="combined",
+            extra_meta={"env": " + ".join(envs)},
+        )
+        print(f"✅ Combined executive dashboard generated at {combined_dashboard}")
+        webbrowser.open(Path(combined_dashboard).resolve().as_uri())
+    except Exception as e:
+        print(f"❌ Failed to generate combined executive dashboard: {e}")
+
+    print("\n================ MATRIX SUMMARY ================")
+    for env_name, persona, status in matrix:
+        print(f"  [{env_name:<5}] {persona:<16} -> {status.upper()}")
+    print("===============================================")
+
+    ran = [m for m in matrix if m[2] != "skipped"]
+    return 0 if all(m[2] == "passed" for m in ran) else 1
+
+
+def _force_utf8_stdout():
+    """Make stdout/stderr tolerate the emoji status glyphs even when output is
+    redirected to a cp1252-encoded file (e.g. a background task), instead of
+    crashing with UnicodeEncodeError."""
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
+
+
 def main():
+    _force_utf8_stdout()
+    run_mode = os.getenv("RUN_MODE", "dual").strip().lower()
+    if run_mode == "matrix":
+        personas_env = os.getenv("PERSONAS", "").strip()
+        envs_env = os.getenv("ENVS", "dev,prod").strip()
+        personas = [p for p in re.split(r"[\s,]+", personas_env) if p] or None
+        envs = [e for e in re.split(r"[\s,]+", envs_env) if e] or None
+        headless = os.getenv("HEADLESS", "false").lower() in ("1", "true", "yes")
+        trace_on = os.getenv("TRACE_ON", "false").lower() in ("1", "true", "yes")
+        sys.exit(run_full_matrix(personas=personas, envs=envs, trace_on=trace_on, headless=headless))
+    _main_legacy()
+
+
+def _main_legacy():
     run_mode = os.getenv("RUN_MODE", "dual").strip().lower()
     if run_mode == "single":
         persona = os.getenv("PERSONA", "student").strip().lower()

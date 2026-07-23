@@ -70,5 +70,9 @@ RM_USERNAME = os.getenv(_env_key("RM_USERNAME")) or os.getenv("RM_USERNAME") or 
 RM_PASSWORD = os.getenv(_env_key("RM_PASSWORD")) or os.getenv("RM_PASSWORD") or ""
 CAREER_BUDDY_USERNAME = os.getenv(_env_key("CAREER_BUDDY_USERNAME")) or os.getenv("CAREER_BUDDY_USERNAME") or ""
 CAREER_BUDDY_PASSWORD = os.getenv(_env_key("CAREER_BUDDY_PASSWORD")) or os.getenv("CAREER_BUDDY_PASSWORD") or ""
+# Dedicated mentor account (env-specific first, then flat). Falls back to the
+# Career Buddy account for backward compatibility when no mentor account is set.
+MENTOR_USERNAME = os.getenv(_env_key("MENTOR_USERNAME")) or os.getenv("MENTOR_USERNAME") or CAREER_BUDDY_USERNAME
+MENTOR_PASSWORD = os.getenv(_env_key("MENTOR_PASSWORD")) or os.getenv("MENTOR_PASSWORD") or CAREER_BUDDY_PASSWORD
 INSTITUTE_ADMIN_USERNAME = os.getenv(_env_key("INSTITUTE_ADMIN_USERNAME")) or os.getenv("INSTITUTE_ADMIN_USERNAME") or ""
 INSTITUTE_ADMIN_PASSWORD = os.getenv(_env_key("INSTITUTE_ADMIN_PASSWORD")) or os.getenv("INSTITUTE_ADMIN_PASSWORD") or ""

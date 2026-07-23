@@ -1,6 +1,7 @@
 class myprofileLocators:
     HOME = "//div[text()='Home']"
-    PROFILE_ICON = "//span[@class='ant-avatar-string']"
+    # ant-avatar-string = initials-only avatar; ant-avatar-icon = photo/icon avatar
+    PROFILE_ICON = "(//span[contains(@class,'ant-avatar-string') or contains(@class,'ant-avatar-icon')])[1]"
     VALIDATE_PROFILE_INFORMATION_HEADER = "//h4[text()='Profile information']"
     FIRSTNAME = "//input[@id='firstName']"
     LASTNAME = "//input[@id='lastName']"

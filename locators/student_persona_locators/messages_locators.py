@@ -3,7 +3,7 @@ from utils.config import Config
 
 class Messages_and_discussionsLocators:
     message="hello"
-    ACCOUNTS_MENU="//button[@aria-label='Accounts menu']//img"
+    ACCOUNTS_MENU="//img[@class='wf_image header_profile_menu_trigger__icon no-js-svg%3e']"
     CHAT_ICON = "//p[contains(text(),'Messages & Discussions')]"
     SEND_MESSAGE_BUTTON="//button[normalize-space()='Send Message']"
     FIRST_NEW_MESSAGE="(//div[@class='search_result_container']//div)[position()=1]"

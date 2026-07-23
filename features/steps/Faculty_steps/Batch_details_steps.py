@@ -70,12 +70,18 @@ def step_validate_batch_activity_and_faculty(context):
 @then("user clicks on the add faculty button and clicks on the second faculty")
 def step_add_second_faculty(context):
 	page = BatchDetailsPage(context.page)
-	page.add_second_faculty()
+	result = page.add_second_faculty()
+	# Remember whether faculty add was skipped (no certifiable faculty for this
+	# course) so the dependent edit/delete steps below can skip too.
+	context.faculty_add_skipped = (result == "skipped")
 	attach_screenshot(context.page, "Added second faculty")
 
 
 @then("user validates the toast message and user clicks on the edit faculty button")
 def step_validate_toast_and_edit_faculty(context):
+	if getattr(context, "faculty_add_skipped", False):
+		print("[INFO] Skipping edit faculty validation — no faculty was added.")
+		return
 	page = BatchDetailsPage(context.page)
 	page.validate_toast_and_click_edit_faculty()
 	attach_screenshot(context.page, "Validated toast and clicked edit faculty")
@@ -83,6 +89,9 @@ def step_validate_toast_and_edit_faculty(context):
 
 @then("user clicks on the faculty2 cross icon and clicks on the faculty delete button")
 def step_delete_second_faculty(context):
+	if getattr(context, "faculty_add_skipped", False):
+		print("[INFO] Skipping delete faculty — no faculty was added.")
+		return
 	page = BatchDetailsPage(context.page)
 	page.delete_second_faculty()
 	attach_screenshot(context.page, "Deleted second faculty")
@@ -91,6 +100,9 @@ def step_delete_second_faculty(context):
 @then("user validates the faculty delete toast message")
 @then("validates the faculty delete toast message")
 def step_validate_faculty_delete_toast(context):
+	if getattr(context, "faculty_add_skipped", False):
+		print("[INFO] Skipping faculty delete toast validation — no faculty was added.")
+		return
 	page = BatchDetailsPage(context.page)
 	page.validate_faculty_delete_toast()
 	attach_screenshot(context.page, "Validated faculty delete toast")

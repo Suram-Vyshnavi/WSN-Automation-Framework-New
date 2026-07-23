@@ -1,8 +1,24 @@
 class NewHomepageLocators:
-    HOME = "//div[text()='Home']"
+    # Prod's mobile-new-ui header can hide the desktop #Home div and show a
+    # mobile home button instead, so accept either.
+    HOME = "//div[@id='Home'] | //div[text()='Home'] | //button[@aria-label='Home']"
     VALIDATE_WELCOME_HEADER = "//h1[text()='Welcome to']"
     VALIDATE_WADHWANI_SKILLING_HEADER = "//h1[text()='Wadhwani Skilling']"
     VALIDATE_EXPLORE_THINGS_TO_DO_HEADER = "//h4[text()='Explore things to do']"
+    VALIDATE_GENIE_AI_BANNER = "//div[@class='genie-ai-banner']"
+    GENIE_AI_SEARCH_INPUT = "//textarea[@placeholder='Type Here']"
+    SEND_ICON_ARROW = "//img[@class='wf_image send-icon-arrow no-js-arrow-right-white']"
+    SEND_MSG_ICON = "//img[@class='wf_image send-msg-icon no-js-arrow-right-white']"
+    # CAREER_ADVISOR_TOOL = "//span[text()='Career Advisor Tool']"
+    # BROWSE_COURSES = "//span[text()='Browse Courses']"
+    SPEAKER_SECTION = "(//div[@class='speaker-section'])[1]"
+    GENIE_RATING_BUTTON = "(//button[@class='genie-rating-btn'])[1]"
+    # INTERVIEW_COACH = "//span[text()='Interview Coach']"
+    ASK_YOUR_QUESTIONS_HERE_TEXTAREA = "//textarea[@placeholder='Ask your questions here']"
+    PREVIOUS_CHATS_HEADER = "//h4[text()='Previous Chats']"
+    GENIE_SIDEBAR_TOGGLE_OPEN = "//div[@class='genie-sidebar-toggle open']"
+    NEW_CHAT_HEADER = "//h4[text()='New Chat']"
+    SUBPAGE_BACK_BUTTON = "//button[@class='subpage-back-header__back-btn']"
     COURSES_CARD = "//h6[text()='Courses']"
     PROGRAMS_CARD = "//h6[text()='Programs']"
     PERSONAL_PITCH_TRAINER = "//h6[text()='Personal Pitch Trainer']"
@@ -13,7 +29,9 @@ class NewHomepageLocators:
     JOBS_CONNECT_CARD = "//h6[text()='Jobs Connect']"
     MENU_HELP_ICON = "//img[@class='wf_image  no-js-MenuHelp']"
     NOTIFICATION_ICON = "//img[@class='notification_icon']"
-    PROFILE_ICON = "//span[@class='ant-avatar-string']"
+    # Prod renders the profile avatar as a photo (img.pro_avatar__avatar inside
+    # span.ant-avatar-icon); dev/empty accounts render initials (ant-avatar-string).
+    PROFILE_ICON = "//img[contains(@class,'pro_avatar__avatar')] | //span[contains(@class,'ant-avatar-string')]"
     HEADER_PROFILE_MENU_ICON = "//img[@class='wf_image header_profile_menu_trigger__icon no-js-svg%3e']"
     CALENDAR = "//p[text()='Calendar']"
     MESSAGES_AND_DISCUSSIONS = "//p[text()='Messages & Discussions']"

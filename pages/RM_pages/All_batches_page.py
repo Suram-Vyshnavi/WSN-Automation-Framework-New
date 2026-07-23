@@ -86,7 +86,7 @@ class RMAllBatchesPage(BasePage):
 		assert assigned_title, "Assigned Batches section is not visible on RM home screen"
 
 		clicked_assigned = self._click_first_visible([
-			"(//tbody//tr[1]//td[contains(@class,'batch-list-content-bold')])[1]",
+			"(//tr[not(contains(normalize-space(td[3]), 'dont use')) and number(normalize-space(td[6])) > 0])[1]",
 			"(//tbody//tr[1]//td[contains(@class,'batch-list-content')])[1]",
 			"(//tbody//tr[1]//td)[1]",
 			"(//div[contains(@class,'ant-table-tbody')]//tr[1]//td[1])[1]",

@@ -6,6 +6,38 @@ import os
 
 
 class ChatPage(BasePage):
+    def _dismiss_marketing_overlay(self):
+        """Dismiss transient marketing/pop-up overlays that block header clicks."""
+        for selector in [
+            "#wzrk-cancel",
+            "#wzrk-close",
+            "//*[@id='wzrkImageOnlyDiv']//button[contains(@aria-label,'close') or contains(@class,'close')]",
+            "//*[@id='wzrkImageOnlyDiv']//*[contains(@class,'close')]",
+        ]:
+            try:
+                close_btn = self.page.locator(selector).first
+                close_btn.wait_for(state="visible", timeout=900)
+                close_btn.click(timeout=1500, force=True)
+                self.page.wait_for_timeout(250)
+            except Exception:
+                continue
+
+        try:
+            self.page.evaluate(
+                """() => {
+                    const ids = ['wzrkImageOnlyDiv', 'wzrk_wrapper', 'wzrk_popup'];
+                    ids.forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.remove();
+                    });
+                    document.querySelectorAll('ct-web-popup-imageonly, [id*="wzrk"], [class*="wzrk"]').forEach(el => {
+                        try { el.remove(); } catch (_) {}
+                    });
+                }"""
+            )
+        except Exception:
+            pass
+
     def _set_file_on_available_input(self, file_path, prefer_last=True, timeout=3000, accept_hint=None):
         """Bind file to any available input[type='file'] across frames."""
         selector_candidates = ["input[type='file']"]
@@ -136,6 +168,7 @@ class ChatPage(BasePage):
 
     def click_accounts_menu(self):
         """Open Accounts menu from the student home screen."""
+        self._dismiss_marketing_overlay()
         clicked = self._click_first_visible([
             Messages_and_discussionsLocators.ACCOUNTS_MENU,
             "//button[@aria-label='Accounts menu']",
@@ -145,11 +178,21 @@ class ChatPage(BasePage):
 
     def click_messages_and_discussions(self):
         """Click Messages & Discussions from the Accounts menu."""
+        self._dismiss_marketing_overlay()
         clicked = self._click_first_visible([
             Messages_and_discussionsLocators.CHAT_ICON,
             "//p[contains(normalize-space(),'Messages & Discussions')]",
             "//*[contains(normalize-space(),'Messages') and contains(normalize-space(),'Discussions')]",
         ], timeout=20000)
+        if not clicked:
+            # Retry once: overlay may have closed the dropdown before selection.
+            self._dismiss_marketing_overlay()
+            self.click_accounts_menu()
+            clicked = self._click_first_visible([
+                Messages_and_discussionsLocators.CHAT_ICON,
+                "//p[contains(normalize-space(),'Messages & Discussions')]",
+                "//*[contains(normalize-space(),'Messages') and contains(normalize-space(),'Discussions')]",
+            ], timeout=10000)
         assert clicked, "Messages & Discussions menu is not visible/clickable"
         attach_screenshot(self.page, "Messages And Discussions Opened")
 
@@ -463,6 +506,9 @@ class ChatPage(BasePage):
             "//div[@id='Home']",
             "//p[normalize-space()='Home']",
             "//button[@aria-label='Home menu']",
+            # Prod's mobile-new-ui header hides the desktop #Home and shows a
+            # mobile home button labelled just 'Home'.
+            "//button[@aria-label='Home']",
         ], timeout=15000)
         assert clicked, "Home menu is not visible/clickable"
         self.page.wait_for_timeout(1500)

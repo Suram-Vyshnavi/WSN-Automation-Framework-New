@@ -9,6 +9,8 @@ from config.env_config import (
     RM_PASSWORD as ENV_RM_PASSWORD,
     CAREER_BUDDY_USERNAME as ENV_CAREER_BUDDY_USERNAME,
     CAREER_BUDDY_PASSWORD as ENV_CAREER_BUDDY_PASSWORD,
+    MENTOR_USERNAME as ENV_MENTOR_USERNAME,
+    MENTOR_PASSWORD as ENV_MENTOR_PASSWORD,
     INSTITUTE_ADMIN_USERNAME as ENV_INSTITUTE_ADMIN_USERNAME,
     INSTITUTE_ADMIN_PASSWORD as ENV_INSTITUTE_ADMIN_PASSWORD,
 )
@@ -30,6 +32,8 @@ class Config:
     RM_PASSWORD_INPUT = ENV_RM_PASSWORD
     CAREER_BUDDY_USERNAME_INPUT = ENV_CAREER_BUDDY_USERNAME
     CAREER_BUDDY_PASSWORD_INPUT = ENV_CAREER_BUDDY_PASSWORD
+    MENTOR_USERNAME_INPUT = ENV_MENTOR_USERNAME
+    MENTOR_PASSWORD_INPUT = ENV_MENTOR_PASSWORD
     INSTITUTE_ADMIN_USERNAME_INPUT = ENV_INSTITUTE_ADMIN_USERNAME
     INSTITUTE_ADMIN_PASSWORD_INPUT = ENV_INSTITUTE_ADMIN_PASSWORD
 
@@ -58,8 +62,11 @@ class Config:
             "password": INSTITUTE_ADMIN_PASSWORD_INPUT,
         },
         "mentor": {
-            "username": "wsn-men-oct0304@yopmail.com",
-            "password": "Demo@123",
+            # Prefer a dedicated mentor account (env-specific MENTOR_* / flat
+            # MENTOR_*); env_config falls back to the Career Buddy account, and
+            # finally to the hardcoded dev mentor account below.
+            "username": MENTOR_USERNAME_INPUT or "wsn-men-oct0304@yopmail.com",
+            "password": MENTOR_PASSWORD_INPUT or "Demo@123",
         },
     }
 

@@ -14,9 +14,14 @@ class CommonChatLocators:
     MESSAGE_TEXTAREA="//div[contains(@class,'input_message')]//textarea | //div[contains(@class,'input_message')]//*[@contenteditable='true']"
     # send hello in the above textarea
     SEND_MESSAGE_ICON="//img[@alt='send message'] | //button[contains(@aria-label,'send')] | //button[contains(@title,'send')] | //span[contains(@class,'send')]"
-    LATEST_SENT_MESSAGE=f"(//td[text()='{Config.MESSAGE_TEXT}'])[position()=1]"
-    LATEST_SENT_IMAGE="(//div[contains(@class,'message') or contains(@class,'chat')]//img[not(contains(@class,'avatar')) and not(contains(@src,'profile'))])[last()]"
-    LATEST_SENT_DOCUMENT="(//span[contains(@class,'download') and contains(@class,'chat-File-Icon')] | //a[contains(@href,'.pdf')] | //span[contains(normalize-space(.),'.pdf')])[last()]"
+    # Outgoing messages render as: div.message_container.justify_end > div.message_box
+    # > span.message_text > (TD for text | SECTION for image/document). Anchoring to
+    # this wrapper keeps validation honest: it never matches the composer textarea
+    # (false text match) or sidebar avatars (false image match).
+    _SENT_BUBBLE="//div[contains(@class,'message_container') and contains(@class,'justify_end')]//div[contains(@class,'message_box')]"
+    LATEST_SENT_MESSAGE=f"({_SENT_BUBBLE}//td[normalize-space()='{Config.MESSAGE_TEXT}'])[last()]"
+    LATEST_SENT_IMAGE=f"({_SENT_BUBBLE}//section//img[contains(@class,'wf_image')])[last()]"
+    LATEST_SENT_DOCUMENT=f"({_SENT_BUBBLE}//section[.//*[contains(@class,'chat-File-Icon')] or .//span[contains(normalize-space(.),'.pdf')]])[last()]"
     FILE_UPLOAD_BUTTON="//div[contains(@class,'input_message')]//*[contains(@class,'attachment') or self::button or self::span[@tabindex='0']]"
     IMAGE_OPTION="//div[contains(@class,'ant-dropdown') and not(contains(@style,'display: none'))]//*[normalize-space()='Image' or normalize-space()='Photo' or normalize-space()='Gallery'] | //*[normalize-space()='Image' or normalize-space()='Photo' or normalize-space()='Gallery'][not(ancestor::*[contains(@style,'display: none')])]"
     DOCUMENT_OPTION="//div[contains(@class,'ant-dropdown') and not(contains(@style,'display: none'))]//*[normalize-space()='Document' or normalize-space()='File' or normalize-space()='Doc'] | //*[normalize-space()='Document' or normalize-space()='File' or normalize-space()='Doc'][not(ancestor::*[contains(@style,'display: none')])]"

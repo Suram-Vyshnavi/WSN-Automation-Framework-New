@@ -1,3 +1,5 @@
+import time
+
 from behave import then
 from pages.studentpersona.jobsconnect_page import JobsConnectPage
 from utils.helpers import attach_screenshot
@@ -73,12 +75,10 @@ def validate_about_job_and_company_sections(context):
 
 @then("user validates apply button and closes the current tab and navigate to jobs connect page")
 def validate_apply_button_and_navigate_back(context):
-    original_page = getattr(context, 'original_page', None)
     jobsconnect = JobsConnectPage(context.page)
-    jobsconnect.validate_apply_button_and_navigate_back(original_page=original_page)
-    if original_page:
-        context.page = original_page
-        context.original_page = None
+    surviving = jobsconnect.validate_apply_button_and_navigate_back()
+    if surviving:
+        context.page = surviving
     attach_screenshot(context.page, "Apply Button Validated and Navigated Back to Jobs Connect")
 
 

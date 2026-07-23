@@ -53,18 +53,18 @@ Feature: RM Login
     Then common user validates the delete event toast message and lands on the calendar screen
 
   Scenario: Batch details scorecard validation
-    Then user clicks on the first active batch from Assigned batches list
+    Then user clicks on the first active batch from assigned batches list
     Then user validates the scorecard tab and clicks on it
     Then user validates the Assessment schedule title and validates the Assessment schedule container
 
   Scenario: Batch details collaboratesetup validation
-    Then user clicks on the first active batch from Assigned batches list
+    Then user clicks on the first active batch from assigned batches list
     Then user validates the collaboratesetup tab and clicks on it
     Then user clicks on edit button and change level from 2 to 1 and clicks on the save button
     Then user navigates to batch details collaborate setup screen and validates the selected career plans section
 
  Scenario: Batch members validation
-   Then user clicks on the first active batch from Assigned batches list
+   Then user clicks on the first active batch from assigned batches list
    Then common user validates the batch members tab and clicks on it
    Then common user clicks on the manage student button
    Then common user clicks on the invite students button and validated the batch code 
@@ -85,7 +85,7 @@ Feature: RM Login
    Then common user clicks on the home menu from header section
 
  Scenario: Activity insights validation
-   Then user clicks on the first active batch from Assigned batches list
+   Then user clicks on the first active batch from assigned batches list
    Then common user validates the activity insights tab and clicks on it
    Then common user validates the submission insights header section and validates the module column title and lesson name column title
    Then common user clicks on the students submitted i icon and validates the text
@@ -97,20 +97,19 @@ Feature: RM Login
 
 Scenario: Performance screen validation
   Then common user clicks on the performance menu
-  Then common user validates the reports title 
-  Then common user validate the course name container and clicks on the select course name input field and clicks on the "QA-Emp skill Test-V2-1.0.0" course from dropdown
-  Then common user validates the status container and clicks on the select satus input field and clicks on the first status from the dropdown
-  Then common user validates the batch name container and clicks on the select batch input field and clicks on the "RC2-Final-Batch" from dropdown
-  Then common user validates the batch assessment title and batch assessment graph
-  Then common user validates the assessment status title and validates the show score toggle button
-  Then common user clicks on the score toggle button and clicks on the assessment status next arrow button 
-  Then common user clicks on the student name link from second screen
-  Then common user validates the course name dropdown and validates the student name card
-  Then common user validates the course name card , institute name card , completion status card  and assessment score details card
-  Then common user clicks on the home menu from header section
+  Then common user validate the course program label and clicks on the select course input field and selects  the "QA-Emp skill Test-V2-1.0.0" from the dropdown
+  Then common user validates the risk category label and clicks on the select status input field and clicks on the first status from the dropdown and selects critical
+  Then common user validates the batch status label and clicks on the select batch input field and select batch status as active
+  Then common user clicks on the clear button
+  Then common user clicks on the batch details row option and validates certification status label
+  Then common user validates the student activity label and clicks on plus icon prevideo and plus icon postvideo
+  Then common user validates the student activity assesment label and clicks on the quiz plus icon
+  Then common user clicks on back to dashboard button
+  # Then common user clicks on the pagination next button and validates the page number
+  # Then common user clicks on the perpage dropdown and validates the options and selects 25 perpage option and validates the page number
 
 Scenario: All batches validation
-  Then user clicks on all batches menu
+  Then user clicks on the first active batch from assigned batches list
   Then user validates the all batches title and clicks on the seachbar and enters"qa test" 
   Then user validates the status title
   Then user clicks on the status dropdown and clicks on the active option

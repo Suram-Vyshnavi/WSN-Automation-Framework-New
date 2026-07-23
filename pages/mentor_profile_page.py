@@ -4,9 +4,50 @@ from locators.mentor_locators.myprofile_locators import myprofileLocators
 
 class MentorProfilePage(BasePage):
 
+    def _dismiss_marketing_overlay(self):
+        """Dismiss transient marketing overlays (e.g. CleverTap) that can
+        intercept clicks on the profile avatar."""
+        # First try explicit close controls.
+        for selector in [
+            "#wzrk-cancel",
+            "#wzrk-close",
+            "//*[@id='wzrkImageOnlyDiv']//button[contains(@aria-label,'close') or contains(@class,'close')]",
+            "//*[@id='wzrkImageOnlyDiv']//*[contains(@class,'close')]",
+        ]:
+            try:
+                btn = self.page.locator(selector).first
+                btn.wait_for(state="visible", timeout=1000)
+                btn.click(timeout=2000, force=True)
+                self.page.wait_for_timeout(300)
+            except Exception:
+                continue
+
+        # If still present, remove the overlay node as last resort.
+        try:
+            self.page.evaluate(
+                """() => {
+                    const ids = ['wzrkImageOnlyDiv', 'wzrk_wrapper', 'wzrk_popup'];
+                    ids.forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.remove();
+                    });
+                    const floating = document.querySelectorAll('ct-web-popup-imageonly, [id*="wzrk"], [class*="wzrk"]');
+                    floating.forEach(el => {
+                        try { el.remove(); } catch (_) {}
+                    });
+                }"""
+            )
+        except Exception:
+            pass
+
     def click_profile_icon(self):
+        self._dismiss_marketing_overlay()
         self.page.locator(myprofileLocators.PROFILE_ICON).wait_for(state="visible", timeout=15000)
-        self.page.click(myprofileLocators.PROFILE_ICON)
+        try:
+            self.page.click(myprofileLocators.PROFILE_ICON)
+        except Exception:
+            self._dismiss_marketing_overlay()
+            self.page.locator(myprofileLocators.PROFILE_ICON).first.click(force=True)
         print("Clicked on Profile Icon")
         # Wait for any resulting navigation to fully settle
         try:
@@ -32,16 +73,12 @@ class MentorProfilePage(BasePage):
         city_div.wait_for(state="visible", timeout=10000)
         city_div.click()
         self.page.wait_for_timeout(500)
-        # Use JS to fill the now-active ant-select search input and fire React events
-        self.page.evaluate(f"""() => {{
-            const input = document.querySelector('.ant-select-selection-search input');
-            if (input) {{
-                const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
-                nativeInputValueSetter.call(input, '{search_text}');
-                input.dispatchEvent(new Event('input', {{ bubbles: true }}));
-                input.dispatchEvent(new Event('change', {{ bubbles: true }}));
-            }}
-        }}""")
+        # Clicking the select focuses ITS search input, so type via the keyboard.
+        # (A global querySelector for '.ant-select-selection-search input' can hit
+        # the wrong select on a page with multiple ant-selects, e.g. the language
+        # dropdown, leaving the city list unfiltered.)
+        self.page.keyboard.press("Control+A")  # clear any pre-filled text
+        self.page.keyboard.type(search_text, delay=50)
         self.page.wait_for_timeout(2000)
         # Try exact locator first, fall back to contains-text
         option = self.page.locator(option_locator)
@@ -52,7 +89,16 @@ class MentorProfilePage(BasePage):
                 f"//div[contains(@class,'ant-select-item-option-content')][contains(.,'{search_text}')]"
             )
             option.first.wait_for(state="visible", timeout=8000)
-        option.first.click()
+        # The dropdown option may be geometrically outside the viewport — scroll it into
+        # view first, then fall back to force=True if a normal click still fails.
+        try:
+            option.first.scroll_into_view_if_needed(timeout=3000)
+        except Exception:
+            pass
+        try:
+            option.first.click(timeout=5000)
+        except Exception:
+            option.first.click(force=True)
         self.page.wait_for_timeout(500)
 
     def _ensure_edit_mode(self):
@@ -127,6 +173,9 @@ class MentorProfilePage(BasePage):
         print(f"Reverted lastname to '{original_lastname}'")
 
         # Revert City back to Hyderabad
+        # city_textarea=self.page.locator("(//span[@class='ant-select-selection-item'])[3]")
+        # city_textarea.clear()
+        # self.page.wait_for_timeout(500)
         self._select_city("Hyderabad", myprofileLocators.HYDERABAD_OPTION)
         print("Reverted city to: Hyderabad")
 
@@ -143,16 +192,9 @@ class MentorProfilePage(BasePage):
         dropdown.wait_for(state="visible", timeout=10000)
         dropdown.click()
         self.page.wait_for_timeout(500)
-        # Fill the active search input via JS to trigger React's onChange
-        self.page.evaluate(f"""() => {{
-            const input = document.querySelector('.ant-select-selection-search input');
-            if (input) {{
-                const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
-                nativeInputValueSetter.call(input, '{search_text}');
-                input.dispatchEvent(new Event('input', {{ bubbles: true }}));
-                input.dispatchEvent(new Event('change', {{ bubbles: true }}));
-            }}
-        }}""")
+        # Type into the focused search input of THIS dropdown (see _select_city
+        # for why a global querySelector is unreliable with multiple ant-selects).
+        self.page.keyboard.type(search_text, delay=50)
         self.page.wait_for_timeout(1500)
         option = self.page.locator(option_locator)
         try:
@@ -207,7 +249,7 @@ class MentorProfilePage(BasePage):
         self.page.wait_for_timeout(500)
 
         # Save (button label is 'Guardar' when UI is in Spanish)
-        self.page.locator(myprofileLocators.Guardar_BUTTON).wait_for(state="visible", timeout=10000)
-        self.page.click(myprofileLocators.Guardar_BUTTON)
+        self.page.locator(myprofileLocators.GUARDAR_BUTTON).wait_for(state="visible", timeout=10000)
+        self.page.click(myprofileLocators.GUARDAR_BUTTON)
         print("Saved profile with reverted language to English")
         self.page.wait_for_timeout(3000)

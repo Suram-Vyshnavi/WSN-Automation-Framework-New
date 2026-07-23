@@ -8,6 +8,7 @@ class CommonSettingsPage(BasePage):
 
 	def _settings_panel_visible(self, timeout=1500):
 		panel = self._first_visible([
+			"//div[contains(@class,'userSettings-container')]",
 			"//div[contains(@class,'userSettings_menuItem')]",
 			"//div[contains(@class,'userSettings')]//*[contains(translate(normalize-space(.), 'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 'ACCOUNTS')]",
 			"//div[contains(@class,'userSettings')]//*[contains(translate(normalize-space(.), 'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 'NOTIFICATIONS')]",
@@ -57,75 +58,55 @@ class CommonSettingsPage(BasePage):
 				continue
 		return False
 
+	def _open_accounts_menu(self, timeout=8000):
+		"""Open the Accounts (hamburger) dropdown that holds Settings / Messages / Logout."""
+		# If the dropdown is already open (Settings item visible), nothing to do.
+		if self._first_visible([HomeLocators.DROPDOWN_SETTINGS_ITEM], timeout=1000):
+			return True
+		return self._click_first_visible([HomeLocators.ACCOUNTS_MENU_TRIGGER], timeout=timeout)
+
 	def click_zoomconnect_profile_icon(self):
-		# Quick readiness check so profile click is attempted only after dashboard shell appears.
+		# Quick readiness check so the click is attempted only after dashboard shell appears.
 		self._first_visible([
 			HomeLocators.FACULTY_DASHBOARD_CONTAINER,
 			HomeLocators.HOME_MENU,
 		], timeout=4000)
 
-		# If already inside settings screen, skip profile click.
+		# If already inside settings screen, skip menu open.
 		if self._settings_panel_visible(timeout=2500):
 			return
 
-		clicked = self._click_first_visible([
-			HomeLocators.PROFILE_MENU,
-			CommonSettingsZoomConnectLocators.PROFILE_ICON,
-		], timeout=1500)
+		opened = self._open_accounts_menu(timeout=8000)
 
-		if not clicked:
-			clicked = self._click_first_attached([
-				HomeLocators.PROFILE_MENU,
-				CommonSettingsZoomConnectLocators.PROFILE_ICON,
-			], timeout=1500)
-
-		if not clicked:
-			# Try up to 3 back navigations in case previous scenario left us deep in nested screens.
-			for _ in range(3):
-				try:
-					self.click_back_arrow()
-				except Exception:
-					pass
-				clicked = self._click_first_visible([
-					HomeLocators.PROFILE_MENU,
-					CommonSettingsZoomConnectLocators.PROFILE_ICON,
-				], timeout=1500)
-				if clicked:
-					break
-				if self._settings_panel_visible(timeout=1500):
-					return
-
-		if not clicked:
-			# Last resort: navigate to home via sidebar then retry.
+		if not opened:
+			# Previous scenario may have left us deep in a nested screen. Navigate
+			# home then retry opening the Accounts menu.
 			try:
 				self.page.locator(HomeLocators.HOME_MENU).first.click(timeout=3000)
 				self.page.wait_for_timeout(800)
 			except Exception:
 				pass
-			clicked = self._click_first_visible([
-				HomeLocators.PROFILE_MENU,
-				CommonSettingsZoomConnectLocators.PROFILE_ICON,
-			], timeout=3000)
+			opened = self._open_accounts_menu(timeout=5000)
 
-		if not clicked:
-			assert self._settings_panel_visible(timeout=2500), "Profile icon is not visible/clickable"
+		assert opened or self._settings_panel_visible(timeout=2500), \
+			"Accounts menu / profile icon is not visible/clickable"
 
 	def click_settings_menu(self):
 		if self._settings_panel_visible(timeout=2500):
 			return
 
+		# Ensure the Accounts dropdown is open before clicking the Settings item.
+		if not self._first_visible([HomeLocators.DROPDOWN_SETTINGS_ITEM], timeout=1500):
+			self._open_accounts_menu(timeout=5000)
+
 		selectors = [
+			HomeLocators.DROPDOWN_SETTINGS_ITEM,
 			CommonSettingsZoomConnectLocators.SETTINGS_ICON,
-			"//div[@id='Settings']",
 			"//*[normalize-space()='Settings']",
-			"//div[contains(@class,'menu_item') and contains(translate(normalize-space(.), 'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 'SETTINGS')]",
-			"//*[contains(translate(normalize-space(.), 'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 'SETTINGS')]",
-			"(//div[contains(@class,'app__layout_menu_item')])[2]",
-			"(//div[contains(@class,'app__layout_menu_item')])[3]",
 		]
-		clicked = self._click_first_visible(selectors, timeout=1500)
+		clicked = self._click_first_visible(selectors, timeout=4000)
 		if not clicked:
-			clicked = self._click_first_attached(selectors, timeout=1500)
+			clicked = self._click_first_attached(selectors, timeout=2000)
 		assert clicked, "Settings menu is not visible/clickable"
 		assert self._settings_panel_visible(timeout=8000), "Settings panel did not open after clicking settings menu"
 

@@ -9,6 +9,9 @@ class mycareeradvisorLocators:
     PASSION_SELECTED_ITEMS = "//div[@class='selected-items']"
     ARTS_AND_DESIGN = "//*[contains(text(),'Arts & Design')]"
     DRAWING_AND_ILLUSTRATION_CHECKBOX = "//input[@id='drawingAndIllustration']"
+    # The visible checkbox button is the <label>; clicking the hidden <input>
+    # doesn't fire the selection that enables Submit.
+    DRAWING_AND_ILLUSTRATION_LABEL = "//label[@for='drawingAndIllustration']"
     SUBMIT_BUTTON = "//button[text()='Submit']"
     QUESTIONNAIRES_HEADER = "//h4[text()='Questionnaires']"
     APTITUDE_REVIEW_BUTTON = "(//button[text()='Review'])[1]"

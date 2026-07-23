@@ -7,8 +7,14 @@ class HomeLocators:
     CALENDER_MENU = "//div[@id='Calendar']"
     SUPPORT_MENU = "//img[contains(@class,'no-js-MenuHelp')]"
     NOTIFICATIONS_MENU = "//img[contains(@class,'notification_icon')]"
+    # Accounts (hamburger) menu trigger that opens the dropdown containing
+    # Calendar / Messages & Discussions / Settings / Logout.
+    ACCOUNTS_MENU_TRIGGER = "//button[@aria-label='Accounts menu'] | //img[contains(@class,'header_profile_menu_trigger__icon')]"
+    DROPDOWN_MESSAGES_ITEM = "//*[contains(@class,'header-user-dropdown__item-label')][contains(normalize-space(),'Messages')] | //*[normalize-space()='Messages & Discussions']"
+    DROPDOWN_SETTINGS_ITEM = "//*[contains(@class,'header-user-dropdown__item-label')][normalize-space()='Settings'] | //p[normalize-space()='Settings']"
     CLOSE_NOTIFICATION = "//img[contains(@class,'notification__title__cross')]"
-    PROFILE_MENU = "(//span[@class='ant-avatar-icon'])[1]"
+    # Avatar renders as ant-avatar-icon (photo) or ant-avatar-string (initials) depending on profile photo
+    PROFILE_MENU = "(//span[contains(@class,'ant-avatar-icon') or contains(@class,'ant-avatar-string')])[1]"
     MY_PROFILE = "//h1[contains(text(),'My Profile')]"
     EDIT_PROFILE = "//span[text()='Edit']"
     EDIT_BUTTON = "//button[contains(@class,'edit-button') or normalize-space()='Edit' or .//span[normalize-space()='Edit']]"

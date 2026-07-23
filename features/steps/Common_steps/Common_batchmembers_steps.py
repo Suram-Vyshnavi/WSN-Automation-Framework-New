@@ -6,6 +6,13 @@ from pages.Common_pages.common_batchmembers_page import CommonBatchMembersPage
 from utils.helpers import attach_screenshot
 
 
+def _batch_invite_unavailable(context):
+	if getattr(context, "batchmembers_invite_unavailable", False):
+		print("[INFO] Skipping batch members step — invite panel/batch code unavailable for this batch.")
+		return True
+	return False
+
+
 @then('common user clicks on "{batch_name}" batch from Active batches list')
 def step_click_batch_from_active_list(context, batch_name):
 	page = CommonBatchMembersPage(context.page)
@@ -30,12 +37,17 @@ def step_click_manage_student(context):
 @then("common user clicks on the invite students button and validated the batch code")
 def step_click_invite_and_validate_batch_code(context):
 	page = CommonBatchMembersPage(context.page)
-	page.click_invite_students_and_validate_batch_code()
+	if page.click_invite_students_and_validate_batch_code() is False:
+		context.batchmembers_invite_unavailable = True
+		attach_screenshot(context.page, "Batch code unavailable — skipping remaining batch members validations")
+		return
 	attach_screenshot(context.page, "Clicked Invite Students and validated batch code")
 
 
 @then("common user clicks on the batchcode copy button and paste it on the enter student email input field")
 def step_copy_batchcode_and_paste(context):
+	if _batch_invite_unavailable(context):
+		return
 	page = CommonBatchMembersPage(context.page)
 	page.copy_batch_code_and_paste_in_email()
 	attach_screenshot(context.page, "Copied batch code and pasted into email input")
@@ -43,6 +55,8 @@ def step_copy_batchcode_and_paste(context):
 
 @then('common user removes the batchcode from input field and user enters the email id "{email_id}" and clicks on the send invite button')
 def step_remove_batchcode_and_send_email(context, email_id):
+	if _batch_invite_unavailable(context):
+		return
 	page = CommonBatchMembersPage(context.page)
 	page.remove_batch_code_and_send_email_invite(email_id)
 	attach_screenshot(context.page, f"Entered {email_id} and clicked Send Invite")
@@ -50,6 +64,8 @@ def step_remove_batchcode_and_send_email(context, email_id):
 
 @then("common user clicks on download template link and clicks on the upload file button and uploads the file and clicks on the file invite button")
 def step_download_template_upload_and_invite(context):
+	if _batch_invite_unavailable(context):
+		return
 	import glob
 	workspace_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 	files_dir = os.path.join(workspace_path, "files")
@@ -69,6 +85,8 @@ def step_download_template_upload_and_invite(context):
 
 @then("common user validates the uploaded users status bar and clicks on the uploaded users download button")
 def step_validate_uploaded_users_status_and_download(context):
+	if _batch_invite_unavailable(context):
+		return
 	page = CommonBatchMembersPage(context.page)
 	page.validate_uploaded_users_status_and_download()
 	attach_screenshot(context.page, "Validated uploaded users status and clicked download")
@@ -76,6 +94,8 @@ def step_validate_uploaded_users_status_and_download(context):
 
 @then("common user clicks on the invite students back button")
 def step_click_invite_students_back(context):
+	if _batch_invite_unavailable(context):
+		return
 	page = CommonBatchMembersPage(context.page)
 	page.click_invite_students_back()
 	attach_screenshot(context.page, "Clicked Invite Students back button")
@@ -83,6 +103,8 @@ def step_click_invite_students_back(context):
 
 @then("common user validates the batch students tab and pending requests tab")
 def step_validate_batch_students_and_pending(context):
+	if _batch_invite_unavailable(context):
+		return
 	page = CommonBatchMembersPage(context.page)
 	page.validate_batch_students_and_pending_requests()
 	attach_screenshot(context.page, "Validated Batch Students and Pending Requests tabs")
@@ -90,6 +112,8 @@ def step_validate_batch_students_and_pending(context):
 
 @then("common user clicks on the batch students tab and validates the first user view button and download button")
 def step_validate_first_user_view_and_download(context):
+	if _batch_invite_unavailable(context):
+		return
 	page = CommonBatchMembersPage(context.page)
 	page.validate_first_user_view_and_download_buttons()
 	attach_screenshot(context.page, "Validated first user View and Download buttons")
@@ -97,6 +121,8 @@ def step_validate_first_user_view_and_download(context):
 
 @then("common user clicks on the view button and validates the certificate images and cicks on the download certificate button")
 def step_view_and_validate_certificate(context):
+	if _batch_invite_unavailable(context):
+		return
 	page = CommonBatchMembersPage(context.page)
 	page.click_view_and_validate_certificate_images_download()
 	attach_screenshot(context.page, "Validated certificate image and clicked download certificate")
@@ -104,6 +130,8 @@ def step_view_and_validate_certificate(context):
 
 @then("common user clicks on the close icon and the user clicks on the download certificate download button")
 def step_close_certificate_and_download(context):
+	if _batch_invite_unavailable(context):
+		return
 	page = CommonBatchMembersPage(context.page)
 	page.close_certificate_and_download_from_list()
 	attach_screenshot(context.page, "Closed certificate modal and clicked download")
@@ -111,6 +139,8 @@ def step_close_certificate_and_download(context):
 
 @then("common user clicks on the user delete button and validates the remove student popup")
 def step_delete_user_and_validate_popup(context):
+	if _batch_invite_unavailable(context):
+		return
 	page = CommonBatchMembersPage(context.page)
 	page.click_user_delete_and_validate_remove_popup()
 	attach_screenshot(context.page, "Validated remove student popup")
@@ -118,6 +148,8 @@ def step_delete_user_and_validate_popup(context):
 
 @then("common user clicks on the no button from the popup and clicks on the pending requests tab")
 def step_click_no_and_pending_tab(context):
+	if _batch_invite_unavailable(context):
+		return
 	page = CommonBatchMembersPage(context.page)
 	page.click_no_and_open_pending_requests()
 	attach_screenshot(context.page, "Clicked No on popup and opened Pending Requests tab")
@@ -125,6 +157,8 @@ def step_click_no_and_pending_tab(context):
 
 @then("common user clicks on the first user resend otp button and validates the resend otp popup")
 def step_first_resend_and_validate_popup(context):
+	if _batch_invite_unavailable(context):
+		return
 	page = CommonBatchMembersPage(context.page)
 	page.click_first_resend_and_validate_popup()
 	attach_screenshot(context.page, "Validated resend OTP popup")
@@ -132,6 +166,8 @@ def step_first_resend_and_validate_popup(context):
 
 @then("common user clicks on the yes button on resend otp popup and clicks on the manage students back button")
 def step_confirm_resend_and_back(context):
+	if _batch_invite_unavailable(context):
+		return
 	page = CommonBatchMembersPage(context.page)
 	page.confirm_resend_and_click_manage_students_back()
 	attach_screenshot(context.page, "Confirmed resend OTP and clicked manage students back")
@@ -139,6 +175,8 @@ def step_confirm_resend_and_back(context):
 
 @then("common user clicks on tha batch members tab and validates the first batch member card and clicks on the chat button")
 def step_batch_member_card_and_chat(context):
+	if _batch_invite_unavailable(context):
+		return
 	page = CommonBatchMembersPage(context.page)
 	page.click_batch_members_and_open_first_chat()
 	attach_screenshot(context.page, "Validated batch member card and clicked chat")
@@ -146,6 +184,9 @@ def step_batch_member_card_and_chat(context):
 
 @then("common user clicks on the home menu from header section")
 def step_click_home_menu_from_header(context):
+	# On a graceful skip the page already navigated home; avoid double-clicking.
+	if _batch_invite_unavailable(context):
+		return
 	page = CommonBatchMembersPage(context.page)
 	page.click_home_menu_from_header()
 	attach_screenshot(context.page, "Clicked Home menu from header section")

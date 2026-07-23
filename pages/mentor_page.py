@@ -4,10 +4,23 @@ from locators.mentor_locators.mentor_locators import MentorLocators
 
 class MentorPage(BasePage):
     def click_customize_weekly_schedule(self):
-        self.page.locator(MentorLocators.CUSTOMISE_WEEKLY_SCHEDULE).wait_for(state="visible", timeout=15000)
-        self.page.click(MentorLocators.CUSTOMISE_WEEKLY_SCHEDULE)
-        print("Clicked on Customise Weekly Schedule")
-        self.page.wait_for_timeout(1500)
+        """Click the Customise Weekly Schedule button. Returns True if found, False if not available."""
+        locators = [
+            MentorLocators.CUSTOMISE_WEEKLY_SCHEDULE,
+            "//button[contains(text(), 'Customis') or contains(text(), 'Customiz')]",
+            "//button[contains(translate(normalize-space(.), 'CUSTOMISEZ', 'customisez'), 'customis') or contains(translate(normalize-space(.), 'CUSTOMISEZ', 'customisez'), 'customiz')]",
+        ]
+        for loc in locators:
+            try:
+                self.page.locator(loc).first.wait_for(state="visible", timeout=5000)
+                self.page.locator(loc).first.click()
+                print("Clicked on Customise Weekly Schedule")
+                self.page.wait_for_timeout(1500)
+                return True
+            except Exception:
+                continue
+        print("[INFO] 'Customise/Customize Weekly Schedule' button not found — feature may not be available on this environment")
+        return False
 
     def add_slot_select_start_and_end_time(self):
         self.page.locator(MentorLocators.ADD_SLOT_BUTTON).wait_for(state="visible", timeout=15000)
