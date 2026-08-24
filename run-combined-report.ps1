@@ -10,11 +10,18 @@
     .\run-combined-report.ps1
     .\run-combined-report.ps1 -Personas student,faculty,rm
     .\run-combined-report.ps1 -Envs dev,prod -Headless
+    .\run-combined-report.ps1 -Envs prod -Headless -SendEmail
+    .\run-combined-report.ps1 -Envs prod -SendEmail -DryRunEmail   # preview only
 #>
 param(
     [string[]]$Personas,
     [string[]]$Envs = @("dev", "prod"),
-    [switch]$Headless
+    [switch]$Headless,
+    # Mail the execution summary (with the generated dashboard attached) through
+    # Microsoft Graph once the run finishes - regardless of the test exit code.
+    [switch]$SendEmail,
+    # Compose the mail and write it to reports\email-preview.html without sending.
+    [switch]$DryRunEmail
 )
 
 $ErrorActionPreference = "Stop"
@@ -40,4 +47,21 @@ $code = $LASTEXITCODE
 $dashboard = Join-Path $root "reports\allure-report-combined\executive-dashboard-combined.html"
 Write-Host "Done (exit=$code)." -ForegroundColor Green
 Write-Host "  combined dashboard -> $dashboard" -ForegroundColor DarkCyan
+
+# Report sharing runs even when $code is non-zero: a run with failures is the
+# one stakeholders most need to see.
+if ($SendEmail -or $DryRunEmail) {
+    Write-Host "Composing execution summary email..." -ForegroundColor Cyan
+    $mailArgs = @(
+        "$root\scripts\send_report_email.py",
+        "--results-dir", "$root\reports\allure-results-combined",
+        "--report", $dashboard,
+        "--env", $Envs[0],
+        "--persona", "combined"
+    )
+    if ($DryRunEmail) { $mailArgs += "--dry-run" }
+    & $python @mailArgs
+    if ($LASTEXITCODE -ne 0) { Write-Host "Email step reported exit=$LASTEXITCODE" -ForegroundColor Yellow }
+}
+
 exit $code

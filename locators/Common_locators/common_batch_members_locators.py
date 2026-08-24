@@ -1,5 +1,5 @@
 class CommonBatchMembersLocators:
-    FIRST_BATCH_CARD = "(//td[contains(@class,'batch-list-content-bold')])[1]"
+    FIRST_BATCH_CARD = "//span[contains(@class,'body-large') and contains(text(),'QA-Emp skill Test-V2')]"
     BATCH_NAME = "//div[@class='batch-name-div']"
     BATCH_MEMBERS_TAB = "(//p[normalize-space()='Batch Members'])[1]"
     BATCH_MEMBERS_HEADER_SECTION="(//section[contains(@class,'student-section-header-container')])[1]"

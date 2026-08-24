@@ -1,8 +1,6 @@
 Feature: RM Login
-
   Scenario: RM login only
     Then current persona login should be successful
-
   Scenario: RM Homescreen validation
     Then user navigates through dashboard
     Then user clicks on Home menu
@@ -17,8 +15,6 @@ Feature: RM Login
     Then user validates Assigned batches section
     Then user validates the batch name title , institute name title,course name title,start date title ,end date title,no.of student title , actions title
     Then user clicks on the batches next arrow button
-
-
   Scenario: Batch Details validation
     Then user clicks on the first active batch from assigned batches list
     Then user validates the institute name and course name
@@ -34,7 +30,6 @@ Feature: RM Login
     Then user clicks on the faculty2 cross icon and clicks on the faculty delete button
     Then user validates the faculty delete toast message
     Then user validates the upcoming activities section and validates the create meeting button
-
   Scenario: Create meeting validation
     Then common user navigates to the batch details screen and navigates the upcoming activities section
     Then common user clicks on the create meeting button
@@ -51,18 +46,15 @@ Feature: RM Login
     Then common user clicks on the meeting edit icon and enters the some value to notes and clicks on the update changes
     Then common user clicks on the delete icon and clicks on the delete button on the confirmation popup
     Then common user validates the delete event toast message and lands on the calendar screen
-
   Scenario: Batch details scorecard validation
     Then user clicks on the first active batch from assigned batches list
     Then user validates the scorecard tab and clicks on it
     Then user validates the Assessment schedule title and validates the Assessment schedule container
-
   Scenario: Batch details collaboratesetup validation
     Then user clicks on the first active batch from assigned batches list
     Then user validates the collaboratesetup tab and clicks on it
     Then user clicks on edit button and change level from 2 to 1 and clicks on the save button
     Then user navigates to batch details collaborate setup screen and validates the selected career plans section
-
  Scenario: Batch members validation
    Then user clicks on the first active batch from assigned batches list
    Then common user validates the batch members tab and clicks on it
@@ -83,7 +75,6 @@ Feature: RM Login
    Then common user clicks on the yes button on resend otp popup and clicks on the manage students back button
    Then common user clicks on tha batch members tab and validates the first batch member card and clicks on the chat button
    Then common user clicks on the home menu from header section
-
  Scenario: Activity insights validation
    Then user clicks on the first active batch from assigned batches list
    Then common user validates the activity insights tab and clicks on it
@@ -94,20 +85,18 @@ Feature: RM Login
    Then common user clicks on the active listening arrow icon and validates the heading section and insights table and click on the back arrow
    Then common user clicks on the LT and TA arrow icon and validates the heading section and insights table and click on the back arrow
    Then common user clicks on the pitch trainer post video arrow icon and validates the heading section and insights table and click on the back arrow
-
 Scenario: Performance screen validation
   Then common user clicks on the performance menu
   Then common user validate the course program label and clicks on the select course input field and selects  the "QA-Emp skill Test-V2-1.0.0" from the dropdown
   Then common user validates the risk category label and clicks on the select status input field and clicks on the first status from the dropdown and selects critical
   Then common user validates the batch status label and clicks on the select batch input field and select batch status as active
-  Then common user clicks on the clear button
+  # Then common user clicks on the clear button
   Then common user clicks on the batch details row option and validates certification status label
   Then common user validates the student activity label and clicks on plus icon prevideo and plus icon postvideo
   Then common user validates the student activity assesment label and clicks on the quiz plus icon
   Then common user clicks on back to dashboard button
   # Then common user clicks on the pagination next button and validates the page number
   # Then common user clicks on the perpage dropdown and validates the options and selects 25 perpage option and validates the page number
-
 Scenario: All batches validation
   Then user clicks on the first active batch from assigned batches list
   Then user validates the all batches title and clicks on the seachbar and enters"qa test" 
@@ -116,7 +105,6 @@ Scenario: All batches validation
   Then user validates the batches section
   Then user clicks on the status dropdown and clicks on the inactive option
   Then user validates the batches section
-
  Scenario: Chat Messages and discussions validation
    Then common user clicks on chat icon
    Then common user clicks on send message button
@@ -128,14 +116,11 @@ Scenario: All batches validation
    Then common user clicks on file upload button
    Then common user uploads document in to the chat and validates
    Then common user navigates to home page
-
 Scenario: Notifications validation
   Then common user clicks on notification icon
   Then common user validates the notifications
   Then common user clicks on first notification
   Then common user navigates to home page
-
-
   Scenario: Settings ZoomConnect validation
     Then common user clicks on ZoomConnect profile icon
     Then common user clicks on settings menu
@@ -151,7 +136,6 @@ Scenario: Notifications validation
     Then common user clicks on sigin button
     Then common user navigates back to to signin with zoom screen and validates the toggle button status
     Then common user click on back arrow and navigates to settings screen
-
   Scenario: Settings WhatsappNotifications validation
     Then common user clicks on ZoomConnect profile icon
     Then common user clicks on settings menu

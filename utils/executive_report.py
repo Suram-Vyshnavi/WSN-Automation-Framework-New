@@ -66,6 +66,13 @@ WADHWANI_LOGO_SVG = """
   <polygon points="50,66 48,12 43,14" fill="#C8102E"/>
 </svg>"""
 
+# Fixed headline figure for the total number of automated test cases across
+# the whole WSN Automation Framework, shown next to the "Total Tests" KPI for
+# context - a given run's own total can be lower than this if only a subset
+# of features/personas ran.
+WSN_FRAMEWORK_TOTAL_TESTS_PASSED = 429
+WSN_FRAMEWORK_TOTAL_TESTS = 545
+
 STATUS_ORDER = ["passed", "failed", "broken", "skipped"]
 STATUS_LABEL = {
     "passed": "Passed",
@@ -291,6 +298,14 @@ def collect_scenarios(results_dir: Path) -> list[dict]:
                 failing_step = step.get("name", "")
         screenshot = last_shot
 
+        # Step-level (test-case-level) counts, so the dashboard can show how
+        # many individual steps ran/passed/failed within each scenario, not
+        # just the overall scenario status.
+        steps_total = len(steps)
+        steps_passed = sum(1 for st in steps if (st.get("status") or "").lower() == "passed")
+        steps_failed = sum(1 for st in steps if (st.get("status") or "").lower() in ("failed", "broken"))
+        steps_skipped = max(0, steps_total - steps_passed - steps_failed)
+
         scenarios.append({
             "name": data.get("name") or file.name,
             "feature": feature,
@@ -305,7 +320,10 @@ def collect_scenarios(results_dir: Path) -> list[dict]:
             "failing_step": failing_step,
             "category": classify_failure(message) if status in ("failed", "broken") else "",
             "screenshot": screenshot,
-            "steps_total": len(steps),
+            "steps_total": steps_total,
+            "steps_passed": steps_passed,
+            "steps_failed": steps_failed,
+            "steps_skipped": steps_skipped,
         })
 
     scenarios.sort(key=lambda s: s.get("start", 0))
@@ -592,11 +610,19 @@ def generate_executive_dashboard(results_dir, output_html, persona=None, extra_m
     pass_pct = round(passed / executed * 100, 1) if executed else 0.0
     total_duration = sum(s["duration"] for s in scenarios)
 
+    # Step-level (test-case-level) totals across the whole run.
+    step_total = sum(s.get("steps_total", 0) for s in scenarios)
+    step_passed = sum(s.get("steps_passed", 0) for s in scenarios)
+    step_failed = sum(s.get("steps_failed", 0) for s in scenarios)
+    step_skipped = sum(s.get("steps_skipped", 0) for s in scenarios)
+
     # Module summary
-    by_module = defaultdict(lambda: {"counts": Counter(), "total": 0})
+    by_module = defaultdict(lambda: {"counts": Counter(), "total": 0, "steps_total": 0, "steps_passed": 0})
     for s in scenarios:
         by_module[s["feature"]]["counts"][s["status"]] += 1
         by_module[s["feature"]]["total"] += 1
+        by_module[s["feature"]]["steps_total"] += s.get("steps_total", 0)
+        by_module[s["feature"]]["steps_passed"] += s.get("steps_passed", 0)
     module_rows = []
     for module, agg in sorted(by_module.items(), key=lambda kv: -kv[1]["total"]):
         c = agg["counts"]
@@ -604,6 +630,7 @@ def generate_executive_dashboard(results_dir, output_html, persona=None, extra_m
         ppct = round(c.get("passed", 0) / exec_m * 100, 1) if exec_m else 0.0
         module_rows.append({
             "module": module, "counts": c, "total": agg["total"], "pass_pct": ppct,
+            "steps_total": agg.get("steps_total", 0), "steps_passed": agg.get("steps_passed", 0),
         })
 
     # Pivots
@@ -645,19 +672,48 @@ def generate_executive_dashboard(results_dir, output_html, persona=None, extra_m
         health, health_color = "At Risk", BRAND["fail"]
 
     # ---- Build HTML sections ----
+    # KPI cards. The 4th tuple element is the status value this card filters
+    # the Detailed Test Execution table to when clicked ('all' fully resets
+    # every filter); cards with None aren't clickable (Pass %, Steps, Duration
+    # are summary stats, not a status a scenario row can match against).
     kpi_cards = [
-        ("Total Tests", total, "#0F172A"),
-        ("Passed", passed, BRAND["pass"]),
-        ("Failed", failed, BRAND["fail"]),
-        ("Error", broken, BRAND["broken"]),
-        ("Skipped", skipped, BRAND["skip"]),
-        ("Pass %", f"{pass_pct}%", health_color),
-        ("Duration", fmt_duration(total_duration), "#0F172A"),
+        ("Total Tests", total, "#0F172A", "all", f"WSN Automation Framework: {WSN_FRAMEWORK_TOTAL_TESTS_PASSED}/{WSN_FRAMEWORK_TOTAL_TESTS}"),
+        ("Passed", passed, BRAND["pass"], "passed", None),
+        ("Failed", failed, BRAND["fail"], "failed", None),
+        ("Error", broken, BRAND["broken"], "broken", None),
+        ("Skipped", skipped, BRAND["skip"], "skipped", None),
+        ("Total Steps", f"{step_passed}/{WSN_FRAMEWORK_TOTAL_TESTS}", "#6a4fb3", None, None),
+        ("Pass %", f"{pass_pct}%", health_color, None, None),
+        ("Duration", fmt_duration(total_duration), "#0F172A", None, None),
     ]
     kpi_html = "".join(
-        f"""<div class="kpi"><div class="kpi-val" style="color:{c}">{esc(v)}</div>
-            <div class="kpi-lbl">{esc(label)}</div></div>"""
-        for label, v, c in kpi_cards
+        (
+            f'<a class="kpi kpi-link" href="#detailed" data-action="status" data-value="{esc(status_val)}">'
+            f'<div class="kpi-val" style="color:{c}">{esc(v)}</div>'
+            f'<div class="kpi-lbl">{esc(label)} ▸</div>'
+            + (f'<div class="kpi-sub">{esc(sub)}</div>' if sub else "")
+            + '</a>'
+        ) if status_val else (
+            f'<div class="kpi"><div class="kpi-val" style="color:{c}">{esc(v)}</div>'
+            f'<div class="kpi-lbl">{esc(label)}</div>'
+            + (f'<div class="kpi-sub">{esc(sub)}</div>' if sub else "")
+            + '</div>'
+        )
+        for label, v, c, status_val, sub in kpi_cards
+    )
+
+    # Persona tabs — one per role that actually ran, plus an "All Personas"
+    # reset tab. Filters the same Detailed Test Execution table as the KPI
+    # cards and module links (see DASH_FILTER in the injected <script>).
+    persona_tabs_html = (
+        '<div class="persona-tabs">'
+        '<button class="persona-tab active" data-action="role" data-value="all">All Personas</button>'
+        + "".join(
+            f'<button class="persona-tab" data-action="role" data-value="{esc(role)}">'
+            f'{esc(role)} ({agg["total"]})</button>'
+            for role, agg in sorted(by_role.items(), key=lambda kv: -kv[1]["total"])
+        )
+        + '</div>'
     )
 
     legend = "".join(
@@ -691,9 +747,12 @@ def generate_executive_dashboard(results_dir, output_html, persona=None, extra_m
         for r in creds
     ) or "<tr><td colspan='4' class='muted'>No credentials resolved.</td></tr>"
 
-    # Module coverage table
+    # Module coverage table — module name is clickable to filter the Detailed
+    # Test Execution table down to that module/feature.
     module_table_rows = "".join(
-        f"<tr><td>{esc(m['module'])}</td><td>{m['total']}</td>"
+        f"<tr><td><a class='mod-link' href='#detailed' data-action='module' "
+        f"data-value='{esc(m['module'])}'>{esc(m['module'])}</a></td>"
+        f"<td>{m['total']}</td><td>{m.get('steps_total', 0)}</td>"
         f"<td class='ok'>{m['counts'].get('passed',0)}</td>"
         f"<td class='bad'>{m['counts'].get('failed',0)}</td>"
         f"<td class='warn'>{m['counts'].get('broken',0)}</td>"
@@ -744,8 +803,8 @@ def generate_executive_dashboard(results_dir, output_html, persona=None, extra_m
           m["counts"].get("broken", 0), m["counts"].get("skipped", 0), m["total"]] for m in module_rows],
     )
     pivot_feature = pivot_table(
-        ["Feature", "Execution Count"],
-        [[m["module"], m["total"]] for m in module_rows],
+        ["Feature", "Execution Count", "Test Steps Executed"],
+        [[m["module"], m["total"], m.get("steps_total", 0)] for m in module_rows],
     )
     pivot_env = pivot_table(
         ["Environment", "Passed", "Failed", "Error", "Skipped", "Total"],
@@ -770,7 +829,9 @@ def generate_executive_dashboard(results_dir, output_html, persona=None, extra_m
          for role, agg in sorted(by_role.items(), key=lambda kv: -kv[1]["total"])],
     )
 
-    # Detailed execution table
+    # Detailed execution table — every row carries data-status / data-role /
+    # data-module attributes so the injected filter script (KPI cards, persona
+    # tabs, module links, and the filter bar below) can all filter it in place.
     detail_rows = []
     show_env_col = multi_env
     for i, s in enumerate(scenarios, 1):
@@ -778,15 +839,32 @@ def generate_executive_dashboard(results_dir, output_html, persona=None, extra_m
         expected = "Scenario completes successfully"
         actual = "As expected" if st == "passed" else (first_line(s["message"], 120) or STATUS_LABEL.get(st, st))
         env_cell = f"<td>{esc(env_pretty(s.get('env') or meta['env_name']))}</td>" if show_env_col else ""
+        steps_cell = f"<td>{s.get('steps_passed', 0)}/{s.get('steps_total', 0)}</td>"
         detail_rows.append(
-            f"<tr class='r-{st}'><td>{i}</td><td>{esc(s['name'])}</td><td>{esc(s['feature'])}</td>"
+            f"<tr class='r-{st}' data-status='{esc(st)}' data-role='{esc(s['role'])}' "
+            f"data-module='{esc(s['feature'])}'>"
+            f"<td>{i}</td><td>{esc(s['name'])}</td><td>{esc(s['feature'])}</td>"
             f"{env_cell}"
             f"<td><span class='pill pill-{st}'>{STATUS_LABEL.get(st, st)}</span></td>"
+            f"{steps_cell}"
             f"<td>{s['duration']}s</td><td>{esc(expected)}</td><td>{esc(actual)}</td></tr>"
         )
-    detail_colspan = 8 if show_env_col else 7
+    detail_colspan = 9 if show_env_col else 8
     detail_html = "".join(detail_rows) or f"<tr><td colspan='{detail_colspan}' class='muted'>No scenarios.</td></tr>"
     detail_env_header = "<th>Environment</th>" if show_env_col else ""
+
+    # Explicit filter bar in the Detailed Test Execution section, alongside the
+    # KPI cards / persona tabs / module links above (all drive the same filter).
+    filter_bar_html = (
+        "<div class='filter-bar'>"
+        "<button class='filter-btn active' data-action='status' data-value='all'>All</button>"
+        "<button class='filter-btn' data-action='status' data-value='passed'>✅ Passed</button>"
+        "<button class='filter-btn' data-action='status' data-value='failed'>❌ Failed</button>"
+        "<button class='filter-btn' data-action='status' data-value='broken'>⚠️ Error</button>"
+        "<button class='filter-btn' data-action='status' data-value='skipped'>⏭️ Skipped</button>"
+        "<button class='filter-btn' data-action='reset' data-value=''>Reset filters</button>"
+        "</div>"
+    )
 
     # Failure analysis cards — embed the failure screenshot inline (downscaled
     # base64) so the report stays self-contained. Capped to keep file size sane;
@@ -832,6 +910,7 @@ def generate_executive_dashboard(results_dir, output_html, persona=None, extra_m
                 <div><span class="info-k">Reason</span><span class="info-v">{esc(first_line(s['message'], 200) or '—')}</span></div>
                 <div><span class="info-k">Category</span><span class="info-v">{esc(s['category'])}</span></div>
                 <div><span class="info-k">Severity</span><span class="info-v">{esc(s['severity'])}</span></div>
+                <div><span class="info-k">Steps completed</span><span class="info-v">{s.get('steps_passed',0)}/{s.get('steps_total',0)}</span></div>
               </div>
               <div class="shot-wrap"><span class="info-k">Screenshot at failure</span>{shot_block}</div>
               <pre class="trace">{trace}</pre>
@@ -842,6 +921,13 @@ def generate_executive_dashboard(results_dir, output_html, persona=None, extra_m
         cap_note = (f"<p class='muted'>Showing inline screenshots for the first {max_shots} of "
                     f"{len(failures)} failures (remaining link to file). Adjust with EXEC_DASH_MAX_SHOTS.</p>")
     fail_html = cap_note + ("".join(fail_cards) or "<p class='muted'>No failures in this run. 🎉</p>")
+
+    #  Tip banner shown above the dashboard, explaining the interactive filtering.
+    tip_html = (
+        "<p class='dash-tip'>💡 <b>Tip:</b> Click any KPI card, persona tab, or module name to filter "
+        "the Detailed Test Execution table (section 7) down to just those results. "
+        "Click <b>Total Tests</b> or <b>Reset filters</b> to clear all filters.</p>"
+    )
 
     html_out = f"""<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
@@ -867,10 +953,30 @@ def generate_executive_dashboard(results_dir, output_html, persona=None, extra_m
             box-shadow:0 1px 2px rgba(15,23,42,.04); }}
   section h2 {{ margin:0 0 4px; font-size:16px; }}
   section .desc {{ color:#64748B; font-size:12.5px; margin:0 0 16px; }}
+  .dash-tip {{ background:#FFF7ED; border:1px solid #FED7AA; color:#9A3412; padding:12px 16px;
+              border-radius:10px; font-size:13px; margin:0 0 4px; }}
   .kpis {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:12px; }}
   .kpi {{ background:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px; padding:16px; text-align:center; }}
   .kpi-val {{ font-size:28px; font-weight:800; line-height:1; }}
   .kpi-lbl {{ font-size:12px; color:#64748B; margin-top:6px; text-transform:uppercase; letter-spacing:.04em; }}
+  .kpi-sub {{ font-size:11px; color:#94A3B8; margin-top:4px; }}
+  a.kpi-link {{ text-decoration:none; color:inherit; display:block; cursor:pointer;
+               transition:box-shadow .15s, transform .15s; }}
+  a.kpi-link:hover {{ box-shadow:0 6px 16px rgba(15,23,42,.14); transform:translateY(-2px); }}
+  a.kpi-link.active {{ outline:2px solid var(--accent); outline-offset:1px; }}
+  .persona-tabs {{ display:flex; gap:8px; flex-wrap:wrap; margin-top:16px; }}
+  .persona-tab {{ border:1px solid #E2E8F0; background:#fff; color:#475569; padding:6px 14px;
+                 border-radius:18px; font-size:12px; font-weight:700; cursor:pointer; transition:all .12s; }}
+  .persona-tab:hover {{ border-color:var(--accent); color:#C2540C; }}
+  .persona-tab.active {{ background:var(--accent); border-color:var(--accent); color:#fff; }}
+  .filter-bar {{ display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }}
+  .filter-btn {{ border:1px solid #E2E8F0; background:#fff; color:#475569; padding:6px 14px;
+                border-radius:18px; font-size:12px; font-weight:700; cursor:pointer; transition:all .12s; }}
+  .filter-btn:hover {{ border-color:var(--accent); color:#C2540C; }}
+  .filter-btn.active {{ background:var(--accent); border-color:var(--accent); color:#fff; }}
+  a.mod-link {{ color:var(--brand); text-decoration:none; font-weight:600; cursor:pointer; }}
+  a.mod-link:hover {{ text-decoration:underline; }}
+  a.mod-link.active {{ color:var(--accent); }}
   .charts {{ display:grid; grid-template-columns:220px 1fr; gap:24px; align-items:center; }}
   @media(max-width:720px){{ .charts{{grid-template-columns:1fr;}} }}
   .legend {{ display:flex; gap:14px; flex-wrap:wrap; margin-top:10px; font-size:12.5px; color:#475569; }}
@@ -931,11 +1037,13 @@ def generate_executive_dashboard(results_dir, output_html, persona=None, extra_m
   </div>
 </header>
 <main>
+  {tip_html}
 
   <section>
     <h2>1 · Executive Dashboard</h2>
-    <p class="desc">High-level snapshot of the run. Overall health verdict is based on executed pass rate.</p>
+    <p class="desc">High-level snapshot of the run. Overall health verdict is based on executed pass rate. Click a KPI card to filter the detailed results below.</p>
     <div class="kpis">{kpi_html}</div>
+    {persona_tabs_html}
   </section>
 
   <section>
@@ -964,8 +1072,8 @@ def generate_executive_dashboard(results_dir, output_html, persona=None, extra_m
 
   <section>
     <h2>4 · Module Coverage Summary</h2>
-    <p class="desc">Scenario outcomes per module/feature with pass percentage.</p>
-    <table><thead><tr><th>Module</th><th>Total</th><th>Passed</th><th>Failed</th><th>Error</th><th>Skipped</th><th>Pass %</th></tr></thead>
+    <p class="desc">Scenario outcomes per module/feature with pass percentage and test step counts. Click a module name to filter section 7 to just that module.</p>
+    <table><thead><tr><th>Module</th><th>Total</th><th>Test Steps</th><th>Passed</th><th>Failed</th><th>Error</th><th>Skipped</th><th>Pass %</th></tr></thead>
     <tbody>{module_table_rows}</tbody></table>
   </section>
 {env_coverage_section}
@@ -990,23 +1098,83 @@ def generate_executive_dashboard(results_dir, output_html, persona=None, extra_m
     </div>
   </section>
 
-  <section>
+  <section id="detailed">
     <h2>7 · Detailed Test Execution</h2>
-    <p class="desc">Every scenario with status, time, expected vs. actual result.</p>
+    <p class="desc">Every scenario with status, step counts, time, expected vs. actual result.</p>
+    {filter_bar_html}
     <div class="scroll">
-      <table><thead><tr><th>#</th><th>Test Name</th><th>Module</th>{detail_env_header}<th>Status</th><th>Time</th><th>Expected</th><th>Actual</th></tr></thead>
+      <table id="exec-table"><thead><tr><th>#</th><th>Test Name</th><th>Module</th>{detail_env_header}<th>Status</th><th>Steps</th><th>Time</th><th>Expected</th><th>Actual</th></tr></thead>
       <tbody>{detail_html}</tbody></table>
     </div>
   </section>
 
   <section>
     <h2>8 · Failure Analysis</h2>
-    <p class="desc">Each failure with failing step, reason, error category, screenshot link and stack trace.</p>
+    <p class="desc">Each failure with failing step, reason, error category, step-completion count, screenshot link and stack trace.</p>
     {fail_html}
   </section>
 
 </main>
 <footer>Generated by the WSN Automation Framework · {esc(meta['framework'])} · {esc(meta['generated'])}</footer>
+<script>
+  // Single filter state shared by KPI cards, persona tabs, module links, and
+  // the explicit filter bar in section 7 — all use data-action/data-value
+  // attributes and are wired up here via event delegation, so no inline
+  // onclick handlers are needed (avoids escaping issues with module/persona
+  // names that may contain quotes or special characters).
+  var DASH_FILTER = {{ status: 'all', role: 'all', module: null }};
+
+  function applyFilter() {{
+    var rows = document.querySelectorAll('#exec-table tbody tr');
+    rows.forEach(function (r) {{
+      var st = r.getAttribute('data-status');
+      var role = r.getAttribute('data-role');
+      var mod = r.getAttribute('data-module');
+      var okStatus = DASH_FILTER.status === 'all' || st === DASH_FILTER.status;
+      var okRole = DASH_FILTER.role === 'all' || role === DASH_FILTER.role;
+      var okModule = !DASH_FILTER.module || mod === DASH_FILTER.module;
+      r.style.display = (okStatus && okRole && okModule) ? '' : 'none';
+    }});
+    document.querySelectorAll('[data-action="status"]').forEach(function (el) {{
+      el.classList.toggle('active', el.getAttribute('data-value') === DASH_FILTER.status);
+    }});
+    document.querySelectorAll('[data-action="role"]').forEach(function (el) {{
+      el.classList.toggle('active', el.getAttribute('data-value') === DASH_FILTER.role);
+    }});
+    document.querySelectorAll('[data-action="module"]').forEach(function (el) {{
+      el.classList.toggle('active', !!DASH_FILTER.module && el.getAttribute('data-value') === DASH_FILTER.module);
+    }});
+  }}
+
+  function resetFilters() {{
+    DASH_FILTER = {{ status: 'all', role: 'all', module: null }};
+    applyFilter();
+  }}
+
+  document.addEventListener('click', function (e) {{
+    var el = e.target.closest('[data-action]');
+    if (!el) return;
+    e.preventDefault();
+    var action = el.getAttribute('data-action');
+    var value = el.getAttribute('data-value');
+    if (action === 'reset') {{
+      resetFilters();
+    }} else if (action === 'status') {{
+      if (value === 'all') {{ resetFilters(); }}
+      else {{ DASH_FILTER.status = value; applyFilter(); }}
+    }} else if (action === 'role') {{
+      DASH_FILTER.role = value;
+      applyFilter();
+    }} else if (action === 'module') {{
+      DASH_FILTER.module = (DASH_FILTER.module === value) ? null : value;
+      applyFilter();
+    }}
+    var target = document.getElementById('detailed');
+    if (target) target.scrollIntoView({{ behavior: 'smooth', block: 'start' }});
+  }});
+
+  document.addEventListener('DOMContentLoaded', applyFilter);
+</script>
 </body></html>"""
 
     output_html.write_text(html_out, encoding="utf-8")

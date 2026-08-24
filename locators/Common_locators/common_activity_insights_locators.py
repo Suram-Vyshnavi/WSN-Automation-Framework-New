@@ -1,5 +1,5 @@
 class CommonActivityInsightsLocators:
-    FIRST_BATCH_CARD = "(//td[@class='ant-table-cell batch-list-content-bold'])[1]"
+    FIRST_BATCH_CARD = "//span[contains(@class,'body-large') and contains(text(),'QA-Emp skill Test-V2')]"
     BATCH_NAME = "//div[@class='batch-name-div']"
     ACTIVITY_INSIGHTS_TAB="(//p[normalize-space()='Activity Insights'])[1]"
     SUBMISSION_INSIGHTS_HEADER_SECTION="(//div[@class='collaborate-insights-header'])[1]"

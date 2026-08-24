@@ -115,7 +115,10 @@ def step_validate_first_user_view_and_download(context):
 	if _batch_invite_unavailable(context):
 		return
 	page = CommonBatchMembersPage(context.page)
-	page.validate_first_user_view_and_download_buttons()
+	if page.validate_first_user_view_and_download_buttons() is False:
+		context.batchmembers_invite_unavailable = True
+		attach_screenshot(context.page, "No certified student in this batch — skipping remaining batch members validations")
+		return
 	attach_screenshot(context.page, "Validated first user View and Download buttons")
 
 

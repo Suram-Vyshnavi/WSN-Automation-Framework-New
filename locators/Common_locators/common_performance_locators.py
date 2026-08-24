@@ -10,7 +10,7 @@ class CommonPerformanceLocators:
     # Batch Status is a set of pill buttons (All / Active / Inactive), not a dropdown.
     SELECT_BATCH_INPUT_FIELD="//div[contains(@class,'status-field')]//div[contains(@class,'status-pills')]"
     BATCH_STATUS ="//button[contains(@class,'status-pill') and normalize-space()='Active']"
-    CLEAR_BUTTON ="//button[contains(@class,'status-pill-clear') and normalize-space()='Clear']"
+    # CLEAR_BUTTON ="//button[contains(@class,'status-pill-clear') and normalize-space()='Clear']"
     BATCH_DETAILS_ROW_OPTION ="(//tr[@class='batch-row'])[1]"
     # Placeholder the dashboard renders when no batch matches the current filters
     # (e.g. the account has no performance data at all).

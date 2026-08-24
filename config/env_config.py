@@ -14,7 +14,7 @@ for dotenv_path in dotenv_candidates:
 
 ENV = os.getenv("ENV", "qa")
 
-with open("config/config.yaml") as f:
+with open(os.path.join(base_dir, "config.yaml")) as f:
     config = yaml.safe_load(f)
 env = config.get(ENV)
 if env is None:

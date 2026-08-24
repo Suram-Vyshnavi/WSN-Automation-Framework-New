@@ -56,7 +56,14 @@ class CommonCreateMeetingPage(BasePage):
 		try:
 			locator.click(timeout=timeout)
 		except Exception:
-			locator.click(timeout=timeout, force=True)
+			try:
+				locator.click(timeout=timeout, force=True)
+			except Exception:
+				# Some dropdown/select popups (e.g. Ant Design's portal-rendered
+				# options) can report as outside the viewport to Playwright's
+				# geometry check even with force=True. A raw DOM click bypasses
+				# that check entirely.
+				locator.evaluate("el => el.click()")
 		return True
 
 	def _fill_first_visible(self, selectors, value, timeout=5000):

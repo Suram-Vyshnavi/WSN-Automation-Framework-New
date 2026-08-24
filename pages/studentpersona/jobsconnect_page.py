@@ -37,10 +37,17 @@ class JobsConnectPage(BasePage):
         if _is_prod():
             print("Prod flow: skipping Job Type filter")
             return
-        self.page.locator(jobsconnectLocators.JOB_TYPE_FILTER).wait_for(state="visible", timeout=15000)
+        self.page.locator(jobsconnectLocators.JOB_TYPE_FILTER).wait_for(state="visible", timeout=25000)
         highlight_element(self.page, jobsconnectLocators.JOB_TYPE_FILTER)
         self.page.locator(jobsconnectLocators.JOB_TYPE_FILTER).click()
-        self.page.locator(jobsconnectLocators.FULL_TIME_OPTION).wait_for(state="visible", timeout=15000)
+        try:
+            self.page.locator(jobsconnectLocators.FULL_TIME_OPTION).wait_for(state="visible", timeout=8000)
+        except Exception:
+            # Dropdown sometimes fails to open (or closes) on the first click -
+            # re-click the filter and give it one more chance before failing.
+            print("Full Time option not visible after first click - retrying Job Type filter")
+            self.page.locator(jobsconnectLocators.JOB_TYPE_FILTER).click()
+            self.page.locator(jobsconnectLocators.FULL_TIME_OPTION).wait_for(state="visible", timeout=25000)
         highlight_element(self.page, jobsconnectLocators.FULL_TIME_OPTION)
         self.page.locator(jobsconnectLocators.FULL_TIME_OPTION).click()
         print("Selected Full Time from Job Type filter")

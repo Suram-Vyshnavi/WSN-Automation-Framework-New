@@ -3,10 +3,26 @@ import os
 from pages.login_page import LoginPage
 from utils.config import Config
 
+
+def _is_newuser_only_run(context):
+    """True when every requested feature path is newuser.feature.
+
+    newuser.feature registers its own brand-new account via a manual
+    email/OTP flow, so it must not go through the shared persona pre-login
+    (which assumes an existing, already-verified account).
+    """
+    try:
+        paths = getattr(context.config, "paths", []) or []
+        return bool(paths) and all("newuser" in os.path.basename(p).lower() for p in paths)
+    except Exception:
+        return False
+
+
 def before_all(context):
     """Setup browser and login once before all scenarios"""
     persona = Config.get_persona()
     context.persona = persona
+    context.skip_shared_login = _is_newuser_only_run(context)
 
     slow_mo_ms = int(os.getenv("SLOW_MO", "0"))
     headless = os.getenv("HEADLESS", "false").lower() in ("1", "true", "yes")
@@ -28,6 +44,11 @@ def before_all(context):
     context._trace_on = os.getenv("TRACE_ON", "false").lower() in ("1", "true", "yes")
     
     context.page = context.context.new_page()
+
+    if context.skip_shared_login:
+        print("newuser.feature-only run detected - skipping the shared persona pre-login "
+              "(this feature registers its own account via a manual email/OTP flow)")
+        return
 
     username, password = Config.get_credentials(persona)
 
@@ -212,8 +233,58 @@ def _student_go_home(context):
         print(f"Student home navigation issue: {e}")
 
 
+def before_feature(context, feature):
+    """Start every feature with a clean new-user page object.
+
+    The new-user page object carries state across steps (course content URL,
+    the self-serve activity frame) and is held on NewUserPage itself, because
+    behave discards context attributes at the end of each scenario - that is
+    what lets newuser_prod.feature run one registration journey across several
+    scenarios. Resetting it here keeps a feature from leaking into the next.
+    """
+    try:
+        from pages.studentpersona.new_user_page import NewUserPage
+        NewUserPage.reset_shared_state()
+    except Exception:
+        pass
+
+    # Same reasoning for the BusinessPlanner-LTI journey, which additionally
+    # carries the "this flow is the active one" flag that routes the shared
+    # ordinal button step (see newuser_steps.py).
+    try:
+        from pages.studentpersona.business_planner_page import BusinessPlannerPage
+        BusinessPlannerPage.reset_shared_state()
+    except Exception:
+        pass
+
+    # ...and for the Dev-Think LTI journey, which carries the same flag plus
+    # the two activity iframes and the assessment's tallies.
+    try:
+        from pages.studentpersona.think_activity_page import ThinkActivityPage
+        ThinkActivityPage.reset_shared_state()
+    except Exception:
+        pass
+
+
 def before_scenario(context, scenario):
     """Navigate back to home dashboard before each scenario, then start tracing if enabled"""
+    if getattr(context, "skip_shared_login", False):
+        # No shared pre-login happened (see before_all) - the scenario's own
+        # Given step drives navigation from scratch, so skip the home/re-login
+        # dance entirely. The new-user page object is deliberately NOT reset
+        # here: newuser_prod.feature splits one registration journey across
+        # scenarios, so its state has to survive scenario boundaries (it is
+        # reset per feature in before_feature instead).
+        try:
+            if context._trace_on:
+                context.context.tracing.start(screenshots=True, snapshots=True, sources=True)
+                context._trace_enabled = True
+            else:
+                context._trace_enabled = False
+        except Exception:
+            context._trace_enabled = False
+        return
+
     # Step 0: If a prior scenario crashed the tab/context, rebuild it and
     # re-login immediately so the rest of the run is not lost to a cascade of
     # 'Target page, context or browser has been closed' errors.
@@ -292,6 +363,22 @@ def _before_scenario_other_personas(context):
         ).first.wait_for(state="visible", timeout=8000)
     except Exception:
         _re_login(context)
+
+
+def after_step(context, step):
+    """Attach a screenshot + current URL whenever a step fails, so a failure
+    can be diagnosed from the Allure report without needing to reproduce it
+    live."""
+    if step.status != "failed":
+        return
+    try:
+        from utils.helpers import attach_screenshot
+        page = getattr(context, "page", None)
+        if page is not None and not page.is_closed():
+            attach_screenshot(page, f"FAILURE: {step.name}", dedupe=False)
+            print(f"[FAILURE] Step '{step.name}' failed at URL: {page.url}")
+    except Exception as e:
+        print(f"Could not capture failure screenshot: {e}")
 
 
 def after_scenario(context, scenario):

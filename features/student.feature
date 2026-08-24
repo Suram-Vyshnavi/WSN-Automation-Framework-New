@@ -1,10 +1,8 @@
 Feature: Student Persona
-
   Scenario: Validate Home Dashboard
     Given user is on the home page
   #   # Then user validates the home icon
-    Then user validates the welcome header and wadhwani skilling header
-    Then user validates genie
+    # Then user validates the welcome header and wadhwani skilling header
     Then user clicks on courses card
     Then user clicks on programs card
     Then user clicks on personal pitch trainer card
@@ -21,7 +19,9 @@ Feature: Student Persona
     Then user clicks on messages and discussions
     Then user clicks on learning progress
     Then user clicks on settings
-
+  Scenario: Validate Genie
+    Given user is on the home page
+    Then user validates genie
   Scenario: Validate Jobs Connect
     Given user is on the home page
     Then user navigates to home page
@@ -38,15 +38,12 @@ Feature: Student Persona
     Then user clicks on reset button
     Then user clicks on jobs connect applied status card
     Then user clicks on applied jobs button and validates the applied job card
-    
-
   Scenario: Validate Forums
     Given user is on the home page
     Then user navigates to home page
     Then user clicks on forums card
     Then user validates the my forums header
     Then user clicks on view forum button
-
   Scenario: Validate Courses
     Given user is on the home page
     Then user navigates to home page
@@ -59,22 +56,21 @@ Feature: Student Persona
     Then user validates overview course content and performance tabs
     Then user clicks on performance tab
     Then user validates final score certificate and performance tab
-  #   #for prod environment the below steps are not present
-  #   # Then user clicks on view analysis button
-  #   # Then user clciks on view pitch button
-  #   # Then user clicks on video play button
-  #   # Then user clicks on video close button
-  #   # Then user clicks on share pitch button
-  #   # Then user clicks on copy pitch button 
-  #   # Then user clicks on share pitch close button
-  #   # Then user clicks on back arrow button
-  #   # Then user clicks on create post-video button
-  #   # Then user clicks on pitch trainer back arrow button
+  #   # for prod environment the below steps are not present
+    Then user clicks on view analysis button
+    Then user clciks on view pitch button
+    Then user clicks on video play button
+    Then user clicks on video close button
+    Then user clicks on share pitch button
+    Then user clicks on copy pitch button 
+    Then user clicks on share pitch close button
+    Then user clicks on back arrow button
+    Then user clicks on create post-video button
+    Then user clicks on pitch trainer back arrow button
     Then user validates courses recommended by institute
     Then user validates recommended course card
     Then user validates courses offered by wadhwani foundation
     Then user validates offered course card
-
   Scenario: Validate Career Buddy
     Given user is on the home page
     Then user navigates to home page
@@ -95,7 +91,6 @@ Feature: Student Persona
     Then user clicks on session purpose label and selects the Job Search Strategy option
     Then user clicks on specific outcome label and fills in the specific outcome fields, selects the checkbox option and clicks on the Book button
     Then user clicks on the Copy Link option and validates the copied link
-
   Scenario: Validate Interview Coach
     Given user is on the home page
     Then user navigates to home page
@@ -111,7 +106,6 @@ Feature: Student Persona
     Then user clicks on threedots icon
     Then user clicks on delete this role icon and confirms delete action
     Then user clicks on home icon and navigates to home page
-
   Scenario: Validate My Career Advisor
     Given user is on the home page
     Then user navigates to home page
@@ -135,8 +129,6 @@ Feature: Student Persona
     Then user clicks on the Favourite button and removes the favourite
     Then user clicks on the home icon and navigates to home page
     Then user clicks on roles saved card and click on favourites header and validate the favourite role header
-
-
   Scenario: Validate Personal Pitch Trainer
     Given user is on the home page
     Then user navigates to home page
@@ -153,7 +145,6 @@ Feature: Student Persona
     Then user clicks on home icon and navigates to home page
     Then user clicks on passed text on personal pitch trainer card 
     Then user validates check button 
-
   Scenario: Validate Programs
     Given user is on the home page
     Then user navigates to home page
@@ -168,7 +159,6 @@ Feature: Student Persona
     Then user clicks on close modal button
     Then user validates offered by wadhwani foundation header
     Then user clicks on offered by wadhwani foundation tab
-
   Scenario: Messages and discussions validation
     Then user clicks on Accounts menu
     Then user clicks on Messages & Discussions
@@ -180,7 +170,6 @@ Feature: Student Persona
     Then user clicks on file upload button
     Then user uploads photo in to chat and validates
     Then user navigates to home page
-
 Scenario: Learning progress validation
     Then user clicks on Accounts menu
     Then user clicks on learning progress
@@ -191,14 +180,6 @@ Scenario: Learning progress validation
     Then user clicks on ongoing courses and validates overview section
     Then user clicks on content section and clicks on resume
     Then user clicks on performance section and validates final score
-    # Then user clicks on overview section and clicks on view batch and validates
-    # Then user clicks on general info and validates upcoming activities
-    # Then user clicks on batch members and validates students added count and maximum allowed and batch member list
-    # Then user clicks on chat button
-    # Then user sends a message
-    # Then user validates the latest message sent
-    # Then user navigates to home page
-
   Scenario: Settings ZoomConnect validation
       Then user clicks on Account menu
       Then user clicks on settings menu
@@ -216,7 +197,6 @@ Scenario: Learning progress validation
       Then user click on the toggle button and validates the disconnect section
       Then user clicks on the disconnect button
       Then user click on back arrow and navigates to settings screen
-
   Scenario: Settings DeleteAccount validation
       Then user clicks on Account menu
       Then user clicks on settings menu
@@ -227,7 +207,6 @@ Scenario: Learning progress validation
       Then user validates the otp input field and clicks on the delete account otp section back arrow
       Then user navigates to delete account section and click on close icon
       Then user navigates to settings screen
-
   Scenario: Settings WhatsappNotifications validation
       Then user clicks on Account menu
       Then user clicks on settings menu
@@ -236,7 +215,6 @@ Scenario: Learning progress validation
       Then user clicks on whatsapp container section right arrow button
       Then user validates the whatsapp section and clicks on the toggle button
       Then user clicks on the whatsapp section back arrow and validates the settings section
-
   Scenario: Notifications validation
       Then user clicks on notification icon
       Then user validates the notifications

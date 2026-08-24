@@ -5,11 +5,25 @@ from utils.helpers import highlight_element
 
 class CreateNewBatchPage(BasePage):
 
-	def _show_element(self, locator, duration=1200):
+	def _native_scroll_into_view(self, locator):
+		"""Scroll the element into view using the browser's native scrollIntoView.
+
+		Playwright's scroll_into_view_if_needed() can report success while
+		leaving an element sitting right at the edge of a nested scrollable
+		container (confirmed live: the create-batch date pickers sit below the
+		fold of the app's internal <main> scroll container, not the document -
+		Playwright's heuristic treated the element as already "in view" and
+		did nothing, so the later force=True click failed with "Element is
+		outside of the viewport"). The native DOM API correctly walks the real
+		scrollable ancestor chain instead.
+		"""
 		try:
-			locator.scroll_into_view_if_needed()
+			locator.evaluate("el => el.scrollIntoView({block: 'center', behavior: 'instant'})")
 		except Exception:
 			pass
+
+	def _show_element(self, locator, duration=1200):
+		self._native_scroll_into_view(locator)
 		try:
 			highlight_element(self.page, locator, duration=duration)
 		except Exception:
@@ -261,10 +275,6 @@ class CreateNewBatchPage(BasePage):
 			locator = self.page.locator(selector).first
 			try:
 				locator.wait_for(state="attached", timeout=timeout)
-				try:
-					locator.scroll_into_view_if_needed(timeout=2000)
-				except Exception:
-					pass
 				self._show_element(locator, duration=1200)
 				locator.click(force=True)
 				return True
@@ -290,10 +300,6 @@ class CreateNewBatchPage(BasePage):
 			target = locator.nth(index)
 			try:
 				target.wait_for(state="attached", timeout=timeout)
-				try:
-					target.scroll_into_view_if_needed(timeout=2000)
-				except Exception:
-					pass
 				self._show_element(target, duration=1200)
 				target.click(force=True)
 				return True
@@ -306,10 +312,6 @@ class CreateNewBatchPage(BasePage):
 			target = fallback.nth(index)
 			try:
 				target.wait_for(state="attached", timeout=timeout)
-				try:
-					target.scroll_into_view_if_needed(timeout=2000)
-				except Exception:
-					pass
 				self._show_element(target, duration=1200)
 				target.click(force=True)
 				return True

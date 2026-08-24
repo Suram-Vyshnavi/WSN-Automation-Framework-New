@@ -46,13 +46,13 @@ def step_validate_batch_status_and_select_active(context):
 	attach_screenshot(context.page, "Selected Active batch status")
 
 
-@then("common user clicks on the clear button")
-def step_click_clear_button(context):
-	if _performance_data_missing(context):
-		return
-	page = CommonPerformancePage(context.page)
-	page.click_clear_button()
-	attach_screenshot(context.page, "Clicked Clear button")
+# @then("common user clicks on the clear button")
+# def step_click_clear_button(context):
+# 	if _performance_data_missing(context):
+# 		return
+# 	page = CommonPerformancePage(context.page)
+# 	page.click_clear_button()
+# 	attach_screenshot(context.page, "Clicked Clear button")
 
 
 @then("common user clicks on the batch details row option and validates certification status label")

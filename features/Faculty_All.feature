@@ -1,8 +1,6 @@
 Feature: Faculty Login
-
   Scenario: Faculty login only
     Then current persona login should be successful
-
   Scenario: Faculty Homescreen validation
     Then user navigates through dashboard
     Then user clicks on Home menu
@@ -20,13 +18,12 @@ Feature: Faculty Login
     Then user clicks on the batches next arrow button
     Then user validates certified courses section and clicks on carousal arrow
     Then user validates My Forums section and validates the recommended forums section
-
   @faculty_only
   Scenario: Faculty Createbatch validation
     Then user navigates through dashboard
     Then user clicks on craete new batch button
     Then user validates the batch information header section and validates the batch information title
-    Then user clicks in Institute selection dropdown and select the "Test National Skill Training Instititute dev" name from list
+    Then user clicks in Institute selection dropdown and select the "MVMA" name from list
     # Then user validates the faculty pre filled name
     Then user clicks on select course selection dropdown and select the "QA-Emp skill Test-V2" course from list
     Then user clicks on Batch name input filed and enters the "Automation-Batch" name
@@ -39,7 +36,6 @@ Feature: Faculty Login
     Then user validates the difficulty level 1 , difficulty level 2 , difficulty level 3 and clicks on the difficulty level 2 radio button
     Then user clicks on the "job role or sector" input field and enters the "Automation Engineer" text and clicks on the enter button
     Then user clicks on the save and finish button and validate the batch details card
-
   Scenario: Settings ZoomConnect validation
     Then common user clicks on ZoomConnect profile icon
     Then common user clicks on settings menu
@@ -55,7 +51,6 @@ Feature: Faculty Login
     Then common user clicks on sigin button
     Then common user navigates back to to signin with zoom screen and validates the toggle button status
     Then common user click on back arrow and navigates to settings screen
-
   Scenario: Settings WhatsappNotifications validation
     Then common user clicks on ZoomConnect profile icon
     Then common user clicks on settings menu
@@ -64,7 +59,6 @@ Feature: Faculty Login
     Then common user clicks on whatsapp container section right arrow button
     Then common user validates the whatsapp section and clicks on the toggle button
     Then common user clicks on the whatsapp section back arrow and validates the settings section
-
   Scenario: Batch Details validation
     Then user clicks on first batch from Active batches list
     Then user validates the institute name and course name
@@ -80,7 +74,6 @@ Feature: Faculty Login
     Then user clicks on the faculty2 cross icon and clicks on the faculty delete button
     Then user validates the faculty delete toast message
     Then user validates the upcoming activities section and validates the create meeting button
-
   Scenario: Create meeting validation
     Then common user navigates to the batch details screen and navigates the upcoming activities section
     Then common user clicks on the create meeting button
@@ -97,20 +90,17 @@ Feature: Faculty Login
     Then common user clicks on the meeting edit icon and enters the some value to notes and clicks on the update changes
     Then common user clicks on the delete icon and clicks on the delete button on the confirmation popup
     Then common user validates the delete event toast message and lands on the calendar screen
-
   Scenario: Batch details scorecard validation
     Then user clicks on first batch from Active batches list
     Then user validates the scorecard tab and clicks on it
     Then user validates the Assessment schedule title and validates the Assessment schedule container
-
   Scenario: Batch details collaboratesetup validation
     Then user clicks on first batch from Active batches list
     Then user validates the collaboratesetup tab and clicks on it
     Then user clicks on edit button and change level from 2 to 1 and clicks on the save button
     Then user navigates to batch details collaborate setup screen and validates the selected career plans section
-
  Scenario: Batch members validation
-   Then common user clicks on "Automation-Batch-002053" batch from Active batches list
+   Then common user clicks on " QA-Emp skill Test-V2" batch from Active batches list
    Then common user validates the batch members tab and clicks on it
    Then common user clicks on the manage student button
    Then common user clicks on the invite students button and validated the batch code 
@@ -129,9 +119,8 @@ Feature: Faculty Login
    Then common user clicks on the yes button on resend otp popup and clicks on the manage students back button
    Then common user clicks on tha batch members tab and validates the first batch member card and clicks on the chat button
    Then common user clicks on the home menu from header section
-
  Scenario: Activity insights validation
-   Then common user clicks on "RC2-Final-Batch" batch from Active batches list
+  #  Then common user clicks on "RC2-Final-Batch" batch from Active batches list
    Then common user validates the activity insights tab and clicks on it
    Then common user validates the submission insights header section and validates the module column title and lesson name column title
    Then common user clicks on the students submitted i icon and validates the text
@@ -140,21 +129,17 @@ Feature: Faculty Login
    Then common user clicks on the active listening arrow icon and validates the heading section and insights table and click on the back arrow
    Then common user clicks on the LT and TA arrow icon and validates the heading section and insights table and click on the back arrow
    Then common user clicks on the pitch trainer post video arrow icon and validates the heading section and insights table and click on the back arrow
-
 Scenario: Performance screen validation
   Then common user clicks on the performance menu
   Then common user validate the course program label and clicks on the select course input field and selects  the "QA-Emp skill Test-V2-1.0.0" from the dropdown
   Then common user validates the risk category label and clicks on the select status input field and clicks on the first status from the dropdown and selects critical
   Then common user validates the batch status label and clicks on the select batch input field and select batch status as active
-  Then common user clicks on the clear button
   Then common user clicks on the batch details row option and validates certification status label
   Then common user validates the student activity label and clicks on plus icon prevideo and plus icon postvideo
   Then common user validates the student activity assesment label and clicks on the quiz plus icon
   Then common user clicks on back to dashboard button
   # Then common user clicks on the pagination next button and validates the page number
   # Then common user clicks on the perpage dropdown and validates the options and selects 25 perpage option and validates the page number
-
-
  Scenario: Chat Messages and discussions validation
    Then common user clicks on chat icon
    Then common user clicks on send message button
@@ -166,7 +151,6 @@ Scenario: Performance screen validation
    Then common user clicks on file upload button
    Then common user uploads document in to the chat and validates
    Then common user navigates to home page
-
 Scenario: Notifications validation
   Then common user clicks on notification icon
   Then common user validates the notifications

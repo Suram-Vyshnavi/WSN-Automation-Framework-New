@@ -728,6 +728,7 @@ PERSONA_PRETTY = {
     "mentor": "Mentor",
     "career_buddy": "Career Buddy",
     "institute_admin": "Institute Admin",
+    "newuser": "New User",
 }
 
 DEFAULT_FEATURE_BY_PERSONA = {
@@ -738,7 +739,23 @@ DEFAULT_FEATURE_BY_PERSONA = {
     "rm": "features/RM_All.feature",
     "mentor": "features/mentor.feature",
     "career_buddy": "features/career_buddy.feature",
+    # Registers a brand-new account each run (manual email/OTP entry - see
+    # features/steps/studentpersona/newuser_steps.py), so it needs no
+    # persona credentials and skips the shared pre-login entirely.
+    "newuser": "features/newuser.feature",
 }
+
+# (environment, persona) pairs whose feature differs from the default above.
+# The new-user journey is course-specific, and dev/prod host different courses.
+FEATURE_BY_ENV_AND_PERSONA = {
+    ("prod", "newuser"): "features/newuser_prod.feature",
+}
+
+
+def feature_for(env_name, persona):
+    return FEATURE_BY_ENV_AND_PERSONA.get(
+        (env_name.lower(), persona), DEFAULT_FEATURE_BY_PERSONA.get(persona, "features/")
+    )
 
 # Env var key fragment per persona, used to detect whether credentials exist for
 # a given (environment, persona) pair before attempting a run.
@@ -769,6 +786,10 @@ def has_credentials(env_name, persona):
     (e.g. PROD_FACULTY_USERNAME) first, then the flat fallback.
     """
     e = env_name.upper()
+    if persona == "newuser":
+        # Registers its own brand-new account each run (manual email/OTP) -
+        # no persona credentials to check for.
+        return True
     if persona == "student":
         return bool(os.getenv(f"{e}_STUDENT_USERNAME") or os.getenv("STUDENT_USERNAME"))
     if persona == "mentor":
@@ -852,7 +873,7 @@ def run_full_matrix(personas=None, envs=None, trace_on=False, headless=False):
     """
     _ensure_dotenv_loaded()
     envs = [e.strip().lower() for e in (envs or ["dev", "prod"])]
-    personas = [p.strip().lower() for p in (personas or ["student", "faculty", "rm", "mentor", "career_buddy"])]
+    personas = [p.strip().lower() for p in (personas or ["student", "faculty", "rm", "mentor", "career_buddy", "newuser"])]
 
     project_root = Path(__file__).resolve().parent
     combined_results_dir = project_root / "reports" / "allure-results-combined"
@@ -869,7 +890,7 @@ def run_full_matrix(personas=None, envs=None, trace_on=False, headless=False):
                 matrix.append((env_name, persona, "skipped"))
                 continue
 
-            feature_path = DEFAULT_FEATURE_BY_PERSONA.get(persona, "features/")
+            feature_path = feature_for(env_name, persona)
             run_results_dir = project_root / "reports" / f"allure-results-{env_name}-{persona}"
             if run_results_dir.exists():
                 shutil.rmtree(run_results_dir)

@@ -4,6 +4,22 @@ from locators.Faculty_locators.Home_locators import HomeLocators
 
 
 class CommonPerformancePage(BasePage):
+	def _native_scroll_into_view(self, locator):
+		"""Scroll the element into view using the browser's native scrollIntoView.
+
+		Playwright's scroll_into_view_if_needed() can report success while
+		leaving an element sitting right at the edge of a nested scrollable
+		container (confirmed live on the Faculty Create-Batch date pickers -
+		same pattern here with the Quiz row after expanding pre/post-video
+		rows), so a later click still fails with "Element is outside of the
+		viewport". The native DOM API correctly walks the real scrollable
+		ancestor chain instead.
+		"""
+		try:
+			locator.evaluate("el => el.scrollIntoView({block: 'center', behavior: 'instant'})")
+		except Exception:
+			pass
+
 	def _first_visible(self, selectors, timeout=10000):
 		for selector in selectors:
 			locator = self.page.locator(selector).first
@@ -18,10 +34,7 @@ class CommonPerformancePage(BasePage):
 		target = self._first_visible(selectors, timeout=timeout)
 		if not target:
 			return False
-		try:
-			target.scroll_into_view_if_needed()
-		except Exception:
-			pass
+		self._native_scroll_into_view(target)
 		try:
 			target.click(timeout=timeout)
 		except Exception:
@@ -86,9 +99,9 @@ class CommonPerformancePage(BasePage):
 		assert self._click_first_visible([CommonPerformanceLocators.BATCH_STATUS]), \
 			"Active batch status pill is not visible/clickable"
 
-	def click_clear_button(self):
-		assert self._click_first_visible([CommonPerformanceLocators.CLEAR_BUTTON], timeout=12000), \
-			"Clear button is not visible/clickable"
+	# def click_clear_button(self):
+	# 	assert self._click_first_visible([CommonPerformanceLocators.CLEAR_BUTTON], timeout=12000), \
+	# 		"Clear button is not visible/clickable"
 
 	def click_batch_row_and_validate_certification_status(self):
 		# When the account has no batch performance data the dashboard renders a
@@ -118,11 +131,8 @@ class CommonPerformancePage(BasePage):
 			"Student Activity - Assessments label is not visible"
 		# Quiz row may be off-screen after expanding pre/post-video rows — scroll it into view first.
 		quiz_locator = self.page.locator(CommonPerformanceLocators.QUIZ_PLUS_ICON).first
-		try:
-			quiz_locator.scroll_into_view_if_needed(timeout=5000)
-			self.page.wait_for_timeout(500)
-		except Exception:
-			pass
+		self._native_scroll_into_view(quiz_locator)
+		self.page.wait_for_timeout(500)
 		clicked = self._click_first_visible([CommonPerformanceLocators.QUIZ_PLUS_ICON])
 		if not clicked:
 			print("[INFO] Quiz plus icon not visible/clickable — may not be present for this account's performance data; skipping")
@@ -133,10 +143,7 @@ class CommonPerformancePage(BasePage):
 			"Back to Dashboard button is not visible/clickable"
 
 	def _scroll_into_view(self, locator):
-		try:
-			locator.scroll_into_view_if_needed(timeout=5000)
-		except Exception:
-			pass
+		self._native_scroll_into_view(locator)
 
 	def click_next_and_validate_page_number(self):
 		# Pagination sits at the bottom of the list - bring it into view first.

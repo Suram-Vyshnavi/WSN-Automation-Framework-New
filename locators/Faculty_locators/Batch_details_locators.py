@@ -1,5 +1,5 @@
 class BatchDetailsLocators:
-    FIRST_BATCH_CARD="(//td[contains(@class,'batch-list-content-bold')])[1]"
+    FIRST_BATCH_CARD="//span[contains(@class,'body-large') and contains(text(),'QA-Emp skill Test-V2')]"
     BATCH_NAME="//div[@class='batch-name-div']"
     COURSE_NAME="//h4[@class='h4 bold course-name']"
     COURSE_TIMELINE_SECTION="(//div[@class='timeline '])[1]"

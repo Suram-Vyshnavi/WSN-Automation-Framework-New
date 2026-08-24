@@ -12,7 +12,13 @@ class MyCareerAdvisorPage(BasePage):
         super().__init__(page)
 
     def _navigate_to_my_career_advisor(self):
-        """Navigate from dashboard to My Career Advisor page."""
+        """Navigate from dashboard to My Career Advisor page.
+
+        Returns True if the account has already completed the Passions/
+        Aptitudes onboarding before (the card routes straight to
+        matched-roles instead of the fresh onboarding flow), so the caller
+        can skip the onboarding-only steps.
+        """
         from pages.studentpersona.home_dashboard_page import HomeDashboardPage
         if HomeDashboardPage._shared_dashboard_url:
             self.page.goto(HomeDashboardPage._shared_dashboard_url, wait_until="domcontentloaded", timeout=60000)
@@ -30,6 +36,13 @@ class MyCareerAdvisorPage(BasePage):
                 print("Handled 'Got It' popup")
         except Exception:
             pass
+
+        self.page.wait_for_timeout(1500)
+        if "matched-roles" in self.page.url:
+            print("[INFO] Account already completed Career Advisor onboarding "
+                "(landed on matched-roles directly); skipping Passions/Aptitudes steps.")
+            return True
+        return False
 
     def validate_passion_header_and_click_review(self):
         """Validate Passions header is visible, click to expand, then click PASSION_REVIEW_BUTTON."""

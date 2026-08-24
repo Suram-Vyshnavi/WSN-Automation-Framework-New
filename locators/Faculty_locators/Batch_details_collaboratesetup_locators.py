@@ -1,5 +1,5 @@
 class BatchDetailsCollaboratesetupLocators:
-    FIRST_BATCH_CARD = "(//td[@class='ant-table-cell batch-list-content-bold'])[1]"
+    FIRST_BATCH_CARD = "//span[contains(@class,'body-large') and contains(text(),'QA-Emp skill Test-V2')]"
     BATCH_NAME = "//div[@class='batch-name-div']"
     COLLABORATESETUP_TAB="//p[contains(text(), 'Collaborate Setup')]"
     COLLABORATE_TITLE ="//h4[contains(text(), 'Customise collaborate activity')]"

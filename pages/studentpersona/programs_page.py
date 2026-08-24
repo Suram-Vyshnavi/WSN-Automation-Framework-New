@@ -104,7 +104,6 @@ class ProgramsPage(BasePage):
         print("Offered by Wadhwani Foundation header validated")
 
     def click_offered_by_wadhwani_foundation_tab(self):
-        from locators.student_persona_locators.new_homepage_locators import NewHomepageLocators
         # Click Offered by Wadhwani Foundation card arrow
         self.page.locator(programsLocators.RECOMMENDED_PROGRAM_CARD_8_ARROW_BUTTON).wait_for(state="visible", timeout=15000)
         highlight_element(self.page, programsLocators.RECOMMENDED_PROGRAM_CARD_8_ARROW_BUTTON)
@@ -119,13 +118,3 @@ class ProgramsPage(BasePage):
         highlight_element(self.page, programsLocators.CLOSE_MODAL_BUTTON)
         self.page.locator(programsLocators.CLOSE_MODAL_BUTTON).click()
         print("Closed modal")
-        # Navigate back to programs listing
-        self._navigate_to_programs()
-        # Open header profile menu and logout
-        self.page.locator(NewHomepageLocators.HEADER_PROFILE_MENU_ICON).wait_for(state="attached", timeout=15000)
-        self.page.locator(NewHomepageLocators.HEADER_PROFILE_MENU_ICON).click(force=True)
-        print("Clicked Header Profile Menu icon")
-        self.page.locator(NewHomepageLocators.LOG_OUT).wait_for(state="visible", timeout=15000)
-        highlight_element(self.page, NewHomepageLocators.LOG_OUT)
-        self.page.locator(NewHomepageLocators.LOG_OUT).click()
-        print("Clicked Logout")

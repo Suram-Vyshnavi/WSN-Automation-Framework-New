@@ -168,11 +168,17 @@ class ChatPage(BasePage):
 
     def click_accounts_menu(self):
         """Open Accounts menu from the student home screen."""
+        # A modal left open by a preceding scenario (e.g. Validate Programs'
+        # enroll-confirmation popup) can still have its mask in the DOM. A
+        # force=True click then "succeeds" with no exception but actually
+        # lands on the mask instead of the button underneath, so the dropdown
+        # silently never opens - clear any such leftover modal first.
+        self._close_visible_modal_if_any()
         self._dismiss_marketing_overlay()
         clicked = self._click_first_visible([
             Messages_and_discussionsLocators.ACCOUNTS_MENU,
             "//button[@aria-label='Accounts menu']",
-        ], timeout=20000)
+        ], timeout=30000)
         assert clicked, "Accounts menu is not visible/clickable"
         attach_screenshot(self.page, "Accounts Menu Clicked")
 
@@ -185,7 +191,9 @@ class ChatPage(BasePage):
             "//*[contains(normalize-space(),'Messages') and contains(normalize-space(),'Discussions')]",
         ], timeout=20000)
         if not clicked:
-            # Retry once: overlay may have closed the dropdown before selection.
+            # Retry once: overlay may have closed the dropdown before selection,
+            # or the accounts-menu click above landed on a leftover modal mask
+            # instead of actually opening the dropdown.
             self._dismiss_marketing_overlay()
             self.click_accounts_menu()
             clicked = self._click_first_visible([
