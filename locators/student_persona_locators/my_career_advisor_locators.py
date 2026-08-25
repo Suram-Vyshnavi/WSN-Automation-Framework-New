@@ -1,12 +1,9 @@
-class mycareeradvisorLocators:
+class MyCareerAdvisorLocators:
+    GOT_IT_POPUP_BUTTON = "//span[text()='Got It']"
     HOME = "//div[text()='Home']"
-    VALIDATE_WELCOME_HEADER = "//h1[text()='Welcome to']"
-    VALIDATE_WADHWANI_SKILLING_HEADER = "//h1[text()='Wadhwani Skilling']"
-    VALIDATE_EXPLORE_THINGS_TO_DO_HEADER = "//h4[text()='Explore things to do']"
     MY_CAREER_ADVISOR = "//h6[text()='My Career Advisor']"
     PASSIONS_HEADER = "//h4[text()='Passions']"
     PASSION_REVIEW_BUTTON = "//button[text()='Review']"
-    PASSION_SELECTED_ITEMS = "//div[@class='selected-items']"
     ARTS_AND_DESIGN = "//*[contains(text(),'Arts & Design')]"
     DRAWING_AND_ILLUSTRATION_CHECKBOX = "//input[@id='drawingAndIllustration']"
     # The visible checkbox button is the <label>; clicking the hidden <input>
@@ -17,10 +14,7 @@ class mycareeradvisorLocators:
     APTITUDE_REVIEW_BUTTON = "(//button[text()='Review'])[1]"
     REATTEMPT_BUTTON = "//button[text()='Reattempt']"
     SLIDER_CHOOSE_BUTTON = "(//button[text()='Choose'])[2]"
-    SLIDER_QUESTION_SEQUENCE= "//p[@class='para1 regular slider-sequence' and contains(text(),'1')]"
     SLIDER_HANDLE = "//div[@class='questionnaire-slider-container'][1]//div[contains(@class,'ant-slider-handle')]"
-    SLIDER_SEQUENCE_9 = "//div[@class='questionnaire-slider-container'][1]//span[text()='9']"
-    SLIDER_SEQUENCE_10 = "//div[@class='questionnaire-slider-container'][1]//span[text()='10']"
     UPDATE_BUTTON = "//button[text()='Update']"
     GO_TO_MATCHED_ROLES_BUTTON = "//button[text()='Go to Matched Roles']"
     WITHOUT_COLLEGE_DEGREE = "//span[text()='Without College Degree']"

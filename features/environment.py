@@ -1,404 +1,338 @@
-from playwright.sync_api import sync_playwright
+"""Behave hooks: browser lifecycle, shared pre-login and per-scenario reset.
+
+The run logs in once in `before_all` and every scenario then starts from a
+known-good home page. `before_scenario` is responsible for making that true
+again after whatever the previous scenario left behind - an open modal, a
+stray tab, a logged-out session or even a crashed browser tab.
+"""
+
 import os
+
+from playwright.sync_api import sync_playwright
+
+from locators.student_locators.login_locators import LoginLocators
+from pages.base_page import BasePage
 from pages.login_page import LoginPage
 from utils.config import Config
+from utils.helpers import attach_screenshot
+from utils.logger import log
+
+ACCOUNTS_MENU = "//button[@aria-label='Accounts menu']"
+
+# The "Help us personalize your journey" modal re-appears on every dashboard
+# load and overlays the header, intercepting the next scenario's first click.
+PERSONALIZE_POPUP = (
+    "//*[contains(normalize-space(),'personalize your journey') "
+    "or contains(normalize-space(),'personalise your journey')]"
+)
+PERSONALIZE_POPUP_CLOSE = [
+    "//div[contains(@class,'ant-modal')]//button[contains(@class,'ant-modal-close')]",
+    "//button[normalize-space()='Skip' or normalize-space()='Maybe Later' "
+    "or normalize-space()='Close' or normalize-space()='No, Thanks']",
+]
+LOGGED_OUT_URL_MARKERS = ("login", "/guest", "sign-in", "signin")
+
+BROWSER_ARGS = [
+    "--start-maximized",
+    "--use-fake-ui-for-media-stream",      # auto-deny the camera/mic prompt
+    "--use-fake-device-for-media-stream",  # use a fake device instead of prompting
+]
+
+
+# ----------------------------------------------------------------------------
+# Helpers
+# ----------------------------------------------------------------------------
+def _page(context):
+    """A BasePage bound to the current tab, for the shared UI helpers."""
+    return BasePage(context.page)
 
 
 def _is_newuser_only_run(context):
-    """True when every requested feature path is newuser.feature.
+    """True when every requested feature path is a new-user feature.
 
-    newuser.feature registers its own brand-new account via a manual
-    email/OTP flow, so it must not go through the shared persona pre-login
-    (which assumes an existing, already-verified account).
+    Those features register a brand-new account through a manual email/OTP
+    flow, so they must not go through the shared persona pre-login (which
+    assumes an existing, already-verified account).
     """
-    try:
-        paths = getattr(context.config, "paths", []) or []
-        return bool(paths) and all("newuser" in os.path.basename(p).lower() for p in paths)
-    except Exception:
-        return False
+    paths = getattr(context.config, "paths", None) or []
+    return bool(paths) and all("newuser" in os.path.basename(p).lower() for p in paths)
 
 
-def before_all(context):
-    """Setup browser and login once before all scenarios"""
-    persona = Config.get_persona()
-    context.persona = persona
-    context.skip_shared_login = _is_newuser_only_run(context)
+def _new_browser_context(context):
+    """A browser context with every permission denied and no fixed viewport."""
+    return context.browser.new_context(no_viewport=True, permissions=[])
 
-    slow_mo_ms = int(os.getenv("SLOW_MO", "0"))
-    headless = os.getenv("HEADLESS", "false").lower() in ("1", "true", "yes")
 
-    context.playwright = sync_playwright().start()
-    context.browser = context.playwright.chromium.launch(
-        headless=headless, slow_mo=slow_mo_ms,
-        args=[
-            '--start-maximized',
-            '--use-fake-ui-for-media-stream',  # Auto-deny camera/mic prompts
-            '--use-fake-device-for-media-stream'  # Use fake device instead of prompting
-        ]
-    )
-    context.context = context.browser.new_context(
-        no_viewport=True,
-        permissions=[]  # Deny all permissions (camera, microphone, notifications, etc.)
-    )
-    # Check if tracing should be enabled
-    context._trace_on = os.getenv("TRACE_ON", "false").lower() in ("1", "true", "yes")
-    
-    context.page = context.context.new_page()
-
-    if context.skip_shared_login:
-        print("newuser.feature-only run detected - skipping the shared persona pre-login "
-              "(this feature registers its own account via a manual email/OTP flow)")
+def _start_tracing(context):
+    """Start a Playwright trace for this scenario when TRACE_ON is set."""
+    context.trace_enabled = False
+    if not Config.TRACE_ON:
         return
+    try:
+        context.context.tracing.start(screenshots=True, snapshots=True, sources=True)
+        context.trace_enabled = True
+    except Exception as error:
+        log.warning("Could not start tracing: %s", error)
 
+
+def _login(context, persona):
+    """Run the login flow for `persona` and confirm it left the login page."""
     username, password = Config.get_credentials(persona)
 
-    # Login as precondition - happens once for all scenarios.
-    # Keep student persona on the existing student login page object flow.
     if persona == "student":
         login_page = LoginPage(context.page)
-        login_page.open(Config.BASE_URL)
-        login_page.dismiss_popup_if_present()
-        login_page.click_get_started()
-        login_page.click_continue_with_email()
-        login_page.login(username, password)
+    else:
+        from pages.common_pages.common_login_page import CommonLoginPage
+        from locators.common_locators.common_login_locators import CommonLoginLocators
+
+        login_page = CommonLoginPage(context.page, login_locators=CommonLoginLocators)
+
+    login_page.open(Config.BASE_URL)
+    login_page.dismiss_popup_if_present()
+    login_page.click_get_started()
+    login_page.click_continue_with_email()
+    login_page.login(username, password)
+
+    if persona == "student":
         login_page.wait_for_home_page()
     else:
-        from locators.Common_locators.common_login_locators import CommonLoginLocators
-        from pages.Common_pages.Login_page import CommonLoginPage
-
-        context.login_locators = CommonLoginLocators
-        login_page = CommonLoginPage(context.page, login_locators=context.login_locators)
-        login_page.open(Config.BASE_URL)
-        login_page.dismiss_popup_if_present()
-        login_page.click_get_started()
-        login_page.click_continue_with_email()
-        login_page.login(username, password)
         context.page.wait_for_load_state("networkidle", timeout=15000)
-        # Wait until browser navigates away from the login page
         context.page.wait_for_function(
-            "() => !window.location.href.includes('login')",
-            timeout=20000
-        )
+            "() => !window.location.href.includes('login')", timeout=20000)
 
-    print(f"Login completed for persona '{persona}' - ready to run scenarios")
 
 def _ensure_live_page(context):
-    """Guarantee context.page points at a usable page.
+    """Guarantee `context.page` points at a usable tab.
 
-    A scenario can crash the Chromium tab (or the whole context), after which
-    every later scenario would fail with 'Target page, context or browser has
-    been closed' because re-login kept reusing the dead page. Recreate the page
-    — and the context if that is gone too — so one crash no longer cascades into
-    the rest of the run.
+    A scenario can crash the Chromium tab (or the whole browser context). Every
+    later scenario would then fail with "Target page, context or browser has
+    been closed", so the tab - and if needed the context - is rebuilt here so a
+    single crash does not cascade through the rest of the run.
     """
     try:
         if getattr(context, "page", None) is not None and not context.page.is_closed():
             return True
-    except Exception:
-        pass
+    except Exception as error:
+        log.debug("Could not inspect the current page, assuming it is dead: %s", error)
 
-    # Page is dead: try a fresh page in the existing context first.
     try:
         context.page = context.context.new_page()
         return True
-    except Exception:
-        pass
+    except Exception as error:
+        log.debug("Could not open a new page in the existing context: %s", error)
 
-    # Context/browser is gone too: rebuild the context (and a page) from scratch.
     try:
-        context.context = context.browser.new_context(no_viewport=True, permissions=[])
+        context.context = _new_browser_context(context)
         context.page = context.context.new_page()
         return True
-    except Exception as e:
-        print(f"Could not recreate a live page after crash: {e}")
+    except Exception as error:
+        log.error("Could not recreate a live page after a crash: %s", error)
         return False
 
 
-def _re_login(context):
-    """Re-login after session loss (e.g. after logout step) or a tab crash."""
-    persona = getattr(context, 'persona', 'student')
-    username, password = Config.get_credentials(persona)
-    if not _ensure_live_page(context):
-        print("Re-login aborted: no live page/browser available")
-        return
+def _page_is_dead(context):
     try:
-        from locators.student_locators.login_locators import LoginLocators
-        login_page = LoginPage(context.page)
-        login_page.open(Config.BASE_URL)
-        login_page.dismiss_popup_if_present()
+        return getattr(context, "page", None) is None or context.page.is_closed()
+    except Exception:
+        return True
 
-        # If the session is still authenticated, opening the guest URL just
-        # redirects to the home dashboard and there is no "Get Started" button —
-        # don't waste 20s waiting for it (and don't log a spurious failure).
-        # Treat that as already-logged-in and return.
-        try:
-            context.page.locator(LoginLocators.GET_STARTED_BUTTON).wait_for(state="visible", timeout=5000)
-        except Exception:
-            print(f"Session still authenticated (persona={persona}) — skipping full re-login")
+
+def _re_login(context):
+    """Log in again after a session loss (logout step) or a tab crash."""
+    persona = getattr(context, "persona", Config.DEFAULT_PERSONA)
+    if not _ensure_live_page(context):
+        log.error("Re-login aborted: no live page/browser available")
+        return
+
+    page = _page(context)
+    try:
+        LoginPage(context.page).open(Config.BASE_URL)
+        LoginPage(context.page).dismiss_popup_if_present()
+
+        # When the session is still valid the guest URL redirects straight to
+        # the dashboard and there is no "Get Started" button - so treat a
+        # missing button as "already logged in" instead of waiting it out.
+        if not page.is_visible(LoginLocators.GET_STARTED_BUTTON, timeout=5000):
+            log.info("Session still authenticated (persona=%s) - skipping full re-login", persona)
             return
 
-        login_page.click_get_started()
-        login_page.click_continue_with_email()
-        login_page.login(username, password)
-        login_page.wait_for_home_page()
-        print(f"Re-login successful for scenario (persona={persona})")
-    except Exception as e:
-        print(f"Re-login failed: {e}")
+        _login(context, persona)
+        log.info("Re-login successful (persona=%s)", persona)
+    except Exception as error:
+        log.error("Re-login failed: %s", error)
+
+
+def _dismiss_personalize_popup(context):
+    """Close the personalize-journey modal. True when it is gone afterwards."""
+    page = _page(context)
+    if not page.is_visible(PERSONALIZE_POPUP, timeout=1000):
+        return True
+    page.click_first_visible(PERSONALIZE_POPUP_CLOSE, "personalize-journey popup", timeout=1500)
+    page.pause(500)
+    return not page.is_visible(PERSONALIZE_POPUP, timeout=1000)
 
 
 def _student_go_home(context):
-    """Return the student to the home dashboard in the SAME tab — no logout/login.
+    """Return the student to the home dashboard in the SAME tab - no re-login.
 
-    The student new-dashboard scenarios keep a valid session across scenarios, so
-    re-logging in is both unnecessary and flaky. Navigating to the stored home URL
-    (or BASE_URL, which redirects to /home when authenticated) reliably lands on
-    home so menu-based scenarios (Learning Progress, Settings) find the Accounts
-    menu — all within one tab.
+    The student scenarios keep a valid session between scenarios, so logging in
+    again is both unnecessary and flaky. Navigating to the stored dashboard URL
+    lands on home reliably; the header check afterwards makes sure no leftover
+    modal or half-loaded SPA view is covering the Accounts menu, which would
+    otherwise turn one broken scenario into a run of "menu not clickable"
+    failures.
     """
-    try:
-        from pages.studentpersona.home_dashboard_page import HomeDashboardPage
-        url = HomeDashboardPage._shared_dashboard_url
-        if not url:
-            base = Config.BASE_URL or ""
-            # BASE_URL is the /guest landing; the authenticated dashboard is /home.
-            url = base.replace("/guest", "/home") if "/guest" in base else base
+    from pages.student_persona.student_persona_page import StudentPersonaPage
 
-        # A prior scenario can leave a stray tab open (courses/pitch/certificate
-        # open in a new tab). Close them so context.page is the only/front tab and
-        # the next scenario doesn't act on a background page.
+    page = _page(context)
+    url = StudentPersonaPage.shared_dashboard_url
+    if not url:
+        base = Config.BASE_URL or ""
+        # BASE_URL is the /guest landing; the authenticated dashboard is /home.
+        url = base.replace("/guest", "/home") if "/guest" in base else base
+
+    # A previous scenario can leave a stray tab open (courses/pitch/certificate
+    # open in one), which would make the next scenario act on a background page.
+    page.close_extra_tabs()
+
+    for _ in range(2):
         try:
-            for pg in list(context.context.pages):
-                if pg is not context.page and not pg.is_closed():
-                    pg.close()
-        except Exception:
-            pass
+            page.open_url(url)
+        except Exception as error:
+            log.warning("Could not navigate to the student home page: %s", error)
+            break
+        page.pause(1000)
+        page.press_escape()
+        popup_cleared = _dismiss_personalize_popup(context)
+        if popup_cleared and page.is_visible(ACCOUNTS_MENU, timeout=8000):
+            return
+        # Retry: a fresh navigation also clears a stuck popup.
 
-        # Navigate home, then confirm the header actually rendered before handing
-        # the page to the next scenario. A bare goto used to be enough, but when a
-        # previous scenario left a modal/drawer open (e.g. notifications panel) or
-        # got stuck mid-SPA, that overlay intercepts the next scenario's first
-        # click on the Accounts menu / notification icon — cascading a single
-        # broken scenario into a run of "menu is not visible/clickable" failures.
-        # Reload once, then re-login as a last resort, so the corruption can't leak.
-        accounts_menu = "//button[@aria-label='Accounts menu']"
-        # The "Help us personalize your journey" popup re-appears whenever the
-        # dashboard is (re)loaded and overlays the header, intercepting the next
-        # scenario's first click. Dismiss it after every navigation.
-        personalize_popup = (
-            "//*[contains(normalize-space(),'personalize your journey') "
-            "or contains(normalize-space(),'personalise your journey')]"
-        )
-        for _ in range(2):
-            context.page.goto(url, wait_until="domcontentloaded", timeout=60000)
-            context.page.wait_for_timeout(1000)
-            # Dismiss any leftover modal/drawer that would intercept header clicks.
-            try:
-                context.page.keyboard.press("Escape")
-            except Exception:
-                pass
-            # Explicitly close the personalize-journey popup if it rendered.
-            popup_visible = False
-            try:
-                popup_visible = context.page.locator(personalize_popup).first.is_visible()
-                if popup_visible:
-                    for close_sel in [
-                        "//div[contains(@class,'ant-modal')]//button[contains(@class,'ant-modal-close')]",
-                        "//button[normalize-space()='Skip' or normalize-space()='Maybe Later' or normalize-space()='Close' or normalize-space()='No, Thanks']",
-                    ]:
-                        try:
-                            context.page.locator(close_sel).first.click(timeout=1500)
-                            break
-                        except Exception:
-                            continue
-                    context.page.wait_for_timeout(500)
-                    popup_visible = context.page.locator(personalize_popup).first.is_visible()
-            except Exception:
-                pass
+    log.warning("Student home header not reachable after reload - re-logging in")
+    _re_login(context)
 
-            # Only hand off once the header is reachable AND the popup is no longer
-            # overlaying it; otherwise reload (a refresh reliably clears the popup).
-            try:
-                context.page.locator(accounts_menu).first.wait_for(state="visible", timeout=8000)
-                if not popup_visible:
-                    return  # Home is ready with a reachable, unobstructed header.
-            except Exception:
-                pass
-            # Retry with a fresh navigation (also clears a stuck popup).
 
-        # Header never appeared after navigate + reload — the session is likely
-        # logged out or the view crashed. Re-login for a guaranteed clean state.
-        print("Student home header not reachable after reload — re-logging in")
+def _other_persona_go_home(context):
+    """Home reset + re-login recovery for the faculty/RM-style personas."""
+    page = _page(context)
+    if any(marker in page.current_url() for marker in LOGGED_OUT_URL_MARKERS):
         _re_login(context)
-    except Exception as e:
-        print(f"Student home navigation issue: {e}")
+        return
+
+    page.click_first_visible([LoginLocators.HOME_BUTTON], "Home menu", timeout=8000)
+    page.wait_for_load("domcontentloaded", timeout=10000)
+
+    # A scenario that died deep in a sub-view can leave the Home button
+    # unreachable, so confirm the Accounts menu entry point is really there.
+    if not page.is_visible(ACCOUNTS_MENU, timeout=8000):
+        _re_login(context)
+
+
+# ----------------------------------------------------------------------------
+# Behave hooks
+# ----------------------------------------------------------------------------
+def before_all(context):
+    """Launch the browser and log in once for the whole run."""
+    context.persona = Config.get_persona()
+    context.skip_shared_login = _is_newuser_only_run(context)
+
+    context.playwright = sync_playwright().start()
+    context.browser = context.playwright.chromium.launch(
+        headless=Config.HEADLESS, slow_mo=Config.SLOW_MO, args=BROWSER_ARGS)
+    context.context = _new_browser_context(context)
+    context.page = context.context.new_page()
+
+    if context.skip_shared_login:
+        log.info("New-user-only run detected - skipping the shared persona pre-login "
+                 "(this feature registers its own account via a manual email/OTP flow)")
+        return
+
+    _login(context, context.persona)
+    log.info("Login completed for persona '%s' - ready to run scenarios", context.persona)
 
 
 def before_feature(context, feature):
-    """Start every feature with a clean new-user page object.
+    """Start every feature with clean new-user page-object state.
 
-    The new-user page object carries state across steps (course content URL,
-    the self-serve activity frame) and is held on NewUserPage itself, because
-    behave discards context attributes at the end of each scenario - that is
-    what lets newuser_prod.feature run one registration journey across several
-    scenarios. Resetting it here keeps a feature from leaking into the next.
+    The new-user page objects keep state on the class (course URL, activity
+    frames, active-flow flags) because Behave discards `context` attributes
+    between scenarios - that is what lets one registration journey span several
+    scenarios. Resetting per feature stops one feature leaking into the next.
     """
-    try:
-        from pages.studentpersona.new_user_page import NewUserPage
-        NewUserPage.reset_shared_state()
-    except Exception:
-        pass
-
-    # Same reasoning for the BusinessPlanner-LTI journey, which additionally
-    # carries the "this flow is the active one" flag that routes the shared
-    # ordinal button step (see newuser_steps.py).
-    try:
-        from pages.studentpersona.business_planner_page import BusinessPlannerPage
-        BusinessPlannerPage.reset_shared_state()
-    except Exception:
-        pass
-
-    # ...and for the Dev-Think LTI journey, which carries the same flag plus
-    # the two activity iframes and the assessment's tallies.
-    try:
-        from pages.studentpersona.think_activity_page import ThinkActivityPage
-        ThinkActivityPage.reset_shared_state()
-    except Exception:
-        pass
+    for module_name, class_name in (
+        ("pages.student_persona.new_user_page", "NewUserPage"),
+        ("pages.student_persona.business_planner_page", "BusinessPlannerPage"),
+        ("pages.student_persona.think_activity_page", "ThinkActivityPage"),
+    ):
+        try:
+            module = __import__(module_name, fromlist=[class_name])
+            getattr(module, class_name).reset_shared_state()
+        except Exception as error:
+            log.debug("Could not reset %s state: %s", class_name, error)
 
 
 def before_scenario(context, scenario):
-    """Navigate back to home dashboard before each scenario, then start tracing if enabled"""
+    """Put the browser back on a usable home page, then start tracing."""
+    # New-user runs drive navigation from scratch in their own Given step.
+    # Their page-object state must survive scenario boundaries, so it is reset
+    # per feature (see before_feature) rather than here.
     if getattr(context, "skip_shared_login", False):
-        # No shared pre-login happened (see before_all) - the scenario's own
-        # Given step drives navigation from scratch, so skip the home/re-login
-        # dance entirely. The new-user page object is deliberately NOT reset
-        # here: newuser_prod.feature splits one registration journey across
-        # scenarios, so its state has to survive scenario boundaries (it is
-        # reset per feature in before_feature instead).
-        try:
-            if context._trace_on:
-                context.context.tracing.start(screenshots=True, snapshots=True, sources=True)
-                context._trace_enabled = True
-            else:
-                context._trace_enabled = False
-        except Exception:
-            context._trace_enabled = False
+        _start_tracing(context)
         return
 
-    # Step 0: If a prior scenario crashed the tab/context, rebuild it and
-    # re-login immediately so the rest of the run is not lost to a cascade of
-    # 'Target page, context or browser has been closed' errors.
-    page_dead = True
-    try:
-        page_dead = getattr(context, 'page', None) is None or context.page.is_closed()
-    except Exception:
-        page_dead = True
-    if page_dead:
+    # A previous scenario may have crashed the tab; rebuild and re-login so the
+    # rest of the run is not lost. A fresh login already lands on home.
+    if _page_is_dead(context):
         if _ensure_live_page(context):
             _re_login(context)
-        # Skip the home-navigation block below: a fresh login already lands home.
-        try:
-            if context._trace_on:
-                context.context.tracing.start(screenshots=True, snapshots=True, sources=True)
-                context._trace_enabled = True
-            else:
-                context._trace_enabled = False
-        except Exception:
-            context._trace_enabled = False
+        _start_tracing(context)
         return
 
-    if getattr(context, 'page', None) is not None:
-        # Step 1: Dismiss any open modal/dialog by pressing Escape
-        try:
-            context.page.keyboard.press("Escape")
-        except Exception:
-            pass
+    _page(context).press_escape()
+    if getattr(context, "persona", Config.DEFAULT_PERSONA) == "student":
+        _student_go_home(context)
+    else:
+        _other_persona_go_home(context)
 
-        # Student new-dashboard: never logout/login between scenarios. Just return
-        # to the home dashboard in the same tab so the menu-based scenarios work.
-        if getattr(context, 'persona', 'student') == 'student':
-            _student_go_home(context)
-        else:
-            _before_scenario_other_personas(context)
-
-    try:
-        if context._trace_on:
-            context.context.tracing.start(screenshots=True, snapshots=True, sources=True)
-            context._trace_enabled = True
-        else:
-            context._trace_enabled = False
-    except Exception:
-        context._trace_enabled = False
-
-
-def _before_scenario_other_personas(context):
-    """Home-reset + re-login recovery for non-student personas (faculty/rm/…)."""
-    # Check if we've been logged out (e.g. by a logout step)
-    try:
-        current_url = context.page.url
-    except Exception:
-        current_url = ""
-
-    logged_out = any(x in current_url for x in ('login', '/guest', 'sign-in', 'signin'))
-    if logged_out:
-        _re_login(context)
-        return
-
-    # Navigate to home dashboard via the HOME nav button
-    try:
-        from locators.student_locators.login_locators import LoginLocators
-        home_btn = context.page.locator(LoginLocators.HOME_BUTTON)
-        home_btn.wait_for(state="visible", timeout=8000)
-        home_btn.click()
-        context.page.wait_for_load_state("domcontentloaded", timeout=10000)
-    except Exception:
-        pass
-
-    # Verify the home dashboard actually rendered. A prior scenario that died
-    # deep in a sub-view can leave the Home button unreachable, so confirm the
-    # Accounts-menu entry point is present; if not, re-login for a clean state.
-    try:
-        context.page.locator(
-            "//button[@aria-label='Accounts menu']"
-        ).first.wait_for(state="visible", timeout=8000)
-    except Exception:
-        _re_login(context)
+    _start_tracing(context)
 
 
 def after_step(context, step):
-    """Attach a screenshot + current URL whenever a step fails, so a failure
-    can be diagnosed from the Allure report without needing to reproduce it
-    live."""
+    """On failure, attach a screenshot and the URL so the report is diagnosable."""
     if step.status != "failed":
         return
     try:
-        from utils.helpers import attach_screenshot
         page = getattr(context, "page", None)
         if page is not None and not page.is_closed():
             attach_screenshot(page, f"FAILURE: {step.name}", dedupe=False)
-            print(f"[FAILURE] Step '{step.name}' failed at URL: {page.url}")
-    except Exception as e:
-        print(f"Could not capture failure screenshot: {e}")
+            log.error("Step '%s' failed at URL: %s", step.name, page.url)
+    except Exception as error:
+        log.error("Could not capture failure screenshot: %s", error)
 
 
 def after_scenario(context, scenario):
-    """Stop tracing and save trace file for each scenario"""
+    """Save this scenario's Playwright trace, when tracing is on."""
+    if not getattr(context, "trace_enabled", False):
+        return
     try:
-        if getattr(context, "_trace_enabled", False):
-            traces_dir = os.path.join(os.getcwd(), "reports", "traces")
-            os.makedirs(traces_dir, exist_ok=True)
-            # sanitize scenario name for filename
-            name = "".join(c if c.isalnum() or c in (" ","-","_") else "_" for c in scenario.name).strip().replace(" ","_")
-            trace_file = os.path.join(traces_dir, f"{name}.zip")
-            context.context.tracing.stop(path=trace_file)
-    except Exception:
-        pass
+        traces_dir = os.path.join(os.getcwd(), "reports", "traces")
+        os.makedirs(traces_dir, exist_ok=True)
+        safe_name = "".join(
+            char if char.isalnum() or char in (" ", "-", "_") else "_"
+            for char in scenario.name
+        ).strip().replace(" ", "_")
+        context.context.tracing.stop(path=os.path.join(traces_dir, f"{safe_name}.zip"))
+    except Exception as error:
+        log.warning("Could not save the scenario trace: %s", error)
+
 
 def after_all(context):
-    """Cleanup browser once after all scenarios"""
-    try:
-        context.context.close()
-        context.browser.close()
-        context.playwright.stop()
-    except Exception:
-        pass
+    """Close the browser once every scenario has run."""
+    for closer in ("context", "browser", "playwright"):
+        target = getattr(context, closer, None)
+        if target is None:
+            continue
+        try:
+            target.stop() if closer == "playwright" else target.close()
+        except Exception as error:
+            log.debug("Could not close %s: %s", closer, error)

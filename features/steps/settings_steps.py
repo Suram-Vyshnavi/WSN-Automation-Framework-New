@@ -1,6 +1,23 @@
 from behave import then
 from pages.settings_page import SettingsPage
 from utils.helpers import attach_screenshot
+from utils.config import Config
+from utils.logger import log
+
+
+def _zoom_credentials_or_skip(context):
+    """Return the Zoom credentials, or None when they are not configured.
+
+    The Zoom sandbox login is a real third-party account, so it lives in
+    ZOOM_USERNAME / ZOOM_PASSWORD only. When it is not set up, the sign-in
+    steps are skipped with an actionable message rather than failing.
+    """
+    if Config.has_credentials("zoom"):
+        return Config.get_credentials("zoom")
+    log.warning("Zoom credentials are not configured (set ZOOM_USERNAME / ZOOM_PASSWORD) "
+                "- skipping the zoom.us sign-in steps.")
+    context.zoom_signin_required = False
+    return None
 
 # -------------------------
 # Common Steps (Background)
@@ -11,12 +28,6 @@ def step_account_menu(context):
     page = SettingsPage(context.page)
     page.click_account_menu_from_home()
     attach_screenshot(context.page, "Clicked Account Menu")
-
-@then("user clicks on ZoomConnect profile icon")
-def step_zoomconnect_profile_icon(context):
-    page = SettingsPage(context.page)
-    page.click_zoomconnect_profile_icon()
-    attach_screenshot(context.page, "Clicked ZoomConnect Profile Icon")
 
 @then("user clicks on settings menu")
 def step_settings_menu(context):
@@ -33,13 +44,6 @@ def step_validate_settings(context):
 # -------------------------
 # ZoomConnect Steps
 # -------------------------
-
-@then("user clicks on accounts menu and validates accounts_meetings section")
-def step_accounts_menu_zoomconnect(context):
-    page = SettingsPage(context.page)
-    page.click_accounts_menu_zoomconnect()
-    attach_screenshot(context.page, "Clicked Accounts Menu & Validated Meetings Section")
-
 
 @then("user clicks on zoom accounts menu and validates accounts_meetings section")
 def step_zoom_accounts_menu_zoomconnect(context):
@@ -77,7 +81,7 @@ def step_meetings_signin(context):
 
 @then("user navigates to zoom.us signin screen and validates the email address, password, signin buttons")
 def step_zoom_login_screen(context):
-    if hasattr(context, "zoom_signin_required") and not context.zoom_signin_required:
+    if not getattr(context, "zoom_signin_required", True):
         attach_screenshot(context.page, "Skipped zoom.us sign in screen validation for already connected user")
         return
     page = SettingsPage(context.page)
@@ -89,25 +93,29 @@ def step_zoom_login_screen(context):
 
 @then("user clicks on email input field and enter the email id")
 def step_enter_email(context):
-    if hasattr(context, "zoom_signin_required") and not context.zoom_signin_required:
+    if not getattr(context, "zoom_signin_required", True):
         attach_screenshot(context.page, "Skipped Zoom email entry for already connected user")
         return
-    page = SettingsPage(context.page)
-    page.enter_zoom_email("demouser2078@gmail.com")
+    credentials = _zoom_credentials_or_skip(context)
+    if credentials is None:
+        return
+    SettingsPage(context.page).enter_zoom_email(credentials[0])
     attach_screenshot(context.page, "Entered Zoom Email")
 
 @then("user clicks on password input field and enter the password")
 def step_enter_password(context):
-    if hasattr(context, "zoom_signin_required") and not context.zoom_signin_required:
+    if not getattr(context, "zoom_signin_required", True):
         attach_screenshot(context.page, "Skipped Zoom password entry for already connected user")
         return
-    page = SettingsPage(context.page)
-    page.enter_zoom_password("Demo@123")
+    credentials = _zoom_credentials_or_skip(context)
+    if credentials is None:
+        return
+    SettingsPage(context.page).enter_zoom_password(credentials[1])
     attach_screenshot(context.page, "Entered Zoom Password")
 
 @then("user clicks on sigin button")
 def step_click_signin(context):
-    if hasattr(context, "zoom_signin_required") and not context.zoom_signin_required:
+    if not getattr(context, "zoom_signin_required", True):
         attach_screenshot(context.page, "Skipped Zoom sign in click for already connected user")
         return
     page = SettingsPage(context.page)
@@ -116,7 +124,7 @@ def step_click_signin(context):
 
 @then("user navigates back to to signin with zoom screen and validates the toggle button status")
 def step_validate_toggle(context):
-    if hasattr(context, "zoom_signin_required") and not context.zoom_signin_required:
+    if not getattr(context, "zoom_signin_required", True):
         attach_screenshot(context.page, "Skipped toggle-status validation after sign in for already connected user")
         return
     page = SettingsPage(context.page)
@@ -128,7 +136,7 @@ def step_validate_toggle(context):
 
 @then("user click on the toggle button and validates the disconnect section")
 def step_disconnect_section(context):
-    if hasattr(context, "zoom_signin_required") and not context.zoom_signin_required:
+    if not getattr(context, "zoom_signin_required", True):
         attach_screenshot(context.page, "Skipped disconnect-section validation for already connected user path")
         return
     page = SettingsPage(context.page)
@@ -141,7 +149,7 @@ def step_disconnect_section(context):
 
 @then("user clicks on the disconnect button")
 def step_disconnect_button(context):
-    if hasattr(context, "zoom_signin_required") and not context.zoom_signin_required:
+    if not getattr(context, "zoom_signin_required", True):
         attach_screenshot(context.page, "Skipped disconnect button click for already connected user path")
         return
     page = SettingsPage(context.page)
@@ -158,10 +166,10 @@ def step_disconnect_button(context):
 
 @then("user click on back arrow and navigates to settings screen")
 def step_back_arrow(context):
-    if hasattr(context, "zoom_back_already_clicked") and context.zoom_back_already_clicked:
+    if getattr(context, "zoom_back_already_clicked", False):
         attach_screenshot(context.page, "Back arrow already clicked in disconnect flow")
         return
-    if hasattr(context, "zoom_signin_required") and not context.zoom_signin_required:
+    if not getattr(context, "zoom_signin_required", True):
         attach_screenshot(context.page, "Back navigation already completed in existing-user branch")
         return
     page = SettingsPage(context.page)

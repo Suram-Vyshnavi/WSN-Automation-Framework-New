@@ -1,11 +1,7 @@
-class forumsLocators:
+class ForumsLocators:
     HOME = "//div[text()='Home']"
-    VALIDATE_WELCOME_HEADER = "//h1[text()='Welcome to']"
-    VALIDATE_WADHWANI_SKILLING_HEADER = "//h1[text()='Wadhwani Skilling']"
-    VALIDATE_EXPLORE_THINGS_TO_DO_HEADER = "//h4[text()='Explore things to do']"
     FORUMS_CARD = "//h6[text()='Forums']"
     VALIDATE_MY_FORUMS_HEADER = "//h4[text()='My Forums']"
+    # Page objects resolve locators with `.first`, so no positional index is needed.
     VIEW_FORUM_BUTTON = "//span[text()='View Forum']"
-    #for prod environment use the below locator for view forum button
-    VIEW_FORUM_BUTTON = "(//span[text()='View Forum'])[1]"
     

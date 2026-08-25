@@ -1,12 +1,9 @@
-"""
-Student Persona Locators Module
-This module contains all locator classes for student persona features.
-"""
+"""Locator classes for the student-persona screens."""
 
-from .messages_locators import Messages_and_discussionsLocators
-from .learning_progress_locators import Learning_Progress_Locators
+from .learning_progress_locators import LearningProgressLocators
+from .messages_locators import MessagesAndDiscussionsLocators
 
 __all__ = [
-    'Messages_and_discussionsLocators',
-    'Learning_Progress_Locators',
+    "LearningProgressLocators",
+    "MessagesAndDiscussionsLocators",
 ]

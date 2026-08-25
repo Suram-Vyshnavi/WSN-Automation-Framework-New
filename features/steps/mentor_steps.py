@@ -1,6 +1,6 @@
 import os
 
-from behave import given, then
+from behave import then
 from pages.mentor_page import MentorPage
 from pages.mentor_profile_page import MentorProfilePage
 from utils.helpers import attach_screenshot
@@ -25,17 +25,6 @@ def add_slot_select_start_and_end_time(context):
         attach_screenshot(context.page, "Mentor - Start and End Time Selected")
     except Exception as e:
         attach_screenshot(context.page, "Mentor - Start End Time Selection Error")
-        raise
-
-
-@then("user clicks on the copy slot button ans selects the day option")
-def click_copy_slot_and_select_day_typo(context):
-    mentor = MentorPage(context.page)
-    try:
-        mentor.click_copy_slot_and_select_day()
-        attach_screenshot(context.page, "Mentor - Copy Slot Day Selected")
-    except Exception as e:
-        attach_screenshot(context.page, "Mentor - Copy Slot Day Selection Error")
         raise
 
 
@@ -69,17 +58,6 @@ def click_copy_slot_and_select_day(context):
         attach_screenshot(context.page, "Mentor - Override Copy Slot Day Selected")
     except Exception as e:
         attach_screenshot(context.page, "Mentor - Override Copy Slot Day Error")
-        raise
-
-
-@then("user clicks on save button")
-def click_save_button(context):
-    mentor = MentorPage(context.page)
-    try:
-        mentor.click_save_button()
-        attach_screenshot(context.page, "Mentor - Save Button Clicked")
-    except Exception as e:
-        attach_screenshot(context.page, "Mentor - Save Button Error")
         raise
 
 

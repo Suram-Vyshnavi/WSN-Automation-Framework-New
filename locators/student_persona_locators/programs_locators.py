@@ -1,26 +1,31 @@
-class programsLocators:
-    HOME = "//div[text()='Home']"
-    VALIDATE_WELCOME_HEADER = "//h1[text()='Welcome to']"
-    VALIDATE_WADHWANI_SKILLING_HEADER = "//h1[text()='Wadhwani Skilling']"
-    VALIDATE_EXPLORE_THINGS_TO_DO_HEADER = "//h4[text()='Explore things to do']"
-    PROGRAMS_CARD = "//h6[text()='Programs']"
-    VALIDATE_INPROGRESS_TAB= "//h5[contains(text(), 'In Progress')]"
-    VALIDATE_COMPLETED_TAB= "//h5[contains(text(), 'Completed')]"
-    VALIDATE_RECOMMENDED_BY_INSTITUTE = "//h6[text()='Programs Recommended by your Institute']"
-    RECOMMENDED_PROGRAM_CARD = "(//div[@class='new-recommended-program-card'])[1]"
-    RECOMMENDED_PROGRAM_CARD_ARROW_BUTTON = "(//img[@class='wf_image  no-js-arrow-right-white'])[1]"
-    #for prod environment use the below locators 
-    ENROLL_NOW_BUTTON = "(//h6[text()='Enroll Now'])[1]"
-    ENROLLNOW_BUTTON = "(//button[text()='Enroll Now'])[1]"
-    VALIDATE_ENROLLNOW_BUTTON_2 = "(//button[text()='Enroll Now'])[2]"
-    VALIDATE_NOT_NOW_BUTTON = "//button[text()='Not now']"
-    #for dev environment use the below locator enroll button
-    ENROLL_BUTTON = "//h6[text()='Enroll']"
-    VALIDATE_CONFIRM_BUTTON = "//h6[text()='Confirm']"
-    VALIDATE_CANCEL_BUTTON = "//h6[text()='Cancel']"
-    CLOSE_MODAL_BUTTON = "//span[@class='ant-modal-close-x']"
-    VALIDATE_OFFERED_BY_WADHWANI_FOUNDATION = "//h6[text()='Programs Recommended by Wadhwani Foundation']"
-    RECOMMENDED_PROGRAM_CARD_8 = "(//div[@class='new-recommended-program-card'])[8]"
-    RECOMMENDED_PROGRAM_CARD_8_ARROW_BUTTON = "(//img[@class='wf_image  no-js-arrow-right-white'])[8]"
-    
+"""Locators for the Programs scenario.
 
+The app merged the Courses and Programs screens into one, so the shared screen
+selectors come from `ProgramsAndCoursesLocators`. This class stays separate so
+the Programs scenario keeps its own vocabulary and can diverge again later.
+"""
+
+from locators.student_persona_locators.programs_and_courses_locators import (
+    ProgramsAndCoursesLocators as Merged,
+)
+
+
+class ProgramsLocators:
+    HOME = "//div[text()='Home']"
+
+    # --- merged list screen ------------------------------------------------
+    PROGRAMS_CARD = Merged.PROGRAMS_AND_COURSES_CARD
+    VALIDATE_INPROGRESS_TAB = Merged.IN_PROGRESS_TAB
+    VALIDATE_COMPLETED_TAB = Merged.COMPLETED_TAB
+    BACK_BUTTON = Merged.BACK_BUTTON
+
+    # --- programs shown on the merged screen -------------------------------
+    PROGRAM_CARD = Merged.PROGRAM_CARD
+    RECOMMENDED_PROGRAM_CARD = ("//div[contains(@class,'learning-item-card--program')]"
+                                "[contains(@class,'learning-item-card--recommended')]")
+
+    # --- recommendation sections ------------------------------------------
+    VALIDATE_RECOMMENDED_BY_INSTITUTE = Merged.RECOMMENDED_BY_INSTITUTE
+    VALIDATE_OFFERED_BY_WADHWANI_FOUNDATION = Merged.RECOMMENDED_BY_WADHWANI
+    RECOMMENDED_SECTION = Merged.RECOMMENDED_SECTION
+    JOIN_A_BATCH = Merged.JOIN_A_BATCH

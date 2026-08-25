@@ -23,8 +23,8 @@ except ImportError:
 
 FEATURE_BY_PERSONA = {
     "student": "features/Student_All.feature",
-    "faculty": "features/Faculty_All.feature",
-    "rm": "features/RM_All.feature",
+    "faculty": "features/faculty_all.feature",
+    "rm": "features/rm_all.feature",
 }
 
 EXCLUDE_TAGS_BY_PERSONA = {

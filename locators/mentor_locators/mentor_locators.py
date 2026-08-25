@@ -7,7 +7,6 @@ class MentorLocators:
     END_TIME_SLOT = "(//div[@class='interval_container_inner']//div[@class='ant-select-selector'])[2]"
     END_TIME_SLOT_OPTION = "//span[text()='12:30 AM']"
     COPY_SLOT_BUTTON = "(//button[@class='ant-btn icon-button action_button false'])[1]"
-    TUESDAY_LABEL = "//*[contains(text(),'Tuesday')]"
     SLOT_COPY_APPLY_BUTTON = "//button[text()='Apply']"
     CLOSE_SLOT_BUTTON = "(//button[@class='ant-btn ant-btn-default icon-button close_action_button'])[1]"
     ADD_OVERRIDE_BUTTON = "//button[text()='Add an Override']"

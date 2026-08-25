@@ -1,38 +1,19 @@
-"""
-Student Locators Module
-This module contains all locator classes for student-facing features.
-"""
+"""Locator classes for the student-facing screens."""
 
-from .login_locators import LoginLocators
-from .home_page_locators import HomePageLocators
-from .dashboard_locators import DashboardLocators
-from .career_advisor_locators import CareerAdvisorLocators
-from .placement_prep_locators import PlacementPrepLocators
-from .interview_prep_locators import InterviewPrepLocators
-from .placement_locators import PlacementLocators
-from .career_buddy_locators import CareerBuddyLocators
-from .jobs_connect_locators import JobsConnectLocators
-from ..student_persona_locators.messages_locators import Messages_and_discussionsLocators
-from ..student_persona_locators.learning_progress_locators import Learning_Progress_Locators
+from ..student_persona_locators.learning_progress_locators import LearningProgressLocators
+from ..student_persona_locators.messages_locators import MessagesAndDiscussionsLocators
 from ..student_persona_locators.notification_locators import NotificationLocators
-from .Settings_ZoomConnect_locators import SettingsZoomConnectLocators
-from .Settings_DeleteAccount_locators import SettingsDeleteAccountLocators
-from .Settings_WhatsappNotifications_locators import SettingsWhatsappNotificationsLocators
+from .settings_delete_account_locators import SettingsDeleteAccountLocators
+from .settings_whatsapp_notifications_locators import SettingsWhatsappNotificationsLocators
+from .settings_zoom_connect_locators import SettingsZoomConnectLocators
+from .login_locators import LoginLocators
 
 __all__ = [
-    'LoginLocators',
-    'HomePageLocators',
-    'DashboardLocators',
-    'CareerAdvisorLocators',
-    'PlacementPrepLocators',
-    'InterviewPrepLocators',
-    'PlacementLocators',
-    'CareerBuddyLocators',
-    'JobsConnectLocators',
-    'Messages_and_discussionsLocators',
-    'Learning_Progress_Locators',
-    'NotificationLocators',
-    'SettingsWhatsappNotificationsLocators',
-     'SettingsDeleteAccountLocators',
-     'SettingsZoomConnectLocators'
+    "LearningProgressLocators",
+    "LoginLocators",
+    "MessagesAndDiscussionsLocators",
+    "NotificationLocators",
+    "SettingsDeleteAccountLocators",
+    "SettingsWhatsappNotificationsLocators",
+    "SettingsZoomConnectLocators",
 ]

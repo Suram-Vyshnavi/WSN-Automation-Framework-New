@@ -1,32 +1,39 @@
-class coursesLocators:
+"""Locators for the Courses scenario.
+
+The app merged the Courses and Programs screens into one, so the shared screen
+selectors come from `ProgramsAndCoursesLocators`. This class stays separate so
+the Courses scenario keeps its own vocabulary and can diverge again later.
+"""
+
+from locators.student_persona_locators.programs_and_courses_locators import (
+    ProgramsAndCoursesLocators as Merged,
+)
+
+
+class CoursesLocators:
     HOME = "//div[text()='Home']"
-    VALIDATE_WELCOME_HEADER = "//h1[text()='Welcome to']"
-    VALIDATE_WADHWANI_SKILLING_HEADER = "//h1[text()='Wadhwani Skilling']"
-    VALIDATE_EXPLORE_THINGS_TO_DO_HEADER = "//h4[text()='Explore things to do']"
-    COURSES_CARD = "//h6[text()='Courses']"
-    VALIDATE_INPROGRESS_TAB= "//h5[contains(text(), 'In Progress')]"
-    VALIDATE_COMPLETED_TAB= "//h5[contains(text(), 'Completed')]"
-    ENROLLED_COURSE_CARD = "(//div[@class='new-enrolled-course-card'])[1]"
-    VIEW_DETAILS_BUTTON = "(//button[text()='View Details'])[1]"
-    OVERVIEW = "//p[text()='Overview']"
-    COURSE_CONTENT = "//p[text()='Course Content']"
-    PERFORMANCE = "//p[text()='Performance']"
-    VALIDATE_FINAL_SCORE = "//div[@class='ant-col ant-col-md-7 score_container']"
-    VALIDATE_CERTIFICATE = "//div[@class='firstScenario_container']"
-    VALIDATE_PERFORMANCE = "//div[@class='assessmentBasedScenario_container']"
-    #for prod environment the below locators till pitch trainer back arrow button will not work so these locators will be executed only in dev environment
-    VIEW_ANALYSIS_BUTTON = "//button[text()='View Analysis']"
-    VIEW_PITCH_BUTTON = "//p[text()='View Pitch']"
-    VIDEO_PLAY_BUTTON = "//video[text()='Your browser does not support the video tag.']"
-    VIDEO_CLOSE_BUTTON = "//span[@class='ant-modal-close-x']"
-    SHARE_PITCH_BUTTON = "//button[@class='ant-btn ant-btn-default secondary_button view-pitch-button default-share-button share-pitch-button']"
-    COPY_SHARE_BUTTON = "//img[@class='wf_image  no-js-share-button-copy']"
-    SHARE_PITCH_CLOSE_BUTTON = "//span[@class='ant-modal-close-x']"
-    BACK_ARROW_BUTTON = "//img[@class='wf_image redirection-image no-js-pitch-trainer-back-arrow']"
-    CREATE_POST_VIDEO_BUTTON = "//button[text()='Create Post-Video']"
-    PITCH_TRAINER_BACK_ARROW_BUTTON = "//img[@class='wf_image back-btn false no-js-ArrowLeftDark']"
-    COURSES_RECOMMENDED_BY_INSTITUTE = "//h6[text()='Courses Recommended by Your Institute']"
-    VALIDATE_RECOMMENDED_COURSE_CARD = "(//div[@class='new-recommended-course-card'])[1]"
-    COURSES_OFFERED_BY_WADHWANI_FOUNDATION = "//h6[text()='Courses offered by wadhwani foundation']"
-    VALIDATE_OFFERED_COURSE_CARD = "(//div[@class='new-recommended-course-card'])[13]"
-    
+
+    # --- merged list screen ------------------------------------------------
+    COURSES_CARD = Merged.PROGRAMS_AND_COURSES_CARD
+    VALIDATE_INPROGRESS_TAB = Merged.IN_PROGRESS_TAB
+    VALIDATE_COMPLETED_TAB = Merged.COMPLETED_TAB
+    ENROLLED_COURSE_CARD = Merged.ENROLLED_COURSE_CARD
+    COMPLETED_COURSE_CARD = Merged.COMPLETED_COURSE_CARD
+    COURSE_CARD_TITLE = Merged.COURSE_CARD_TITLE
+    RESUME_COURSE_BUTTON = Merged.RESUME_COURSE_BUTTON
+    SCORECARD_BUTTON = Merged.SCORECARD_BUTTON
+    CERTIFICATE_BUTTON = Merged.CERTIFICATE_BUTTON
+    BACK_BUTTON = Merged.BACK_BUTTON
+
+    # --- course detail screen ---------------------------------------------
+    COURSE_TITLE = Merged.COURSE_TITLE
+    LESSON_ACCORDION = Merged.LESSON_ACCORDION
+    CERTIFICATE_PROGRESS = Merged.CERTIFICATE_PROGRESS
+    EARNED_MICRO_CERTIFICATES = Merged.EARNED_MICRO_CERTIFICATES
+    ASSESSMENT_SCORE_VALUE = Merged.ASSESSMENT_SCORE_VALUE
+    ASSESSMENT_SCORE_LABEL = Merged.ASSESSMENT_SCORE_LABEL
+
+    # --- recommendation sections ------------------------------------------
+    COURSES_RECOMMENDED_BY_INSTITUTE = Merged.RECOMMENDED_BY_INSTITUTE
+    COURSES_OFFERED_BY_WADHWANI_FOUNDATION = Merged.RECOMMENDED_BY_WADHWANI
+    VALIDATE_RECOMMENDED_COURSE_CARD = Merged.RECOMMENDED_CARD

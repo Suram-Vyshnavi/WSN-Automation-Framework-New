@@ -1,9 +1,9 @@
-# Virtual Environments
+# Virtual environments
 .venv/
+venv/
 env/
 env_py/
 env_mac/
-venv/
 ENV/
 *.venv
 
@@ -17,35 +17,33 @@ __pycache__/
 dist/
 build/
 
-# IDE
+# IDE / editor
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# Environment Variables
+# Secrets and environment files
 .env
-.env.local
+.env.*
+!.env.example
 
-# Test Reports
+# Test reports and artefacts
 reports/
 allure-results/
 allure-report/
+playwright-report/
+test-results/
 *.html
-*.zip
-
-# Logs
 *.log
+debug_page.*
+
+# Archives and temporary files
+*.zip
+*.tmp
+*.bak
 
 # OS
 .DS_Store
 Thumbs.db
-
-# Playwright
-playwright-report/
-test-results/
-
-# Temporary files
-*.tmp
-*.bak

@@ -1,230 +1,176 @@
-from pages.base_page import BasePage
-from locators.student_locators.Settings_ZoomConnect_locators import SettingsZoomConnectLocators
-from locators.student_locators.Settings_DeleteAccount_locators import SettingsDeleteAccountLocators
-from locators.student_locators.Settings_WhatsappNotifications_locators import SettingsWhatsappNotificationsLocators
+from locators.student_locators.settings_delete_account_locators import SettingsDeleteAccountLocators
+from locators.student_locators.settings_whatsapp_notifications_locators import SettingsWhatsappNotificationsLocators
+from locators.student_locators.settings_zoom_connect_locators import SettingsZoomConnectLocators
+from pages.base_page import BasePage, LONG_TIMEOUT, SHORT_TIMEOUT
+
+ACCOUNTS_MENU_FALLBACK = "//button[@aria-label='Accounts menu']"
+SETTINGS_MENU_FALLBACK = "//p[contains(normalize-space(),'Settings')]"
+ACCOUNTS_TAB_FALLBACK = "//div[contains(@class,'userSettings_menuItem')][.//h1[normalize-space()='Accounts']]"
+
 
 class SettingsPage(BasePage):
-
-    def _wait_first_visible(self, selectors, timeout=10000):
-        for selector in selectors:
-            try:
-                locator = self.page.locator(selector).first
-                locator.wait_for(state="visible", timeout=timeout)
-                return locator
-            except Exception:
-                continue
-        return None
-
-    def _click_first_visible(self, selectors, timeout=10000):
-        locator = self._wait_first_visible(selectors, timeout=timeout)
-        if not locator:
-            return False
-        try:
-            locator.click(timeout=timeout)
-        except Exception:
-            locator.click(timeout=timeout, force=True)
-        return True
+    """Student Settings: Zoom Connect, Delete Account and WhatsApp notifications."""
 
     def _ensure_back_on_app(self):
-        """Return from external Zoom pages to app settings context when needed."""
+        """Come back from an external zoom.us page into the app's settings view."""
         for _ in range(3):
-            try:
-                if "zoom.us" not in self.page.url.lower():
-                    break
-                self.page.go_back()
-                self.page.wait_for_timeout(1000)
-            except Exception:
-                break
+            if "zoom.us" not in self.current_url().lower():
+                return
+            self.go_back()
+            self.pause(1000)
 
-    # --- Common Methods ---
+    # ------------------------------------------------------------------
+    # Shared settings navigation
+    # ------------------------------------------------------------------
     def click_zoomconnect_profile_icon(self):
-        self.page.locator(SettingsZoomConnectLocators.PROFILE_ICON).wait_for(state="visible", timeout=10000)
-        self.page.click(SettingsZoomConnectLocators.PROFILE_ICON)
+        self.click(SettingsZoomConnectLocators.PROFILE_ICON, "profile icon")
 
     def click_account_menu_from_home(self):
-        clicked = self._click_first_visible([
+        self.click_required([
             SettingsZoomConnectLocators.ACCOUNTS_MENU_ICON,
-            "//button[@aria-label='Accounts menu']",
-        ], timeout=15000)
-        assert clicked, "Account menu is not visible/clickable"
+            ACCOUNTS_MENU_FALLBACK,
+        ], "Account menu", timeout=15000)
 
     def click_settings_menu(self):
-        clicked = self._click_first_visible([
+        self.click_required([
             SettingsZoomConnectLocators.SETTINGS_ICON,
-            "//p[contains(normalize-space(),'Settings')]",
-        ], timeout=15000)
-        assert clicked, "Settings menu is not visible/clickable"
+            SETTINGS_MENU_FALLBACK,
+        ], "Settings menu", timeout=15000)
 
     def validate_settings_sections(self):
-        marker = self._wait_first_visible([
+        self.validate_any_visible([
             SettingsZoomConnectLocators.ACCOUNTS_SECTION_TITLE,
             SettingsZoomConnectLocators.ACCOUNTS_MENU,
             "//h1[normalize-space()='Accounts']",
             SettingsZoomConnectLocators.MEETING_CARD,
             SettingsZoomConnectLocators.ZOOM_SETTINGS_ARROW,
             SettingsDeleteAccountLocators.DELETE_ACCOUNT,
-            "//*[contains(normalize-space(),'Settings')]",
-        ], timeout=15000)
-        assert marker is not None
+        ], "Settings sections", timeout=15000)
 
     def click_back_arrow(self):
-        self.page.locator(SettingsZoomConnectLocators.BACK_ARROW).wait_for(state="visible", timeout=10000)
-        self.page.click(SettingsZoomConnectLocators.BACK_ARROW)
+        self.click(SettingsZoomConnectLocators.BACK_ARROW, "back arrow")
 
-    # --- ZoomConnect Methods ---
+    # ------------------------------------------------------------------
+    # Zoom Connect
+    # ------------------------------------------------------------------
     def click_accounts_menu_zoomconnect(self):
-        # Some UI versions keep Accounts as selected by default; click only if clickable element is present.
-        self._click_first_visible([
-            "//div[contains(@class,'userSettings_menuItem')][.//h1[normalize-space()='Accounts']]",
+        # Some builds keep Accounts selected by default, so the click is optional.
+        self.click_first_visible([
+            ACCOUNTS_TAB_FALLBACK,
             SettingsZoomConnectLocators.ACCOUNTS_MENU,
-        ], timeout=6000)
-        self.page.locator(SettingsZoomConnectLocators.MEETING_CARD).wait_for(state="visible", timeout=10000)
+        ], "Accounts tab", timeout=6000)
+        self.validate_visible(SettingsZoomConnectLocators.MEETING_CARD, "Accounts meetings card")
 
     def click_zoom_right_arrow(self):
-        self.page.locator(SettingsZoomConnectLocators.ZOOM_SETTINGS_ARROW).wait_for(state="visible", timeout=10000)
-        self.page.click(SettingsZoomConnectLocators.ZOOM_SETTINGS_ARROW)
+        self.click(SettingsZoomConnectLocators.ZOOM_SETTINGS_ARROW, "Zoom settings arrow")
 
     def validate_delinked_popup(self):
-        popup = self.page.locator(SettingsZoomConnectLocators.DELINKED_POPUP).first
-        try:
-            popup.wait_for(state="visible", timeout=3000)
-            self.page.click(SettingsZoomConnectLocators.DELINKED_CLOSEICON)
-        except Exception:
-            pass
+        """Close the 'Zoom account delinked' popup when it is shown."""
+        self.dismiss_if_present([SettingsZoomConnectLocators.DELINKED_CLOSEICON],
+                                "Zoom delinked popup", timeout=3000)
 
     def validate_signin_section_and_toggle(self):
-        self.page.locator(SettingsZoomConnectLocators.SIGNIN_WITH_ZOOM_SECTION).wait_for(state="visible", timeout=10000)
-        self.page.click(SettingsZoomConnectLocators.ZOOMCONNECTION_TOGGLER)
+        self.validate_visible(SettingsZoomConnectLocators.SIGNIN_WITH_ZOOM_SECTION,
+                              "Sign in with Zoom section")
+        self.click(SettingsZoomConnectLocators.ZOOMCONNECTION_TOGGLER, "Zoom connection toggle")
 
     def navigate_meetings_and_click_signin(self):
-        self.page.locator(SettingsZoomConnectLocators.MEETINGS_CARD).wait_for(state="visible", timeout=10000)
-        signin_button = self.page.locator(SettingsZoomConnectLocators.SIGNIN_BUTTON).first
-
-        if signin_button.count() > 0 and signin_button.is_visible():
-            signin_button.click()
+        """Open the Meetings card. False when the account is already connected."""
+        self.validate_visible(SettingsZoomConnectLocators.MEETINGS_CARD, "Meetings card")
+        if self.click_first_visible([SettingsZoomConnectLocators.SIGNIN_BUTTON],
+                                    "Zoom Sign In button", timeout=SHORT_TIMEOUT):
             return True
-
         self.click_back_arrow()
         return False
 
     def validate_zoom_login_screen(self):
-        try:
-            self.page.locator(SettingsZoomConnectLocators.ZOOM_EMAIL_INPUT).wait_for(state="visible", timeout=10000)
-            self.page.locator(SettingsZoomConnectLocators.ZOOM_PASSWORD_INPUT).wait_for(state="visible", timeout=10000)
-            self.page.locator(SettingsZoomConnectLocators.ZOOM_SIGNIN_BUTTON).wait_for(state="visible", timeout=10000)
-            return True
-        except Exception:
-            return False
+        """True when the zoom.us login form rendered."""
+        return all(self.is_visible(locator) for locator in (
+            SettingsZoomConnectLocators.ZOOM_EMAIL_INPUT,
+            SettingsZoomConnectLocators.ZOOM_PASSWORD_INPUT,
+            SettingsZoomConnectLocators.ZOOM_SIGNIN_BUTTON,
+        ))
 
     def enter_zoom_email(self, email):
-        self.page.fill(SettingsZoomConnectLocators.ZOOM_EMAIL_INPUT, email)
+        self.enter_text(SettingsZoomConnectLocators.ZOOM_EMAIL_INPUT, email, "Zoom email")
 
     def enter_zoom_password(self, password):
-        self.page.fill(SettingsZoomConnectLocators.ZOOM_PASSWORD_INPUT, password)
+        self.enter_text(SettingsZoomConnectLocators.ZOOM_PASSWORD_INPUT, password,
+                        "Zoom password", sensitive=True)
 
     def click_zoom_signin(self):
-        self.page.click(SettingsZoomConnectLocators.ZOOM_SIGNIN_BUTTON)
+        self.click(SettingsZoomConnectLocators.ZOOM_SIGNIN_BUTTON, "Zoom Sign In button")
 
     def validate_toggle_status(self):
+        """True when the Zoom connection toggle is back on screen."""
         self._ensure_back_on_app()
-        toggle = self.page.locator(SettingsZoomConnectLocators.ZOOMCONNECTION_TOGGLER).first
-        try:
-            toggle.wait_for(state="visible", timeout=5000)
-            return toggle.is_visible()
-        except Exception:
-            return False
+        return self.is_visible(SettingsZoomConnectLocators.ZOOMCONNECTION_TOGGLER)
 
     def validate_disconnect_section(self):
         self._ensure_back_on_app()
-        self.page.locator(SettingsZoomConnectLocators.MEETINGS_CARD).wait_for(state="visible", timeout=10000)
-        # Toggle may be required to reveal disconnect button in some variants.
-        if self.page.locator(SettingsZoomConnectLocators.MEETINGS_DISCONNECT_BUTTON).first.count() == 0:
-            try:
-                self.page.click(SettingsZoomConnectLocators.ZOOMCONNECTION_TOGGLER, timeout=5000)
-            except Exception:
-                pass
-        self.page.locator(SettingsZoomConnectLocators.MEETINGS_DISCONNECT_BUTTON).first.wait_for(state="visible", timeout=10000)
-        assert self.page.locator(SettingsZoomConnectLocators.MEETINGS_DISCONNECT_BUTTON).first.is_visible()
+        self.validate_visible(SettingsZoomConnectLocators.MEETINGS_CARD, "Meetings card")
+        # In some builds the Disconnect button only appears after toggling.
+        if self.count(SettingsZoomConnectLocators.MEETINGS_DISCONNECT_BUTTON) == 0:
+            self.click_first_visible([SettingsZoomConnectLocators.ZOOMCONNECTION_TOGGLER],
+                                     "Zoom connection toggle", timeout=SHORT_TIMEOUT)
+        self.validate_visible(SettingsZoomConnectLocators.MEETINGS_DISCONNECT_BUTTON,
+                              "Zoom Disconnect button")
 
     def click_disconnect_button(self):
         self._ensure_back_on_app()
-        self.page.locator(SettingsZoomConnectLocators.MEETINGS_DISCONNECT_BUTTON).first.wait_for(state="visible", timeout=10000)
-        self.page.locator(SettingsZoomConnectLocators.MEETINGS_DISCONNECT_BUTTON).first.click()
+        self.click(SettingsZoomConnectLocators.MEETINGS_DISCONNECT_BUTTON, "Zoom Disconnect button")
 
-    # --- Delete Account Methods ---
+    # ------------------------------------------------------------------
+    # Delete Account
+    # ------------------------------------------------------------------
     def click_delete_account_profile_icon(self):
-        self.page.locator(SettingsDeleteAccountLocators.DELETE_ACCOUNT).wait_for(state="visible", timeout=10000)
-        self.page.click(SettingsDeleteAccountLocators.DELETE_ACCOUNT)
+        self.click(SettingsDeleteAccountLocators.DELETE_ACCOUNT, "Delete Account section")
 
     def click_delete_account_arrow(self):
-        arrow = self.page.locator(SettingsDeleteAccountLocators.DELETE_ACCOUNT_ARROW).first
-        arrow.wait_for(state="visible", timeout=10000)
-        arrow.scroll_into_view_if_needed()
-        try:
-            arrow.click(timeout=10000)
-        except Exception:
-            arrow.click(timeout=10000, force=True)
+        self.click(SettingsDeleteAccountLocators.DELETE_ACCOUNT_ARROW, "Delete Account right arrow")
 
     def validate_delete_account_popup_and_getotp(self):
-        popup = self.page.locator(SettingsDeleteAccountLocators.DELETE_ACCOUNT_POPUP).first
-        popup.wait_for(state="visible", timeout=10000)
-
-        candidate_locators = [
-            self.page.locator(SettingsDeleteAccountLocators.DELETE_ACCOUNT_GETOTP),
-            popup.locator("//button[contains(@class,'unified-next-button') or contains(@class,'ant-btn-primary')]")
-        ]
-
-        clicked = False
-        for candidate in candidate_locators:
-            button = candidate.first
-            try:
-                button.wait_for(state="visible", timeout=3000)
-                button.scroll_into_view_if_needed()
-                try:
-                    button.click(timeout=10000)
-                except Exception:
-                    button.click(timeout=10000, force=True)
-                clicked = True
-                break
-            except Exception:
-                continue
-
-        if not clicked:
-            raise AssertionError("OTP button not found or not clickable in Delete Account popup")
-
-        self.page.locator(SettingsDeleteAccountLocators.DELETE_ACCOUNT_OTP_INPUT).first.wait_for(state="visible", timeout=20000)
+        """Open the Delete Account popup and request the OTP."""
+        self.validate_visible(SettingsDeleteAccountLocators.DELETE_ACCOUNT_POPUP,
+                              "Delete Account popup")
+        self.click_required([
+            SettingsDeleteAccountLocators.DELETE_ACCOUNT_GETOTP,
+            "//div[contains(@class,'ant-modal')]//button[contains(@class,'unified-next-button') "
+            "or contains(@class,'ant-btn-primary')]",
+        ], "Get OTP button", timeout=SHORT_TIMEOUT)
+        self.validate_visible(SettingsDeleteAccountLocators.DELETE_ACCOUNT_OTP_INPUT,
+                              "Delete Account OTP input", timeout=LONG_TIMEOUT)
 
     def click_delete_account_backarrow(self):
-        self.page.locator(SettingsDeleteAccountLocators.DELETE_ACCOUNT_BACKARROW).wait_for(state="visible", timeout=10000)
-        self.page.click(SettingsDeleteAccountLocators.DELETE_ACCOUNT_BACKARROW)
+        self.click(SettingsDeleteAccountLocators.DELETE_ACCOUNT_BACKARROW,
+                   "Delete Account back arrow")
 
     def click_delete_account_closeicon(self):
-        self.page.locator(SettingsDeleteAccountLocators.DELETE_ACCOUNT_CLOSEICON).wait_for(state="visible", timeout=10000)
-        self.page.click(SettingsDeleteAccountLocators.DELETE_ACCOUNT_CLOSEICON)
+        self.click(SettingsDeleteAccountLocators.DELETE_ACCOUNT_CLOSEICON,
+                   "Delete Account close icon")
 
-    # --- WhatsApp Notifications Methods ---
+    # ------------------------------------------------------------------
+    # WhatsApp notifications
+    # ------------------------------------------------------------------
     def click_whatsapp_profile_icon(self):
-        self.page.locator(SettingsWhatsappNotificationsLocators.NOTIFICATIONS_MENU).wait_for(state="visible", timeout=10000)
-        self.page.click(SettingsWhatsappNotificationsLocators.NOTIFICATIONS_MENU)
+        self.click(SettingsWhatsappNotificationsLocators.NOTIFICATIONS_MENU, "Notifications menu")
 
     def validate_whatsapp_container_section(self):
-        container = self.page.locator(SettingsWhatsappNotificationsLocators.WHATSAPP_CONTAINER).first
-        container.wait_for(state="visible", timeout=10000)
-        assert container.is_visible()
-        container.scroll_into_view_if_needed()
-        try:
-            container.click(timeout=10000)
-        except Exception:
-            container.click(timeout=10000, force=True)
+        self.validate_visible(SettingsWhatsappNotificationsLocators.WHATSAPP_CONTAINER,
+                              "WhatsApp container section")
+        self.click(SettingsWhatsappNotificationsLocators.WHATSAPP_CONTAINER,
+                   "WhatsApp container section")
 
     def click_whatsapp_right_arrow(self):
-        self.page.locator(SettingsWhatsappNotificationsLocators.WHATSAPP_CONTAINER_RIGHTARROW).wait_for(state="visible", timeout=10000)
-        self.page.click(SettingsWhatsappNotificationsLocators.WHATSAPP_CONTAINER_RIGHTARROW)
+        self.click(SettingsWhatsappNotificationsLocators.WHATSAPP_CONTAINER_RIGHTARROW,
+                   "WhatsApp right arrow")
 
     def validate_whatsapp_section_and_toggle(self):
-        self.page.locator(SettingsWhatsappNotificationsLocators.WHATSAPP_SECTION).wait_for(state="visible", timeout=10000)
-        self.page.click(SettingsWhatsappNotificationsLocators.WHATSAPP_TOGGLEBUTTON)
+        self.validate_visible(SettingsWhatsappNotificationsLocators.WHATSAPP_SECTION,
+                              "WhatsApp section")
+        self.click(SettingsWhatsappNotificationsLocators.WHATSAPP_TOGGLEBUTTON,
+                   "WhatsApp toggle button")
 
     def click_whatsapp_backbutton(self):
-        self.page.locator(SettingsWhatsappNotificationsLocators.WHATSAPP_SECTION_BACKBUTTON).wait_for(state="visible", timeout=10000)
-        self.page.click(SettingsWhatsappNotificationsLocators.WHATSAPP_SECTION_BACKBUTTON)
+        self.click(SettingsWhatsappNotificationsLocators.WHATSAPP_SECTION_BACKBUTTON,
+                   "WhatsApp section back arrow")

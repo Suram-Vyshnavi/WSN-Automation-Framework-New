@@ -1,8 +1,7 @@
 from utils.config import Config
 
 
-class Messages_and_discussionsLocators:
-    message="hello"
+class MessagesAndDiscussionsLocators:
     ACCOUNTS_MENU="//img[@class='wf_image header_profile_menu_trigger__icon no-js-svg%3e']"
     CHAT_ICON = "//p[contains(text(),'Messages & Discussions')]"
     SEND_MESSAGE_BUTTON="//button[normalize-space()='Send Message']"

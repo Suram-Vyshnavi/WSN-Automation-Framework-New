@@ -132,6 +132,12 @@ jobs:
           DEV_RM_PASSWORD:       ${{ secrets.DEV_RM_PASSWORD }}
           PROD_RM_USERNAME:      ${{ secrets.PROD_RM_USERNAME }}
           PROD_RM_PASSWORD:      ${{ secrets.PROD_RM_PASSWORD }}
+          # Mentor credentials
+          MENTOR_USERNAME:       ${{ secrets.MENTOR_USERNAME }}
+          MENTOR_PASSWORD:       ${{ secrets.MENTOR_PASSWORD }}
+          # Zoom sandbox account for the Settings > Zoom Connect scenarios
+          ZOOM_USERNAME:         ${{ secrets.ZOOM_USERNAME }}
+          ZOOM_PASSWORD:         ${{ secrets.ZOOM_PASSWORD }}
         # A failing scenario must not stop this job from publishing its results:
         # the summary email is generated from them in the report-and-email job.
         continue-on-error: true

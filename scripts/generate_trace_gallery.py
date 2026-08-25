@@ -8,7 +8,6 @@ Creates an output folder (default: <trace-name>_gallery) under the same folder a
 extracts screenshots (png/jpg/jpeg/gif) and writes `index.html` referencing them.
 """
 import sys
-import os
 import zipfile
 from pathlib import Path
 import argparse

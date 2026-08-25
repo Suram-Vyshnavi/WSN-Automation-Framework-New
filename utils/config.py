@@ -1,90 +1,69 @@
+"""Test configuration: personas, credentials and shared test data.
+
+Credentials come from environment variables / `.env` only (see
+`config/env_config.py`). Nothing sensitive is hardcoded here - a missing
+credential raises a clear error instead of silently falling back to a
+committed account.
+"""
+
 import os
-from config.env_config import (
-    BASE_URL as ENV_BASE_URL,
-    USERNAME as ENV_USERNAME,
-    PASSWORD as ENV_PASSWORD,
-    FACULTY_USERNAME as ENV_FACULTY_USERNAME,
-    FACULTY_PASSWORD as ENV_FACULTY_PASSWORD,
-    RM_USERNAME as ENV_RM_USERNAME,
-    RM_PASSWORD as ENV_RM_PASSWORD,
-    CAREER_BUDDY_USERNAME as ENV_CAREER_BUDDY_USERNAME,
-    CAREER_BUDDY_PASSWORD as ENV_CAREER_BUDDY_PASSWORD,
-    MENTOR_USERNAME as ENV_MENTOR_USERNAME,
-    MENTOR_PASSWORD as ENV_MENTOR_PASSWORD,
-    INSTITUTE_ADMIN_USERNAME as ENV_INSTITUTE_ADMIN_USERNAME,
-    INSTITUTE_ADMIN_PASSWORD as ENV_INSTITUTE_ADMIN_PASSWORD,
-)
+
+from config import env_config
 
 
 class Config:
-    BASE_URL = ENV_BASE_URL
+    BASE_URL = env_config.BASE_URL
+    TIMEOUT = env_config.TIMEOUT
+    HEADLESS = env_config.HEADLESS
+    SLOW_MO = env_config.SLOW_MO
+    TRACE_ON = env_config.TRACE_ON
 
-    # Keep existing student variable names for backward compatibility.
-    USERNAME_INPUT = ENV_USERNAME
-    PASSWORD_INPUT = ENV_PASSWORD
-    USERNAME = USERNAME_INPUT
-    PASSWORD = PASSWORD_INPUT
-
-    # New persona-specific variable names.
-    FACULTY_USERNAME_INPUT = ENV_FACULTY_USERNAME
-    FACULTY_PASSWORD_INPUT = ENV_FACULTY_PASSWORD
-    RM_USERNAME_INPUT = ENV_RM_USERNAME
-    RM_PASSWORD_INPUT = ENV_RM_PASSWORD
-    CAREER_BUDDY_USERNAME_INPUT = ENV_CAREER_BUDDY_USERNAME
-    CAREER_BUDDY_PASSWORD_INPUT = ENV_CAREER_BUDDY_PASSWORD
-    MENTOR_USERNAME_INPUT = ENV_MENTOR_USERNAME
-    MENTOR_PASSWORD_INPUT = ENV_MENTOR_PASSWORD
-    INSTITUTE_ADMIN_USERNAME_INPUT = ENV_INSTITUTE_ADMIN_USERNAME
-    INSTITUTE_ADMIN_PASSWORD_INPUT = ENV_INSTITUTE_ADMIN_PASSWORD
-
+    # Shared test data.
     MESSAGE_TEXT = "hello"
 
-    # Persona-wise credentials. Defaults can be overridden by environment vars.
+    DEFAULT_PERSONA = "student"
+
     CREDENTIALS = {
-        "student": {
-            "username": USERNAME_INPUT or "wadhwani.foundation99@yopmail.com",
-            "password": PASSWORD_INPUT or "Demo@123",
-        },
-        "faculty": {
-            "username": FACULTY_USERNAME_INPUT,
-            "password": FACULTY_PASSWORD_INPUT,
-        },
-        "rm": {
-            "username": RM_USERNAME_INPUT,
-            "password": RM_PASSWORD_INPUT,
-        },
-        "career_buddy": {
-            "username": CAREER_BUDDY_USERNAME_INPUT,
-            "password": CAREER_BUDDY_PASSWORD_INPUT,
-        },
-        "institute_admin": {
-            "username": INSTITUTE_ADMIN_USERNAME_INPUT,
-            "password": INSTITUTE_ADMIN_PASSWORD_INPUT,
-        },
-        "mentor": {
-            # Prefer a dedicated mentor account (env-specific MENTOR_* / flat
-            # MENTOR_*); env_config falls back to the Career Buddy account, and
-            # finally to the hardcoded dev mentor account below.
-            "username": MENTOR_USERNAME_INPUT or "wsn-men-oct0304@yopmail.com",
-            "password": MENTOR_PASSWORD_INPUT or "Demo@123",
-        },
+        "student": (env_config.STUDENT_USERNAME, env_config.STUDENT_PASSWORD),
+        "faculty": (env_config.FACULTY_USERNAME, env_config.FACULTY_PASSWORD),
+        "rm": (env_config.RM_USERNAME, env_config.RM_PASSWORD),
+        "career_buddy": (env_config.CAREER_BUDDY_USERNAME, env_config.CAREER_BUDDY_PASSWORD),
+        "institute_admin": (env_config.INSTITUTE_ADMIN_USERNAME, env_config.INSTITUTE_ADMIN_PASSWORD),
+        "mentor": (env_config.MENTOR_USERNAME, env_config.MENTOR_PASSWORD),
+        "zoom": (env_config.ZOOM_USERNAME, env_config.ZOOM_PASSWORD),
     }
 
     @classmethod
     def get_persona(cls):
-        return os.getenv("PERSONA", "student").strip().lower()
+        """Persona selected for this run (defaults to student)."""
+        return os.getenv("PERSONA", cls.DEFAULT_PERSONA).strip().lower()
 
     @classmethod
     def get_credentials(cls, persona=None):
+        """Return (username, password) for a persona.
+
+        Raises when the persona is unknown or its credentials are not
+        configured, so a run fails fast with an actionable message instead of
+        attempting to log in with blanks.
+        """
         selected = (persona or cls.get_persona()).strip().lower()
         if selected not in cls.CREDENTIALS:
-            raise ValueError(f"Unsupported persona: {selected}")
-
-        creds = cls.CREDENTIALS[selected]
-        if not creds["username"] or not creds["password"]:
             raise ValueError(
-                f"Missing credentials for persona '{selected}'. "
-                "Set persona env vars (e.g. STUDENT_*, FACULTY_*, RM_*, CAREER_BUDDY_*, INSTITUTE_ADMIN_*) "
-                "or update utils/config.py"
+                f"Unsupported persona '{selected}'. Known personas: {sorted(cls.CREDENTIALS)}"
             )
-        return creds["username"], creds["password"]
+
+        username, password = cls.CREDENTIALS[selected]
+        if not username or not password:
+            prefix = selected.upper()
+            raise ValueError(
+                f"Missing credentials for persona '{selected}'. Set {prefix}_USERNAME and "
+                f"{prefix}_PASSWORD (or {env_config.ENV.upper()}_{prefix}_USERNAME / "
+                f"{env_config.ENV.upper()}_{prefix}_PASSWORD) in the environment or .env file."
+            )
+        return username, password
+
+    @classmethod
+    def has_credentials(cls, persona):
+        """True when both a username and a password are configured for `persona`."""
+        username, password = cls.CREDENTIALS.get(persona.strip().lower(), ("", ""))
+        return bool(username and password)

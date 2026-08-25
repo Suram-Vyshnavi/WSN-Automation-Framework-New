@@ -1,10 +1,18 @@
-playwright
+# Test execution
+playwright>=1.40
 behave==1.2.6
-python-dotenv
-PyYAML
+python-dotenv>=1.0
+PyYAML>=6.0
+
+# Allure reporting (allure-behave and allure-python-commons must stay in step)
 allure-behave==2.13.5
 allure-python-commons==2.13.5
-pdfkit
-matplotlib
-reportlab
-requests
+
+# Executive report / PDF generation
+matplotlib>=3.8
+pdfkit>=1.0
+Pillow>=10.0
+reportlab>=4.0
+
+# Microsoft Graph summary email
+requests>=2.31

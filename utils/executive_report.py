@@ -26,12 +26,12 @@ import html
 import json
 import os
 import platform
-import re
 import subprocess
 import sys
 from collections import Counter, defaultdict
 from datetime import datetime
 from pathlib import Path
+from utils.logger import log
 
 # ----------------------------------------------------------------------------
 # Brand / theme
@@ -342,8 +342,8 @@ def gather_meta(persona: str | None, results_dir: Path, extra_meta: dict | None)
             )
             if out.returncode == 0:
                 return out.stdout.strip()
-        except Exception:
-            pass
+        except Exception as _ignored:
+            log.debug("Optional step in git_sha() did not apply: %s", _ignored)
         return ""
 
     # Execution type detection.
@@ -419,13 +419,12 @@ def gather_credentials(scenarios: list[dict], persona: str | None) -> list[dict]
     rows = []
     for role in sorted(roles_present):
         key = role_to_key.get(role)
-        creds = cred_map.get(key, {}) if key else {}
-        username = creds.get("username") or "—"
+        configured_username, configured_password = cred_map.get(key, ("", "")) if key else ("", "")
         rows.append({
             "role": role,
-            "username": mask_username(username) if username != "—" else "—",
-            "password": "••••••••" if creds.get("password") else "—",
-            "account": "Configured test account" if creds.get("username") else "Not configured",
+            "username": mask_username(configured_username) if configured_username else "—",
+            "password": "••••••••" if configured_password else "—",
+            "account": "Configured test account" if configured_username else "Not configured",
         })
     return rows
 
@@ -453,8 +452,8 @@ def update_history(results_dir: Path, persona: str, total, passed, failed, broke
     history = history[-30:]  # keep last 30 runs
     try:
         history_file.write_text(json.dumps(history, indent=1), encoding="utf-8")
-    except Exception:
-        pass
+    except Exception as _ignored:
+        log.debug("Optional step in update_history() did not apply: %s", _ignored)
     return history
 
 
@@ -1185,4 +1184,4 @@ if __name__ == "__main__":
     rd = sys.argv[1] if len(sys.argv) > 1 else "reports/allure-results"
     out = sys.argv[2] if len(sys.argv) > 2 else "reports/executive-dashboard.html"
     path = generate_executive_dashboard(rd, out, persona=os.getenv("PERSONA"))
-    print(f"Executive dashboard written to {path}")
+    log.info(f"Executive dashboard written to {path}")

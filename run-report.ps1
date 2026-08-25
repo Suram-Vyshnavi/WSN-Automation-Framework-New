@@ -6,7 +6,7 @@
 .EXAMPLE
     .\run-report.ps1 -Persona faculty
     .\run-report.ps1 -Persona student
-    .\run-report.ps1 -Persona faculty -Feature .\features\Faculty_All.feature -Env dev
+    .\run-report.ps1 -Persona faculty -Feature .\features\faculty_all.feature -Env dev
 #>
 param(
     [Parameter(Mandatory = $true)]
@@ -23,10 +23,10 @@ $python = Join-Path $root ".venv\Scripts\python.exe"
 
 # Default feature per persona when not explicitly provided.
 $defaultFeatures = @{
-    "faculty" = ".\features\Faculty_All.feature"
+    "faculty" = ".\features\faculty_all.feature"
     "student" = ".\features\student.feature"
     "mentor"  = ".\features\mentor.feature"
-    "rm"      = ".\features\RM_All.feature"
+    "rm"      = ".\features\rm_all.feature"
 }
 
 $personaKey = $Persona.ToLower()

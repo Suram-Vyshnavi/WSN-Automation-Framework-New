@@ -3,8 +3,7 @@ Feature: Student Persona
     Given user is on the home page
   #   # Then user validates the home icon
     # Then user validates the welcome header and wadhwani skilling header
-    Then user clicks on courses card
-    Then user clicks on programs card
+    Then user clicks on Programs and Courses card
     Then user clicks on personal pitch trainer card
     Then user clicks on Interview coach card
     Then user clicks on forums card
@@ -30,7 +29,6 @@ Feature: Student Persona
     Then user clicks on workmode filter and selects office option
     Then user clicks on industry sector filter and selects automotive option
     Then user clicks on education level filter and selects graduate option
-    Then user clicks on preffered companies filter and selects diatoz option
     Then user clicks on search by role title and fills product manager and clicks on find jobs
     Then user clicks on first job card
     Then user validates about the job and about the company sections
@@ -44,33 +42,27 @@ Feature: Student Persona
     Then user clicks on forums card
     Then user validates the my forums header
     Then user clicks on view forum button
+  # The application merged the separate Courses and Programs screens into one
+  # "Programs & Courses" screen and redesigned the course detail page: the
+  # Overview/Course Content/Performance tabs and the View Details button were
+  # replaced by a certificate-progress panel and lesson accordions.
   Scenario: Validate Courses
     Given user is on the home page
     Then user navigates to home page
-    Then user clicks on courses card
-    Then user validates Inprogress tab and Completed tab
-    Then user clicks on Inprogress tab
-    Then user clicks on Completed tab
+    Then user validates the courses In Progress and Completed tabs
+    Then user clicks on the courses In Progress tab
     Then user validates enrolled course card
-    Then user clicks on view details button
-    Then user validates overview course content and performance tabs
-    Then user clicks on performance tab
-    Then user validates final score certificate and performance tab
-  #   # for prod environment the below steps are not present
-    Then user clicks on view analysis button
-    Then user clciks on view pitch button
-    Then user clicks on video play button
-    Then user clicks on video close button
-    Then user clicks on share pitch button
-    Then user clicks on copy pitch button 
-    Then user clicks on share pitch close button
-    Then user clicks on back arrow button
-    Then user clicks on create post-video button
-    Then user clicks on pitch trainer back arrow button
+    Then user opens the first course
+    Then user validates the course detail sections
+    Then user expands the first lesson section
+    Then user navigates back to the courses list
+    Then user clicks on the courses Completed tab
+    Then user opens the first course
+    Then user validates the assessment score
+    Then user navigates back to the courses list
     Then user validates courses recommended by institute
     Then user validates recommended course card
     Then user validates courses offered by wadhwani foundation
-    Then user validates offered course card
   Scenario: Validate Career Buddy
     Given user is on the home page
     Then user navigates to home page
@@ -145,20 +137,18 @@ Feature: Student Persona
     Then user clicks on home icon and navigates to home page
     Then user clicks on passed text on personal pitch trainer card 
     Then user validates check button 
+  # Programs now live on the same merged "Programs & Courses" screen as courses;
+  # the old Enroll -> Confirm/Cancel modal no longer exists.
   Scenario: Validate Programs
     Given user is on the home page
     Then user navigates to home page
-    Then user clicks on programs card
-    Then user validates Inprogress tab and Completed tab
-    Then user clicks on Inprogress tab
-    Then user clicks on Completed tab
+    Then user validates the programs In Progress and Completed tabs
+    Then user clicks on the programs In Progress tab
+    Then user validates program card
     Then user validates recommended by institue header
-    Then user clicks on recommended by institute tab
-    Then user clicks on enroll button
-    Then user validate confirm button and cancel button
-    Then user clicks on close modal button
+    Then user validates recommended program card
     Then user validates offered by wadhwani foundation header
-    Then user clicks on offered by wadhwani foundation tab
+    Then user validates join a batch section
   Scenario: Messages and discussions validation
     Then user clicks on Accounts menu
     Then user clicks on Messages & Discussions

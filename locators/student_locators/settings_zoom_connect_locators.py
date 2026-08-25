@@ -1,0 +1,20 @@
+class SettingsZoomConnectLocators:
+    PROFILE_ICON = "//div[contains(@class,'profile_container')]"
+    ACCOUNTS_MENU_ICON = "//button[@aria-label='Accounts menu']//img"
+    SETTINGS_ICON = "//p[contains(text(),'Settings')]"
+    ACCOUNTS_SECTION_TITLE = "(//h1[text()='Accounts'])"
+    ACCOUNTS_MENU = ACCOUNTS_SECTION_TITLE
+    MEETING_CARD="(//div[@class='section-container'])[1]"
+    ZOOM_SETTINGS_ARROW="(//img[@alt='right_arrow'])[1]"
+    DELINKED_POPUP="(//div[@class='ant-notification-notice alert-notification'])[1]"
+    DELINKED_CLOSEICON="//span[@class='ant-notification-notice-close-x']//*[name()='svg']"
+    SIGNIN_WITH_ZOOM_SECTION="(//div[@class='ant-row zoomSync_container'])[1]"
+    ZOOMCONNECTION_TOGGLER="//button[@class='ant-switch wf_switch toggle_button']"
+    MEETINGS_CARD="(//div[@class='zoom-container'])[1]"
+    SIGNIN_BUTTON="(//button[text()='Sign In'])[1]"
+    ZOOM_EMAIL_INPUT="(//input[@id='email'])[1]"
+    ZOOM_PASSWORD_INPUT="(//input[@id='password'])[1]"
+    ZOOM_SIGNIN_BUTTON="(//button[@id='js_btn_login'])[1]"
+    BACK_ARROW="(//img[@class='wf_image left_icon no-js-arrow-left-dark'])[1]"
+    MEETINGS_DISCONNECT_BUTTON="(//button[text()='Disconnect'])[1]"
+    

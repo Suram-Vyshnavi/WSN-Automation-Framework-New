@@ -1,78 +1,81 @@
-import os, yaml
+"""Environment configuration.
+
+Resolution order for every value: environment-specific env var (e.g.
+``DEV_BASE_URL``) -> flat env var (``BASE_URL``) -> ``config/config.yaml``.
+
+Credentials are read from environment variables / `.env` only. Nothing
+sensitive is ever hardcoded here or in `config.yaml`.
+"""
+
+import os
+
+import yaml
 from dotenv import load_dotenv
 
-# Load .env with preferred path first, then fallback.
-base_dir = os.path.dirname(__file__)
-dotenv_candidates = [
-    os.path.join(base_dir, "..", ".env"),
-    os.path.join(base_dir, "..", "utils", ".env", ".env"),
-]
-for dotenv_path in dotenv_candidates:
-    if os.path.exists(dotenv_path):
-        load_dotenv(dotenv_path=dotenv_path, override=False)
-        break
+_BASE_DIR = os.path.dirname(__file__)
+_PROJECT_ROOT = os.path.dirname(_BASE_DIR)
 
-ENV = os.getenv("ENV", "qa")
+load_dotenv(dotenv_path=os.path.join(_PROJECT_ROOT, ".env"), override=False)
 
-with open(os.path.join(base_dir, "config.yaml")) as f:
-    config = yaml.safe_load(f)
-env = config.get(ENV)
-if env is None:
-    raise ValueError(f"ENV '{ENV}' not found in config/config.yaml")
+ENV = os.getenv("ENV", "qa").strip().lower()
+IS_PROD = ENV == "prod"
+
+with open(os.path.join(_BASE_DIR, "config.yaml"), encoding="utf-8") as config_file:
+    _CONFIG = yaml.safe_load(config_file)
+
+_ENV_CONFIG = _CONFIG.get(ENV)
+if _ENV_CONFIG is None:
+    raise ValueError(
+        f"ENV '{ENV}' not found in config/config.yaml. Available: {sorted(_CONFIG)}"
+    )
 
 
-def _env_key(key):
-    """Generate environment-specific variable name (e.g., DEV_BASE_URL)."""
-    return f"{ENV.upper()}_{key}"
+def _env_value(key, default=""):
+    """First non-empty of `<ENV>_<KEY>`, `<KEY>`, then `default`."""
+    for name in (f"{ENV.upper()}_{key}", key):
+        value = (os.getenv(name) or "").strip()
+        if value:
+            return value
+    return default
 
 
-def _pick(*values):
-    """Return first non-empty value from list."""
-    for value in values:
-        if value is None:
-            continue
-        if isinstance(value, str):
-            cleaned = value.strip()
-            if cleaned:
-                return cleaned
-            continue
-        return value
-    return ""
+BASE_URL = _env_value("BASE_URL", _ENV_CONFIG.get("base_url"))
+TIMEOUT = int(_env_value("TIMEOUT", _ENV_CONFIG.get("timeout", 300)))
+HEADLESS = _env_value("HEADLESS", "false").lower() in ("1", "true", "yes")
+SLOW_MO = int(_env_value("SLOW_MO", "0"))
+TRACE_ON = _env_value("TRACE_ON", "false").lower() in ("1", "true", "yes")
 
 
-# BASE_URL and TIMEOUT with environment-specific override support
-base_url_env = _env_key("BASE_URL")
-base_url_from_env = (os.getenv(base_url_env) or os.getenv("BASE_URL") or "").strip()
-BASE_URL = base_url_from_env or env.get("base_url")
+def _credentials(persona_prefix, fallback=("", "")):
+    """Return the (username, password) pair configured for a persona."""
+    return (
+        _env_value(f"{persona_prefix}_USERNAME", fallback[0]),
+        _env_value(f"{persona_prefix}_PASSWORD", fallback[1]),
+    )
 
-timeout_env = _env_key("TIMEOUT")
-timeout_override = os.getenv(timeout_env) or os.getenv("TIMEOUT")
-TIMEOUT = int(timeout_override) if timeout_override else env.get("timeout", 300)
 
-HEADLESS = os.getenv("HEADLESS", "false").lower() == "true"
-legacy_username = os.getenv("USERNAME")
-if legacy_username and "@" not in legacy_username:
-    legacy_username = None
+# The Windows OS sets a `USERNAME` variable holding the Windows account name,
+# so a flat USERNAME is only trusted when it actually looks like a login email.
+_legacy_username = os.getenv("USERNAME", "")
+if "@" not in _legacy_username:
+    _legacy_username = ""
+_legacy_password = os.getenv("PASSWORD", "")
 
-legacy_password = os.getenv("PASSWORD")
+STUDENT_USERNAME = (_env_value("STUDENT_USERNAME")
+                    or _env_value("TEST_USERNAME")
+                    or _legacy_username)
+STUDENT_PASSWORD = (_env_value("STUDENT_PASSWORD")
+                    or _env_value("TEST_PASSWORD")
+                    or _legacy_password)
 
-# Avoid Windows OS USERNAME collision (it usually contains account name, not login email).
-# Prefer explicit test env vars and fallback to config.yaml/legacy email-like username.
-# KEEP ORIGINAL LOGIC - Do not change USERNAME/PASSWORD resolution
-USERNAME = os.getenv(_env_key("STUDENT_USERNAME")) or os.getenv("STUDENT_USERNAME") or os.getenv("TEST_USERNAME") or legacy_username or env.get("username")
-PASSWORD = os.getenv(_env_key("STUDENT_PASSWORD")) or os.getenv("STUDENT_PASSWORD") or os.getenv("TEST_PASSWORD") or legacy_password or env.get("password")
+FACULTY_USERNAME, FACULTY_PASSWORD = _credentials("FACULTY")
+RM_USERNAME, RM_PASSWORD = _credentials("RM")
+CAREER_BUDDY_USERNAME, CAREER_BUDDY_PASSWORD = _credentials("CAREER_BUDDY")
+INSTITUTE_ADMIN_USERNAME, INSTITUTE_ADMIN_PASSWORD = _credentials("INSTITUTE_ADMIN")
+# A dedicated mentor account is preferred; the Career Buddy account is kept as a
+# fallback because both personas historically shared one login.
+MENTOR_USERNAME, MENTOR_PASSWORD = _credentials(
+    "MENTOR", (CAREER_BUDDY_USERNAME, CAREER_BUDDY_PASSWORD))
 
-# Persona-specific credentials - check env-specific names first (DEV_*, PROD_*), then fall back to flat names
-# This allows different credentials per environment while maintaining backward compatibility
-FACULTY_USERNAME = os.getenv(_env_key("FACULTY_USERNAME")) or os.getenv("FACULTY_USERNAME") or ""
-FACULTY_PASSWORD = os.getenv(_env_key("FACULTY_PASSWORD")) or os.getenv("FACULTY_PASSWORD") or ""
-RM_USERNAME = os.getenv(_env_key("RM_USERNAME")) or os.getenv("RM_USERNAME") or ""
-RM_PASSWORD = os.getenv(_env_key("RM_PASSWORD")) or os.getenv("RM_PASSWORD") or ""
-CAREER_BUDDY_USERNAME = os.getenv(_env_key("CAREER_BUDDY_USERNAME")) or os.getenv("CAREER_BUDDY_USERNAME") or ""
-CAREER_BUDDY_PASSWORD = os.getenv(_env_key("CAREER_BUDDY_PASSWORD")) or os.getenv("CAREER_BUDDY_PASSWORD") or ""
-# Dedicated mentor account (env-specific first, then flat). Falls back to the
-# Career Buddy account for backward compatibility when no mentor account is set.
-MENTOR_USERNAME = os.getenv(_env_key("MENTOR_USERNAME")) or os.getenv("MENTOR_USERNAME") or CAREER_BUDDY_USERNAME
-MENTOR_PASSWORD = os.getenv(_env_key("MENTOR_PASSWORD")) or os.getenv("MENTOR_PASSWORD") or CAREER_BUDDY_PASSWORD
-INSTITUTE_ADMIN_USERNAME = os.getenv(_env_key("INSTITUTE_ADMIN_USERNAME")) or os.getenv("INSTITUTE_ADMIN_USERNAME") or ""
-INSTITUTE_ADMIN_PASSWORD = os.getenv(_env_key("INSTITUTE_ADMIN_PASSWORD")) or os.getenv("INSTITUTE_ADMIN_PASSWORD") or ""
+# Zoom sandbox account used by the Settings > Zoom Connect scenarios.
+ZOOM_USERNAME, ZOOM_PASSWORD = _credentials("ZOOM")

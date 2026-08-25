@@ -620,7 +620,7 @@ def run_persona_sequence(personas=None, trace_on=False, headless=False):
     personas_to_run = personas or ["student", "faculty"]
     default_feature_by_persona = {
         "student": "features/Student_All.feature",
-        "faculty": "features/Faculty_All.feature",
+        "faculty": "features/faculty_all.feature",
     }
 
     exit_codes = {}
@@ -735,12 +735,12 @@ DEFAULT_FEATURE_BY_PERSONA = {
     # Student runs the card-based student.feature (matches the prod/new student
     # dashboard), not the older left-nav Student_All.feature.
     "student": "features/student.feature",
-    "faculty": "features/Faculty_All.feature",
-    "rm": "features/RM_All.feature",
+    "faculty": "features/faculty_all.feature",
+    "rm": "features/rm_all.feature",
     "mentor": "features/mentor.feature",
     "career_buddy": "features/career_buddy.feature",
     # Registers a brand-new account each run (manual email/OTP entry - see
-    # features/steps/studentpersona/newuser_steps.py), so it needs no
+    # features/steps/student_persona/newuser_steps.py), so it needs no
     # persona credentials and skips the shared pre-login entirely.
     "newuser": "features/newuser.feature",
 }
@@ -974,7 +974,7 @@ def _main_legacy():
         persona = os.getenv("PERSONA", "student").strip().lower()
         default_feature_by_persona = {
             "student": "features/Student_All.feature",
-            "faculty": "features/Faculty_All.feature",
+            "faculty": "features/faculty_all.feature",
         }
         feature_path = default_feature_by_persona.get(persona, "features/")
         exit_code = run_tests(feature_path=feature_path, persona=persona)

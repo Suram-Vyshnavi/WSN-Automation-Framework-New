@@ -1,200 +1,117 @@
+"""Reporting and diagnostic helpers shared by page objects and hooks.
+
+UI interactions belong in `pages.base_page.BasePage`; this module only holds
+cross-cutting utilities that are not element actions.
+"""
+
+import hashlib
+import os
+
 import allure
 from allure_commons.types import AttachmentType
-from utils.locators import LoginLocators
-import hashlib
 
-# cache last screenshot hash per page (use id(page) as key)
+from utils.logger import log
+
+# Last screenshot hash per Page object, so identical consecutive screenshots
+# are not attached to the report twice. Keyed by id(page).
 _last_screenshot_hash = {}
+
+_HIGHLIGHT_ON_SCRIPT = """
+    (element) => {
+        if (element) {
+            element.style.border = '5px solid red';
+            element.style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
+            element.style.outline = '3px solid yellow';
+        }
+    }
+"""
+
+_HIGHLIGHT_OFF_SCRIPT = """
+    (element) => {
+        if (element) {
+            element.style.border = '';
+            element.style.backgroundColor = '';
+            element.style.outline = '';
+        }
+    }
+"""
+
+
+def project_root():
+    """Absolute path of the repository root (the folder holding behave.ini)."""
+    current = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+    return current
+
+
+def test_data_file(*parts):
+    """Absolute path of a file under the shared `files/` test-data folder."""
+    return os.path.join(project_root(), "files", *parts)
+
+
+def require_test_data_file(*candidates):
+    """Return the first existing test-data file, or fail with a clear message.
+
+    Upload steps accept a couple of interchangeable fixtures (e.g. a PNG or a
+    JPG), so the caller lists them in preference order.
+    """
+    paths = [test_data_file(name) for name in candidates]
+    for path in paths:
+        if os.path.exists(path):
+            return path
+    raise FileNotFoundError(
+        f"No test-data file found. Looked for: {', '.join(paths)}")
 
 
 def attach_screenshot(page, name="Screenshot", dedupe: bool = True):
-    """Attach a full-page screenshot to Allure unless it's identical
-    to the previous screenshot taken for the same Page object.
+    """Attach a full-page screenshot to the Allure report.
 
-    - `dedupe=True` will skip attaching if the screenshot hash matches the
-      last one recorded for that page during this process run.
+    With `dedupe=True` an identical consecutive screenshot for the same page is
+    skipped, which keeps the report readable on long scenarios.
     """
     try:
-        img_bytes = page.screenshot(full_page=True)
+        image_bytes = page.screenshot(full_page=True)
     except Exception:
-        # fallback: try a smaller screenshot
         try:
-            img_bytes = page.screenshot()
-        except Exception:
+            image_bytes = page.screenshot()
+        except Exception as error:
+            log.warning("Could not capture screenshot '%s': %s", name, error)
             return None
 
     if dedupe:
-        h = hashlib.sha256(img_bytes).hexdigest()
+        digest = hashlib.sha256(image_bytes).hexdigest()
         key = id(page)
-        if _last_screenshot_hash.get(key) == h:
-            return h
-        _last_screenshot_hash[key] = h
+        if _last_screenshot_hash.get(key) == digest:
+            return digest
+        _last_screenshot_hash[key] = digest
 
-    allure.attach(img_bytes, name=name, attachment_type=AttachmentType.PNG)
+    allure.attach(image_bytes, name=name, attachment_type=AttachmentType.PNG)
     return True
 
 
-def login(page, username, password, locators=LoginLocators):
-    """Fill credentials and submit the login form.
-
-    Defaults to using `LoginLocators` but a different locator set
-    can be passed for tests if needed.
-    """
-    page.fill(locators.USERNAME, username)
-    page.click(locators.NEXT_BUTTON)
-    page.fill(locators.PASSWORD, password)
-    # Submit using the explicit submit button
-    page.click(locators.SUBMIT_BUTTON)
-
-
-def validate_header(page, timeout: int = 10000):
-    """Validate that a page header (h1 or h2) is present and non-empty.
-
-    Returns the header text on success, raises on timeout or empty text.
-    """
-    # Try several common header selectors in order, each with a fraction of the total timeout.
-    selectors = ["h1, h2", "[role=heading]", "header h1, header h2", "header", "[data-header]"]
-    per_try = max(1000, timeout // len(selectors))
-
-    for sel in selectors:
-        try:
-            header = page.locator(sel).first
-            header.wait_for(state="visible", timeout=per_try)
-            text = header.inner_text().strip()
-            if text:
-                return text
-        except Exception:
-            # try next selector
-            continue
-
-    # Fallback: try page title
-    try:
-        title = page.title().strip()
-        if title:
-            return title
-    except Exception:
-        pass
-
-    raise AssertionError("No page header (h1/h2/role=heading/header) or non-empty title found")
-
-
-from typing import Optional
-
-
-def validate_navigation(previous_url: str, page, expected_fragment: Optional[str] = None, timeout: int = 10000):
-    """Validate that navigation happened after a click.
-
-    - If `expected_fragment` is provided, assert it is present in the new URL.
-    - Otherwise assert the URL changed from `previous_url`.
-
-    Returns the new URL.
-    """
-    # wait a short time for navigation to settle
-    # Use page.wait_for_load_state to ensure navigation finished (if any)
-    try:
-        page.wait_for_load_state("load", timeout=timeout)
-    except Exception:
-        # ignore load timeout, we'll still read the URL
-        pass
-
-    new_url = page.url
-    if expected_fragment:
-        assert expected_fragment in new_url, f"Expected '{expected_fragment}' in URL '{new_url}'"
-    else:
-        assert new_url != previous_url, f"URL did not change after click (still '{new_url}')"
-
-    return new_url
-
-
-def collect_validation_messages(page, timeout: int = 3000):
-    """Collect visible validation/error messages on the page.
-
-    Tries common selectors used by UI frameworks and common text patterns.
-    Returns a list of unique non-empty message strings.
-    """
-    selectors = [
-        "//div[contains(@class,'ant-form-item-explain')]",
-        "//div[contains(@class,'error') or contains(@class,'invalid')]//span",
-        "//span[contains(@class,'error') or contains(@class,'validation')]",
-        '//*[contains(text(),"required") or contains(text(),"Please") or contains(text(),"cannot be") or contains(text(),"can\'t")]',
-    ]
-
-    messages = []
-    # give page a short moment to render validation messages
-    try:
-        pass
-    except Exception:
-        pass
-
-    for sel in selectors:
-        try:
-            elems = page.locator(sel)
-            count = elems.count()
-            for i in range(count):
-                try:
-                    text = elems.nth(i).inner_text().strip()
-                    if text:
-                        messages.append(text)
-                except Exception:
-                    continue
-        except Exception:
-            continue
-
-    # dedupe and return
-    unique = []
-    for m in messages:
-        if m not in unique:
-            unique.append(m)
-    return unique
-
-
 def highlight_element(page, locator, duration: int = 1500):
-    """Highlight an element by adding a red border temporarily.
-    
+    """Outline an element in the browser so report screenshots show the target.
+
+    Purely cosmetic - failures here never fail a test.
+
     Args:
-        page: Playwright page object
-        locator: Element locator (can be string or locator object)
-        duration: How long to highlight in milliseconds (default 1500ms)
+        page: Playwright page object.
+        locator: Selector string or Playwright Locator.
+        duration: How long to keep the outline, in milliseconds.
     """
     try:
-        # Convert string locator to locator object if needed
-        if isinstance(locator, str):
-            element = page.locator(locator)
-        else:
-            element = locator
-        
-        # Scroll element into view first
+        element = page.locator(locator) if isinstance(locator, str) else locator
+
         element.scroll_into_view_if_needed()
-        
-        # Scroll up a bit to ensure title/heading is fully visible (not cut off at top)
+        # Nudge the viewport so a heading right under the sticky header is not
+        # clipped out of the screenshot.
         page.evaluate("window.scrollBy(0, -150)")
-        
-        # Add red border with JavaScript
-        page.evaluate("""
-            (element) => {
-                if (element) {
-                    element.style.border = '5px solid red';
-                    element.style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
-                    element.style.outline = '3px solid yellow';
-                }
-            }
-        """, element.element_handle())
-        
-        # Wait briefly for visualization (using locator wait instead of sleep)
+
+        handle = element.element_handle()
+        page.evaluate(_HIGHLIGHT_ON_SCRIPT, handle)
         try:
             element.wait_for(state="visible", timeout=duration)
-        except:
-            pass
-        
-        # Remove the highlight
-        page.evaluate("""
-            (element) => {
-                if (element) {
-                    element.style.border = '';
-                    element.style.backgroundColor = '';
-                    element.style.outline = '';
-                }
-            }
-        """, element.element_handle())
-    except Exception as e:
-        print(f"Could not highlight element: {e}")
+        except Exception as _ignored:
+            log.debug("Optional step in highlight_element() did not apply: %s", _ignored)
+        page.evaluate(_HIGHLIGHT_OFF_SCRIPT, handle)
+    except Exception as error:
+        log.debug("Could not highlight element: %s", error)

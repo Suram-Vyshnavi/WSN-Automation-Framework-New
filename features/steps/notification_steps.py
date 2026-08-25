@@ -1,5 +1,5 @@
-from behave import given, when, then
-from pages.studentpersona.notification_page import NotificationPage
+from behave import then
+from pages.student_persona.notification_page import NotificationPage
 
 
 @then('user clicks on notification icon')
